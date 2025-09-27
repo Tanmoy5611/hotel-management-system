@@ -1,5 +1,7 @@
 plugins {
     id("java")
+    id("application")
+
 }
 
 group = "org.example"
@@ -17,4 +19,12 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.getByName("run", JavaExec::class) {
+    standardInput = System.`in`
+}
+
+application {
+    mainClass = "be.kdg.prog3.hotels.app.Main"
 }

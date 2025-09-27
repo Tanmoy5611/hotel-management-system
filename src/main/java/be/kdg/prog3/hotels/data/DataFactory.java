@@ -1,0 +1,108 @@
+package be.kdg.prog3.hotels.data;
+
+import be.kdg.prog3.hotels.domain.*;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * - Two public static fields: a List for each many-to-many entity.
+ * - Here many-to-many is Guest <---> Room.
+ * - seed() fills both lists with >= 5 items, with real data, and sets relationships.
+ */
+
+// two public static lists
+public class DataFactory {
+    public static List<Guest> guests = new ArrayList<>();
+    public static List<Room> rooms = new ArrayList<>();
+
+    // Static method to fill lists with real data
+    public static void seed() {
+        // Hotels with real attributes
+        var h1 = new Hotel("Hotel Plaza Athénée, Paris", LocalDate.of(1913, 5, 20), 5, true,
+                "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb");
+        var h2 = new Hotel("The Langham, London", LocalDate.of(1865, 1, 1), 5, false,
+                "https://images.unsplash.com/photo-1501117716987-c8e6ec1240b9");
+        var h3 = new Hotel("Radisson Blu Strand, Stockholm", LocalDate.of(1912, 4, 15), 4, false,
+                "https://images.unsplash.com/photo-1507679799987-c73779587ccf");
+
+        // Rooms (>=5, but here is 8 for richness)
+        var r101 = new Room(101, RoomType.SINGLE, 150.0, false,
+                "https://images.unsplash.com/photo-1560347876-aeef00ee58a1");
+        var r102 = new Room(102, RoomType.DOUBLE, 250.0, true,
+                "https://images.unsplash.com/photo-1560448070-d5a4b2c48b1b");
+        var r201 = new Room(201, RoomType.SUITE, 500.0, true,
+                "https://images.unsplash.com/photo-1496412705862-e0088f16f791");
+        var r202 = new Room(202, RoomType.DOUBLE, 220.0, false,
+                "https://images.unsplash.com/photo-1471115853179-bb1d604434e0");
+        var r301 = new Room(301, RoomType.SINGLE, 180.0, true,
+                "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267");
+        var r302 = new Room(302, RoomType.SUITE, 550.0, false,
+                "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7");
+        var r401 = new Room(401, RoomType.DOUBLE, 300.0, true,
+                "https://images.unsplash.com/photo-1600585154340-be6161a56a0c");
+        var r402 = new Room(402, RoomType.SINGLE, 140.0, false,
+                "https://images.unsplash.com/photo-1505691938895-1758d7feb511");
+
+        // Attach rooms to hotels (many-to-one)
+        h1.addRoom(r101);
+        h1.addRoom(r102);
+        h1.addRoom(r201);
+
+        h2.addRoom(r202);
+        h2.addRoom(r301);
+        h2.addRoom(r401);
+
+        h3.addRoom(r302);
+        h3.addRoom(r402);
+
+
+
+         // Guests (>=5, here is 8 guests data)
+        var g1 = new Guest("Emma Wilson", LocalDate.of(1990, 4, 10), "emma.wilson@example.com", true,
+                "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d");
+        var g2 = new Guest("Liam Johnson", LocalDate.of(1985, 12, 3), "liam.johnson@example.com", false,
+                "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg");
+        var g3 = new Guest("Sophia Martinez", LocalDate.of(1992, 9, 18), "sophia.martinez@example.com", true,
+                "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg");
+        var g4 = new Guest("Noah Smith", LocalDate.of(1988, 7, 25), "noah.smith@example.com", false,
+                "https://images.unsplash.com/photo-1527980965255-d3b416303d12");
+        var g5 = new Guest("Olivia Garcia", LocalDate.of(1995, 2, 8), "olivia.garcia@example.com", true,
+                "https://images.unsplash.com/photo-1494790108377-be9c29b29330");
+        var g6 = new Guest("Ethan Brown", LocalDate.of(1991, 6, 15), "ethan.brown@example.com", false,
+                "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg");
+        var g7 = new Guest("Mia Chen", LocalDate.of(1997, 3, 22), "mia.chen@example.com", true,
+                "https://images.unsplash.com/photo-1544005313-94ddf0286df2");
+        var g8 = new Guest("Alexander Rossi", LocalDate.of(1989, 11, 9), "alex.rossi@example.com", false,
+                "https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg");
+
+        // Many-to-many Guest-Room (bookings)
+        g1.addRoom(r102);
+        g1.addRoom(r201);
+
+        g2.addRoom(r101);
+        g2.addRoom(r202);
+
+        g3.addRoom(r301);
+        g3.addRoom(r302);
+
+        g4.addRoom(r401);
+
+        g5.addRoom(r102);
+        g5.addRoom(r402);
+
+        g6.addRoom(r201);
+
+        g7.addRoom(r301);
+        g7.addRoom(r302);
+
+        g8.addRoom(r101);
+
+
+
+        // Fill public static lists rooms and guests
+        rooms.addAll(List.of(r101, r102, r201, r202, r301, r302, r401, r402));
+        guests.addAll(List.of(g1, g2, g3, g4, g5, g6, g7, g8));
+    }
+}
