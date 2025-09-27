@@ -56,15 +56,27 @@ public class Main {
                 .forEach(System.out::println);
     }
 
-    // 2) method to show hotels by one mandatory criterion (int stars)
+    // 2) method to show hotels by two mandatory criterion (int stars) and optional (LocalDate openedOn)
     private static void showHotelsByMinStars(Scanner sc) {
         System.out.print("Minimum stars (1-5): ");
         int minStars = Integer.parseInt(sc.nextLine());
+
+        System.out.print("Opened after (yyyy-mm-dd) or empty: ");
+        String dateIn = sc.nextLine().trim();
 
         DataFactory.rooms.stream()
                 .map(Room::getHotel)
                 .filter(Objects::nonNull)
                 .filter(hotel -> hotel.getStars() >= minStars)
+                .filter(h -> {
+                    if (dateIn.isEmpty()) return true;
+                    try {
+                        LocalDate filterDate = LocalDate.parse(dateIn);  // parses yyyy-mm-dd
+                        return h.getOpenedOn().isAfter(filterDate);
+                    } catch (Exception e) {
+                        return true;  // ignore invalid input
+                    }
+                })
                 .distinct()
                 .forEach(System.out::println);
     }
