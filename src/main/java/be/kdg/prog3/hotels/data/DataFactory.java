@@ -26,6 +26,13 @@ public class DataFactory {
                 "https://images.unsplash.com/photo-1501117716987-c8e6ec1240b9");
         var h3 = new Hotel("Radisson Blu Strand, Stockholm", LocalDate.of(1912, 4, 15), 4, false,
                 "https://images.unsplash.com/photo-1507679799987-c73779587ccf");
+        var h4 = new Hotel("Radisson Blu Astrid Hotel, Antwerp",
+                LocalDate.of(1998, 6, 15), 4, true,
+                "https://cf.bstatic.com/xdata/images/hotel/max1024x768/263927327.jpg");
+        var h5 = new Hotel("Hotel Amigo, Brussels",
+                LocalDate.of(1957, 9, 1), 5, true,
+                "https://cf.bstatic.com/xdata/images/hotel/max1024x768/270660617.jpg");
+
 
         // Rooms (>=5, but here is 8 for richness)
         var r101 = new Room(101, RoomType.SINGLE, 150.0, false,
@@ -44,6 +51,19 @@ public class DataFactory {
                 "https://images.unsplash.com/photo-1600585154340-be6161a56a0c");
         var r402 = new Room(402, RoomType.SINGLE, 140.0, false,
                 "https://images.unsplash.com/photo-1505691938895-1758d7feb511");
+        var r501 = new Room(501, RoomType.DOUBLE, 210.0, true,
+                "https://images.unsplash.com/photo-1501117716987-c8e6ec1240b9");
+        var r502 = new Room(502, RoomType.SUITE, 480.0, false,
+                "https://images.unsplash.com/photo-1496412705862-e0088f16f791");
+        var r503 = new Room(503, RoomType.SINGLE, 130.0, true,
+                "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267");
+
+        var r601 = new Room(601, RoomType.SINGLE, 160.0, false,
+                "https://images.unsplash.com/photo-1560347876-aeef00ee58a1");
+        var r602 = new Room(602, RoomType.DOUBLE, 240.0, true,
+                "https://images.unsplash.com/photo-1560448070-d5a4b2c48b1b");
+        var r603 = new Room(603, RoomType.SUITE, 520.0, true,
+                "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7");
 
         // Attach rooms to hotels (many-to-one)
         h1.addRoom(r101);
@@ -57,9 +77,16 @@ public class DataFactory {
         h3.addRoom(r302);
         h3.addRoom(r402);
 
+        h4.addRoom(r501);
+        h4.addRoom(r502);
+        h4.addRoom(r503);
+
+        h5.addRoom(r601);
+        h5.addRoom(r602);
+        h5.addRoom(r603);
 
 
-         // Guests (>=5, here is 8 guests data)
+        // Guests (>=5, here is 8 guests data)
         var g1 = new Guest("Emma Wilson", LocalDate.of(1990, 4, 10), "emma.wilson@example.com", true,
                 "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d");
         var g2 = new Guest("Liam Johnson", LocalDate.of(1985, 12, 3), "liam.johnson@example.com", false,
@@ -76,6 +103,14 @@ public class DataFactory {
                 "https://images.unsplash.com/photo-1544005313-94ddf0286df2");
         var g8 = new Guest("Alexander Rossi", LocalDate.of(1989, 11, 9), "alex.rossi@example.com", false,
                 "https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg");
+        var g9 = new Guest("Marrison Harri", LocalDate.of(2001, 6, 12), "harri@example.com", true,
+                "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d");
+        var g10 = new Guest("Emma Janssens", LocalDate.of(1995, 4, 10), "emma.janssens@example.com", false,
+                "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg");
+        var g11 = new Guest("Lucas Peeters", LocalDate.of(1988, 11, 21), "lucas.peeters@example.com", true,
+                "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg");
+        var g12 = new Guest("Sophie Claes", LocalDate.of(1992, 7, 15), "sophie.claes@example.com", false,
+                "https://images.unsplash.com/photo-1527980965255-d3b416303d12");
 
         // Many-to-many Guest-Room (bookings)
         g1.addRoom(r102);
@@ -99,10 +134,19 @@ public class DataFactory {
 
         g8.addRoom(r101);
 
+        g9.addRoom(r501);
+        g9.addRoom(r502);
+        g10.addRoom(r503);
+
+        g11.addRoom(r601);
+        g11.addRoom(r602);
+        g12.addRoom(r603);
 
 
         // Fill public static lists rooms and guests
-        rooms.addAll(List.of(r101, r102, r201, r202, r301, r302, r401, r402));
-        guests.addAll(List.of(g1, g2, g3, g4, g5, g6, g7, g8));
+        rooms.addAll(List.of(r101, r102, r201, r202, r301, r302, r401, r402,
+                r501, r502, r503, r601, r602, r603));
+        guests.addAll(List.of(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12));
+
     }
 }

@@ -1,30 +1,29 @@
 plugins {
-    id("java")
-    id("application")
-
+    java
+    id("org.springframework.boot") version "3.3.2"
+    id("io.spring.dependency-management") version "1.1.5"
 }
 
-group = "org.example"
+group = "be.kdg.prog3.hotels"
 version = "1.0-SNAPSHOT"
+description = "Hotels Management System"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    implementation("org.springframework.boot:spring-boot-starter") // core Spring Boot
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-tasks.test {
+tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-tasks.getByName("run", JavaExec::class) {
-    standardInput = System.`in`
-}
-
-application {
-    mainClass = "be.kdg.prog3.hotels.app.Main"
 }

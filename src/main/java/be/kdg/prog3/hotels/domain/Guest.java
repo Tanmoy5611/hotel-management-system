@@ -6,11 +6,11 @@ import java.util.Set;
 
 // Attributes of Guest class
 public class Guest {
-    private final String fullName;
-    private final LocalDate dob;
-    private final String email;
-    private final boolean vip;
-    private final String avatarUrl;
+    private String email;
+    private boolean vip;
+    private String avatarUrl;
+    private String fullName;
+    private LocalDate dob;
 
     /// many-to-many with Room for storing a set of rooms booked
     private final Set<Room> rooms = new HashSet<>();
@@ -45,6 +45,30 @@ public class Guest {
     public String getAvatarUrl() {
         return avatarUrl;
     }
+
+    // Setters
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setDob(LocalDate dob) {
+        this.dob = dob;
+
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setVip(boolean vip) {
+        this.vip = vip;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+
+    }
+
 
     public Set<Room> getRooms() {
         return rooms;

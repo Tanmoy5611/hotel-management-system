@@ -2,11 +2,11 @@ package be.kdg.prog3.hotels.domain;
 
 // Attributes of Room class
 public class Room {
-    private final int number;
-    private final RoomType type;
-    private final double pricePerNight;
-    private final boolean seaView;
-    private final String photoUrl;
+    private int number;
+    private RoomType type;
+    private double pricePerNight;
+    private boolean seaView;
+    private String photoUrl;
 
     private Hotel hotel;  /// many-to-one
 
@@ -17,6 +17,7 @@ public class Room {
         this.pricePerNight = pricePerNight;
         this.seaView = seaView;
         this.photoUrl = photoUrl;
+
     }
 
     // getters to access attributes
@@ -44,6 +45,31 @@ public class Room {
         return hotel;
 
     }
+
+    // Setters
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public void setType(RoomType type) {
+        this.type = type;
+    }
+
+    public void setPricePerNight(double pricePerNight) {
+        this.pricePerNight = pricePerNight;
+    }
+
+    public void setSeaView(boolean seaView) {
+
+        this.seaView = seaView;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+
+    }
+
 
     // method to set the hotel of the room
     public void setHotel(Hotel hotel) {

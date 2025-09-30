@@ -6,11 +6,11 @@ import java.util.List;
 
 // Attributes of Hotel class
 public class Hotel {
-    private final String name;
-    private final LocalDate openedOn;
-    private final int stars;
-    private final boolean hasSpa;
-    private final String imageUrl;
+    private String name;
+    private LocalDate openedOn;
+    private int stars;
+    private boolean hasSpa;
+    private String imageUrl;
 
     // Create a list - Each hotel has many rooms
     private final List<Room> rooms = new ArrayList<>();
@@ -49,6 +49,30 @@ public class Hotel {
     public List<Room> getRooms() {
         return rooms;
     }
+
+    // Setters
+    public void setName(String name) {
+        this.name = name;
+
+    }
+
+    public void setOpenedOn(LocalDate openedOn) {
+        this.openedOn = openedOn;
+    }
+
+    public void setStars(int stars) {
+        this.stars = stars;
+    }
+
+
+    public void setHasSpa(boolean hasSpa) {
+        this.hasSpa = hasSpa;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
 
     // Method to add a room to the hotel
     public void addRoom(Room room) {
