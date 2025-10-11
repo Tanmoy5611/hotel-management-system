@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Rooms</title>
+</head>
+<body>
+
+<!-- include the navigation bar -->
+<div th:replace="fragments/navbar :: body"></div>
+
+<h2>All Rooms</h2>
+
+<!-- filter form for rooms-->
+<form th:action="@{/rooms}" method="get" style="margin:10px 0">
+    <label>Type (optional):</label>
+    <select name="type">
+        <option value="">-- Select Type --</option>
+        <option th:each="t : ${types}" th:value="${t}" th:text="${t}"
+                th:selected="${t.toString() == selType}"></option>
+    </select>
+
+    <label>Sea view (optional):</label>
+    <input type="checkbox" name="sea" th:checked="${selSea}">
+
+    <label>Max price (optional):</label>
+    <input type="number" step="0.01" name="maxPrice" th:value="${selPrice}">
+
+    <button type="submit">Filter</button>
+</form>
+
+<!-- show table of all rooms -->
+<table border="1" cellpadding="6">
+    <thead>
+    <tr>
+        <th>Number</th>
+        <th>Type</th>
+        <th>Price / night (€)</th>
+        <th>Sea View</th>
+        <th>Photo URL</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="r : ${rooms}">
+        <td th:text="${r.number}"></td>
+        <td th:text="${r.type}"></td>
+        <td th:text="${r.pricePerNight}"></td>
+        <td th:text="${r.seaView}"></td>
+        <td>
+            <a th:href="${r.photoUrl}" th:text="${r.photoUrl}"></a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

@@ -10,9 +10,15 @@ public class Room {
 
     private Hotel hotel;  /// many-to-one
 
+    // Default constructor for Spring and Thymeleaf forms to create objects
+    public Room() {
+
+    }
+
+
     // Constructor
-    public Room(int numbers, RoomType type, double pricePerNight, boolean seaView, String photoUrl) {
-        this.number = numbers;
+    public Room(int number, RoomType type, double pricePerNight, boolean seaView, String photoUrl) {
+        this.number = number;
         this.type = type;
         this.pricePerNight = pricePerNight;
         this.seaView = seaView;
@@ -21,7 +27,7 @@ public class Room {
     }
 
     // getters to access attributes
-    public int getNumbers() {
+    public int getNumber() {
         return number;
     }
 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Hotel</title>
+</head>
+<body>
+
+<!-- include the navigation bar -->
+<div th:replace="fragments/navbar :: body"></div>
+
+<h2>Add Hotel</h2>
+
+<!-- Form for submitting a new hotel -->
+<form th:action="@{/hotels/add}" th:object="${hotel}" method="post">
+
+    <!-- Hotel name input -->
+    <div>
+        <label>Name:</label>
+        <input type="text" th:field="*{name}" required>
+    </div>
+
+    <!-- Hotel opening date input -->
+    <div>
+        <label>Opened On (yyyy-mm-dd):</label>
+        <input type="text" th:field="*{openedOn}" placeholder="1998-06-15" required>
+    </div>
+
+    <!-- Hotel stars input -->
+    <div>
+        <label>Stars (1–5):</label>
+        <input type="number" th:field="*{stars}" min="1" max="5" required>
+    </div>
+
+    <!-- Checkbox for spa availability -->
+    <div>
+        <label>Has Spa:</label>
+        <input type="checkbox" th:field="*{hasSpa}">
+    </div>
+
+    <!-- Image link input -->
+    <div>
+        <label>Image URL:</label>
+        <input type="text" th:field="*{imageUrl}">
+    </div>
+
+    <!-- save button -->
+    <div>
+        <button type="submit">Save</button>
+    </div>
+
+</form>
+
+</body>
+</html>

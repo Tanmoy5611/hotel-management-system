@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Room</title>
+</head>
+<body>
+
+<!-- include the navigation bar -->
+<div th:replace="fragments/navbar :: body"></div>
+
+<h2>Add Room</h2>
+
+<!-- Form for adding new room -->
+<form th:action="@{/rooms/add}" th:object="${room}" method="post">
+
+    <!-- Room number -->
+    <div>
+        <label>Number:</label>
+        <input type="number" th:field="*{number}" required>
+    </div>
+
+    <!-- Room type (dropdown) -->
+    <div>
+        <label>Type:</label>
+        <select th:field="*{type}">
+            <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+        </select>
+    </div>
+
+    <!-- Price per night -->
+    <div>
+        <label>Price / night (€):</label>
+        <input type="number" step="0.01" th:field="*{pricePerNight}" required>
+    </div>
+
+    <!-- Sea view checkbox -->
+    <div>
+        <label>Sea View:</label>
+        <input type="checkbox" th:field="*{seaView}">
+    </div>
+
+    <!-- Room photo URL -->
+    <div>
+        <label>Photo URL:</label>
+        <input type="text" th:field="*{photoUrl}">
+    </div>
+
+    <!-- Save button -->
+    <div>
+        <button type="submit">Save</button>
+    </div>
+
+</form>
+
+</body>
+</html>

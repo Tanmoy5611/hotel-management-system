@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hotels</title>
+</head>
+<body>
+
+<!-- include the navigation bar -->
+<div th:replace="fragments/navbar :: body"></div>
+
+<h2>All Hotels</h2>
+
+<!-- filter form (min stars and opened date) -->
+<form th:action="@{/hotels}" method="get" style="margin:10px 0">
+    <label>Min stars (mandatory when filtering):</label>
+    <input type="number" name="minStars" min="1" max="5" th:value="${param.minStars}">
+
+    <label>Opened after (yyyy-mm-dd, optional):</label>
+    <input type="text" name="openedAfter" placeholder="1990-01-01" th:value="${param.openedAfter}">
+
+    <button type="submit">Filter</button>
+</form>
+
+<!-- show table for all hotels -->
+<table border="1" cellpadding="6">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Stars</th>
+        <th>Opened On</th>
+        <th>Has Spa</th>
+        <th>Image URL</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="h : ${hotels}">
+        <td th:text="${h.name}"></td>
+        <td th:text="${h.stars}"></td>
+        <td th:text="${h.openedOn}"></td>
+        <td th:text="${h.hasSpa}"></td>
+        <td>
+            <a th:href="${h.imageUrl}" th:text="${h.imageUrl}"></a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

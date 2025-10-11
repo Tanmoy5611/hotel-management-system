@@ -15,6 +15,12 @@ public class Guest {
     /// many-to-many with Room for storing a set of rooms booked
     private final Set<Room> rooms = new HashSet<>();
 
+    // Default constructor for Spring and Thymeleaf forms to create objects
+    public Guest() {
+
+    }
+
+
     // Constructor
     public Guest(String fullName, LocalDate dob, String email, boolean vip, String avatarUrl) {
         this.fullName = fullName;

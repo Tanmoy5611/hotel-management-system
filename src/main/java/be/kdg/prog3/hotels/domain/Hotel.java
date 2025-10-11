@@ -15,6 +15,12 @@ public class Hotel {
     // Create a list - Each hotel has many rooms
     private final List<Room> rooms = new ArrayList<>();
 
+    // Default constructor for Spring and Thymeleaf forms to create objects
+    public Hotel() {
+
+    }
+
+
     // Constructor
     public Hotel(String name, LocalDate openedOn, int stars, boolean hasSpa, String imageUrl) {
         this.name = name;
