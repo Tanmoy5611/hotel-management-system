@@ -1,50 +1,56 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Hotels</title>
+    <title th:text="#{hotels.title}">Hotels</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
 <!-- include the navigation bar -->
-<div th:replace="fragments/navbar :: body"></div>
+<div th:replace="~{fragments/navbar :: body}"></div>
 
-<h2>All Hotels</h2>
+<h2 th:text="#{hotels.title}">All Hotels</h2>
 
 <!-- filter form (min stars and opened date) -->
 <form th:action="@{/hotels}" method="get" style="margin:10px 0">
-    <label>Min stars (mandatory when filtering):</label>
-    <input type="number" name="minStars" min="1" max="5" th:value="${param.minStars}">
+    <label for="minStars" th:text="#{hotels.filter.minStars}">Min stars (mandatory when filtering):</label>
+    <input id="minStars" type="number" name="minStars" min="1" max="5" th:value="${param.minStars}">
 
-    <label>Opened after (yyyy-mm-dd, optional):</label>
-    <input type="text" name="openedAfter" placeholder="1990-01-01" th:value="${param.openedAfter}">
+    <label for="openedAfter" th:text="#{hotels.filter.openedAfter}">Opened after (yyyy-mm-dd, optional):</label>
+    <input id="openedAfter" type="text" name="openedAfter" placeholder="1990-01-01" th:value="${param.openedAfter}">
 
-    <button type="submit">Filter</button>
+    <button type="submit" th:text="#{button.filter}">Filter</button>
 </form>
 
 <!-- show table for all hotels -->
-<table border="1" cellpadding="6">
+<table class="data-table">
     <thead>
     <tr>
-        <th>Name</th>
-        <th>Stars</th>
-        <th>Opened On</th>
-        <th>Has Spa</th>
-        <th>Image URL</th>
+        <th th:text="#{hotels.table.name}">Name</th>
+        <th th:text="#{hotels.table.stars}">Stars</th>
+        <th th:text="#{hotels.table.opened}">Opened On</th>
+        <th th:text="#{hotels.table.spa}">Has Spa</th>
+        <th th:text="#{hotels.table.image}">Image URL</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="h : ${hotels}">
+    <tr th:each="h : ${hotels}" th:classappend="${h.stars} >= 5 ? 'highlight' : ''">
         <td th:text="${h.name}"></td>
         <td th:text="${h.stars}"></td>
         <td th:text="${h.openedOn}"></td>
         <td th:text="${h.hasSpa}"></td>
         <td>
-            <a th:href="${h.imageUrl}" th:text="${h.imageUrl}"></a>
+            <img th:src="@{${h.imageUrl}}" alt="Hotel photo" class="hotel-image">
         </td>
     </tr>
     </tbody>
 </table>
+
+<p>
+    <span th:text="#{hotels.total}">Total hotels:</span>
+    <span th:text="${#lists.size(hotels)}"> </span>
+</p>
 
 </body>
 </html>

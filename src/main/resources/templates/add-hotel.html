@@ -1,52 +1,53 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add Hotel</title>
+    <title th:text="#{nav.addHotel}">Add Hotel</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
 <!-- include the navigation bar -->
-<div th:replace="fragments/navbar :: body"></div>
+<div th:replace="~{fragments/navbar :: body}"></div>
 
-<h2>Add Hotel</h2>
+<h2 th:text="#{nav.addHotel}">Add Hotel</h2>
 
 <!-- Form for submitting a new hotel -->
 <form th:action="@{/hotels/add}" th:object="${hotel}" method="post">
 
     <!-- Hotel name input -->
     <div>
-        <label>Name:</label>
-        <input type="text" th:field="*{name}" required>
+        <label for="name" th:text="#{hotels.table.name}">Name:</label>
+        <input id="name" type="text" th:field="*{name}" required>
     </div>
 
     <!-- Hotel opening date input -->
     <div>
-        <label>Opened On (yyyy-mm-dd):</label>
-        <input type="text" th:field="*{openedOn}" placeholder="1998-06-15" required>
+        <label for="opened" th:text="#{hotels.table.opened}">Opened On (yyyy-mm-dd):</label>
+        <input id="opened" type="text" th:field="*{openedOn}" placeholder="1998-06-15" required>
     </div>
 
     <!-- Hotel stars input -->
     <div>
-        <label>Stars (1–5):</label>
-        <input type="number" th:field="*{stars}" min="1" max="5" required>
+        <label for="stars" th:text="#{hotels.table.stars}">Stars (1–5):</label>
+        <input id="stars" type="number" th:field="*{stars}" min="1" max="5" required>
     </div>
 
     <!-- Checkbox for spa availability -->
     <div>
-        <label>Has Spa:</label>
-        <input type="checkbox" th:field="*{hasSpa}">
+        <label for="spa" th:text="#{hotels.table.spa}">Has Spa:</label>
+        <input id="spa" type="checkbox" th:field="*{hasSpa}">
     </div>
 
     <!-- Image link input -->
     <div>
-        <label>Image URL:</label>
-        <input type="text" th:field="*{imageUrl}">
+        <label for="image" th:text="#{hotels.table.image}">Image URL:</label>
+        <input id="image" type="text" th:field="*{imageUrl}">
     </div>
 
     <!-- save button -->
     <div>
-        <button type="submit">Save</button>
+        <button type="submit" th:text="#{button.save}">Save</button>
     </div>
 
 </form>

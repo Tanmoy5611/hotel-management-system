@@ -1,54 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add Room</title>
+    <title th:text="#{nav.addRoom}">Add Room</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
 <!-- include the navigation bar -->
-<div th:replace="fragments/navbar :: body"></div>
+<div th:replace="~{fragments/navbar :: body}"></div>
 
-<h2>Add Room</h2>
+<h2 th:text="#{nav.addRoom}">Add Room</h2>
 
 <!-- Form for adding new room -->
 <form th:action="@{/rooms/add}" th:object="${room}" method="post">
 
     <!-- Room number -->
     <div>
-        <label>Number:</label>
-        <input type="number" th:field="*{number}" required>
+        <label for="number" th:text="#{rooms.table.number}">Number:</label>
+        <input id="number" type="number" th:field="*{number}" required>
     </div>
 
     <!-- Room type (dropdown) -->
     <div>
-        <label>Type:</label>
-        <select th:field="*{type}">
+        <label for="type" th:text="#{rooms.table.type}">Type:</label>
+        <select id="type" th:field="*{type}">
             <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
         </select>
     </div>
 
     <!-- Price per night -->
     <div>
-        <label>Price / night (€):</label>
-        <input type="number" step="0.01" th:field="*{pricePerNight}" required>
+        <label for="price" th:text="#{rooms.table.price}">Price / night (€):</label>
+        <input id="price" type="number" step="0.01" th:field="*{pricePerNight}" required>
     </div>
 
     <!-- Sea view checkbox -->
     <div>
-        <label>Sea View:</label>
-        <input type="checkbox" th:field="*{seaView}">
+        <label for="seaView" th:text="#{rooms.table.seaView}">Sea View:</label>
+        <input id="seaView" type="checkbox" th:field="*{seaView}">
     </div>
 
     <!-- Room photo URL -->
     <div>
-        <label>Photo URL:</label>
-        <input type="text" th:field="*{photoUrl}">
+        <label for="photo" th:text="#{rooms.table.photo}">Photo URL:</label>
+        <input id="photo" type="text" th:field="*{photoUrl}">
     </div>
 
     <!-- Save button -->
     <div>
-        <button type="submit">Save</button>
+        <button type="submit" th:text="#{button.save}">Save</button>
     </div>
 
 </form>

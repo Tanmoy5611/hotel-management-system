@@ -1,57 +1,63 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Rooms</title>
+    <title th:text="#{rooms.title}">Rooms</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
 <!-- include the navigation bar -->
-<div th:replace="fragments/navbar :: body"></div>
+<div th:replace="~{fragments/navbar :: body}"></div>
 
-<h2>All Rooms</h2>
+<h2 th:text="#{rooms.title}">All Rooms</h2>
 
 <!-- filter form for rooms-->
 <form th:action="@{/rooms}" method="get" style="margin:10px 0">
-    <label>Type (optional):</label>
-    <select name="type">
+    <label for="type" th:text="#{rooms.filter.type}">Type (optional):</label>
+    <select id="type" name="type">
         <option value="">-- Select Type --</option>
         <option th:each="t : ${types}" th:value="${t}" th:text="${t}"
                 th:selected="${t.toString() == selType}"></option>
     </select>
 
-    <label>Sea view (optional):</label>
-    <input type="checkbox" name="sea" th:checked="${selSea}">
+    <label for="sea" th:text="#{rooms.filter.sea}">Sea view (optional):</label>
+    <input id="sea" type="checkbox" name="sea" th:checked="${selSea}">
 
-    <label>Max price (optional):</label>
-    <input type="number" step="0.01" name="maxPrice" th:value="${selPrice}">
+    <label for="maxPrice" th:text="#{rooms.filter.max}">Max price (optional):</label>
+    <input id="maxPrice" type="number" step="0.01" name="maxPrice" th:value="${selPrice}">
 
-    <button type="submit">Filter</button>
+    <button type="submit" th:text="#{button.filter}">Filter</button>
 </form>
 
 <!-- show table of all rooms -->
-<table border="1" cellpadding="6">
+<table class="data-table">
     <thead>
     <tr>
-        <th>Number</th>
-        <th>Type</th>
-        <th>Price / night (€)</th>
-        <th>Sea View</th>
-        <th>Photo URL</th>
+        <th th:text="#{rooms.table.number}">Number</th>
+        <th th:text="#{rooms.table.type}">Type</th>
+        <th th:text="#{rooms.table.price}">Price / night (€)</th>
+        <th th:text="#{rooms.table.seaView}">Sea View</th>
+        <th th:text="#{rooms.table.photo}">Photo URL</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="r : ${rooms}">
+    <tr th:each="r : ${rooms}" th:classappend="${r.pricePerNight} >= 300 ? 'expensive' : ''">
         <td th:text="${r.number}"></td>
         <td th:text="${r.type}"></td>
         <td th:text="${r.pricePerNight}"></td>
         <td th:text="${r.seaView}"></td>
         <td>
-            <a th:href="${r.photoUrl}" th:text="${r.photoUrl}"></a>
+            <img th:src="@{${r.photoUrl}}" alt="Room photo" class="room-image">
         </td>
     </tr>
     </tbody>
 </table>
+
+<p>
+    <span th:text="#{rooms.total}">Total rooms:</span>
+    <span th:text="${#lists.size(rooms)}"></span>
+</p>
 
 </body>
 </html>

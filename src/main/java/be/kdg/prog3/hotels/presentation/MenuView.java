@@ -28,10 +28,10 @@ public class MenuView {
             1) Show all hotels
             2) Show hotels with minimum stars and opened date
             3) Show all rooms
-            4) Show rooms with optional filters (type / seaView / max price)
+            4) Show rooms with optional filters (type / sea view / max price)
             """);
 
-        System.out.print("Choice (0-4): ");
+        System.out.print("Make your choice (0-4): ");
 
     }
 

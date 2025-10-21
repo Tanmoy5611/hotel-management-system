@@ -6,7 +6,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import javax.swing.*;
 import java.util.Scanner;
 
 @SpringBootApplication
@@ -24,3 +23,9 @@ public class SpringHotelsApplication {
         return new Scanner(System.in);
     }
 }
+
+/* TODO: please run the current app and check the following URLs:
+         http://localhost:8080/hotels
+         http://localhost:8080/rooms
+         http://localhost:8080/hotels/add
+         http://localhost:8080/rooms/add   */
