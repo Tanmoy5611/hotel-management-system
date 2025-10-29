@@ -1,6 +1,7 @@
 package be.kdg.prog3.hotels.web;
 
 import be.kdg.prog3.hotels.business.HotelService;
+import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.domain.Hotel;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -70,4 +71,26 @@ public class HotelController {
         // Redirect to /hotels after successfully adding a new hotel
         return "redirect:/hotels";
     }
+
+
+    @GetMapping("/{id}")
+    public String showHotelDetails(@PathVariable String id, Model model) {
+
+        // Search for the hotel with the matching id (case-insensitive)
+        var hotel = DataFactory.hotels.stream()
+                .filter(h -> h.getId().equalsIgnoreCase(id))
+                .findFirst()
+                .orElse(null);
+
+        // If no hotel found, redirect to main hotels list
+        if (hotel == null) {
+            return "redirect:/hotels";
+        }
+
+        // Add the found hotel to the model so Thymeleaf can display it
+        model.addAttribute("hotel", hotel);
+        return "hotel-detail";
+    }
+
+
 }

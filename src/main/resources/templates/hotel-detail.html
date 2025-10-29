@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${hotel.name}">Hotel Detail</title>
+
+    <!-- Bootstrap + Icons -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <!-- Hotel header -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <img th:src="@{${hotel.imageUrl}}" class="img-fluid rounded shadow-sm" alt="Hotel image">
+        </div>
+
+        <div class="col-lg-6 d-flex flex-column justify-content-center">
+            <h2 class="fw-bold text-primary" th:text="${hotel.name}">Hotel Name</h2>
+            <p class="fs-5 text-muted">
+                <i class="bi bi-star-fill text-warning"></i>
+                <span th:text="${hotel.stars} + ' ★'"></span>
+            </p>
+            <p>
+                <i class="bi bi-calendar-event text-secondary"></i>
+                <strong>Opened On:</strong>
+                <span th:text="${hotel.openedOn}"></span>
+            </p>
+            <p>
+                <i class="bi bi-spa text-success"></i>
+                <strong>Spa:</strong>
+                <span th:text="${hotel.hasSpa} ? 'Available' : 'Not Available'"></span>
+            </p>
+
+            <!-- Back button -->
+            <a th:href="@{/hotels}" class="btn btn-outline-secondary mt-3">
+                <i class="bi bi-arrow-left"></i> Back to all hotels
+            </a>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Rooms Section -->
+    <h4 class="text-primary mb-3">
+        <i class="bi bi-door-open"></i> Available Rooms
+    </h4>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" th:each="r : ${hotel.rooms}">
+            <!-- 🔗 Each room card links to its detail page -->
+            <a th:href="@{'/rooms/' + ${r.number}}" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm hover-card">
+                    <img th:src="@{${r.photoUrl}}" class="card-img-top room-img" alt="Room image">
+                    <div class="card-body">
+                        <h5 class="card-title text-center fw-bold mb-2" th:text="'Room ' + ${r.number}">Room Number</h5>
+
+                        <p class="card-text mb-1">
+                            <i class="bi bi-door-open"></i>
+                            <span th:text="${r.type}"></span>
+                        </p>
+                        <p class="card-text mb-1">
+                            <i class="bi bi-cash-coin text-success"></i>
+                            <span th:text="${r.pricePerNight} + ' € / night'"></span>
+                        </p>
+                        <p class="card-text">
+                            <i class="bi bi-water text-info"></i>
+                            <span th:text="${r.seaView} ? 'Sea View' : 'No Sea View'"></span>
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+
+    <p class="mt-4 text-muted">
+        <i class="bi bi-collection"></i>
+        <span th:text="${#lists.size(hotel.rooms)} + ' room(s) in this hotel.'"></span>
+    </p>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

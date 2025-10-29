@@ -1,17 +1,65 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
-<nav style="margin-bottom:16px">
-    <!-- Simple navigation menu for all pages -->
-    <a th:href="@{/hotels}" th:text="#{nav.hotels}">All Hotels</a> |
-    <a th:href="@{/rooms}" th:text="#{nav.rooms}">All Rooms</a> |
-    <a th:href="@{/hotels/add}" th:text="#{nav.addHotel}">Add Hotel</a> |
-    <a th:href="@{/rooms/add}" th:text="#{nav.addRoom}">Add Room</a>
-    <br>
 
-    <!-- Language switch -->
-    <a th:href="@{/(lang='en')}">English</a> |
-    <a th:href="@{/(lang='nl')}">Dutch</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+
+        <!--  Home -->
+        <a class="navbar-brand d-flex align-items-center fw-bold" th:href="@{/hotels}">
+            <i class="bi bi-building-fill me-2 fs-4"></i>
+            HotelApp
+        </a>
+        <!-- Toggler for mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navMenu"
+                aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Menu items -->
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/hotels}" th:text="#{nav.hotels}">All Hotels</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/rooms}" th:text="#{nav.rooms}">All Rooms</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/hotels/add}" th:text="#{nav.addHotel}">Add Hotel</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/rooms/add}" th:text="#{nav.addRoom}">Add Room</a>
+                </li>
+
+            </ul>
+
+            <!-- Language Switch -->
+            <ul class="navbar-nav ms-auto d-flex align-items-center">
+
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center"
+                       th:href="@{/(lang='en')}">
+                        <i class="bi bi-translate me-1"></i> EN
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center"
+                       th:href="@{/(lang='nl')}">
+                        <i class="bi bi-translate me-1"></i> NL
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
 </nav>
 </body>
 </html>

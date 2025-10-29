@@ -1,6 +1,7 @@
 package be.kdg.prog3.hotels.web;
 
 import be.kdg.prog3.hotels.business.RoomService;
+import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.RoomType;
 
@@ -81,5 +82,32 @@ public class RoomController {
         log.debug("Creating room: {}", room);
         roomService.createdRoom(room);
         return "redirect:/rooms";   // Redirect back to list of rooms after successful submission
+    }
+
+    // show details for one specific room by its room number
+    @GetMapping("/{number}")
+    public String showRoomDetails(@PathVariable int number, Model model) {
+
+        // Find the room that matches the given room number
+        var room = DataFactory.rooms.stream()
+                .filter(r -> r.getNumber() == number)
+                .findFirst()
+                .orElse(null);
+
+        // If no room found, redirect back to the rooms list
+        if (room == null) {
+            return "redirect:/rooms";
+        }
+
+        // Get the list of guests who booked this room (many-to-many relationship)
+        var guests = DataFactory.guests.stream()
+                .filter(g -> g.getRooms().contains(room))
+                .toList();
+
+        // Add room and its related guests to the model so the view can display them
+        model.addAttribute("room", room);
+        model.addAttribute("guests", guests);
+
+        return "room-detail";
     }
 }

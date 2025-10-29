@@ -6,6 +6,7 @@ import java.util.List;
 
 // Attributes of Hotel class
 public class Hotel {
+    private String id;           // URL safe identifier for /hotels/{id}
     private String name;
     private LocalDate openedOn;
     private int stars;
@@ -22,7 +23,8 @@ public class Hotel {
 
 
     // Constructor
-    public Hotel(String name, LocalDate openedOn, int stars, boolean hasSpa, String imageUrl) {
+    public Hotel(String id, String name, LocalDate openedOn, int stars, boolean hasSpa, String imageUrl) {
+        this.id = id;
         this.name = name;
         this.openedOn = openedOn;
         this.stars = stars;
@@ -32,6 +34,8 @@ public class Hotel {
 
 
     // Getters to access attributes
+    public String getId() { return id; }
+
     public String getName() {
         return name;
     }
@@ -57,6 +61,10 @@ public class Hotel {
     }
 
     // Setters
+    public void setId(String id) {
+        this.id = id;
+
+    }
     public void setName(String name) {
         this.name = name;
 
@@ -93,7 +101,7 @@ public class Hotel {
     // Override toString method to print hotel details
     @Override
     public String toString() {
-        return name + " [" + stars + "★, spa=" + hasSpa + ", opened=" + openedOn + "]";
+        return name + " [" + id + stars + "★, spa=" + hasSpa + ", opened=" + openedOn + "]";
 
     }
 

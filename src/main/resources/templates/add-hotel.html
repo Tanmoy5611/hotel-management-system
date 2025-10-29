@@ -2,55 +2,98 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{nav.addHotel}">Add Hotel</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script defer th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </head>
-<body>
+<body class="bg-light">
 
 <!-- include the navigation bar -->
 <div th:replace="~{fragments/navbar :: body}"></div>
 
-<h2 th:text="#{nav.addHotel}">Add Hotel</h2>
+<div class="container my-4">
+    <h2 class="text-primary mb-3" th:text="#{nav.addHotel}">Add Hotel</h2>
 
-<!-- Form for submitting a new hotel -->
-<form th:action="@{/hotels/add}" th:object="${hotel}" method="post">
+    <!-- Form for submitting a new hotel -->
+    <form th:action="@{/hotels/add}" th:object="${hotel}" method="post" class="needs-validation" novalidate>
 
-    <!-- Hotel name input -->
-    <div>
-        <label for="name" th:text="#{hotels.table.name}">Name:</label>
-        <input id="name" type="text" th:field="*{name}" required>
-    </div>
+        <div class="row g-3">
 
-    <!-- Hotel opening date input -->
-    <div>
-        <label for="opened" th:text="#{hotels.table.opened}">Opened On (yyyy-mm-dd):</label>
-        <input id="opened" type="text" th:field="*{openedOn}" placeholder="1998-06-15" required>
-    </div>
+            <!-- Hotel name input -->
+            <div class="row g-3">
+                <label for="name" class="form-label fw-semibold" th:text="#{hotels.table.name}">Name:</label>
+                <input id="name" type="text" th:field="*{name}" class="form-control" required>
+                <div class="invalid-feedback">
+                    Please enter a hotel name.
+                </div>
+            </div>
 
-    <!-- Hotel stars input -->
-    <div>
-        <label for="stars" th:text="#{hotels.table.stars}">Stars (1–5):</label>
-        <input id="stars" type="number" th:field="*{stars}" min="1" max="5" required>
-    </div>
+            <!-- Hotel opening date input -->
+            <div class="col-md-6">
+                <label for="opened" class="form-label fw-semibold" th:text="#{hotels.table.opened}">
+                    Opened On (yyyy-mm-dd)
+                </label>
+                <input id="opened" type="text" th:field="*{openedOn}" class="form-control"
+                       placeholder="1998-06-15" required>
+                <div class="invalid-feedback">
+                    Please provide a valid opening date.
+                </div>
+            </div>
 
-    <!-- Checkbox for spa availability -->
-    <div>
-        <label for="spa" th:text="#{hotels.table.spa}">Has Spa:</label>
-        <input id="spa" type="checkbox" th:field="*{hasSpa}">
-    </div>
+            <!-- Hotel stars input -->
+            <div class="col-md-4">
+                <label for="stars" class="form-label fw-semibold" th:text="#{hotels.table.stars}">
+                    Stars (1–5)
+                </label>
+                <input id="stars" type="number" th:field="*{stars}" class="form-control"
+                       min="1" max="5" required>
+                <div class="invalid-feedback">
+                    Stars must be between 1 and 5.
+                </div>
+            </div>
 
-    <!-- Image link input -->
-    <div>
-        <label for="image" th:text="#{hotels.table.image}">Image URL:</label>
-        <input id="image" type="text" th:field="*{imageUrl}">
-    </div>
+            <!-- Checkbox for spa availability -->
+            <div class="col-md-4 d-flex align-items-center">
+                <div class="form-check mt-4">
+                    <input id="spa" type="checkbox" th:field="*{hasSpa}" class="form-check-input">
+                    <label for="spa" class="form-check-label fw-semibold" th:text="#{hotels.table.spa}">
+                        Has Spa
+                    </label>
+                </div>
+            </div>
 
-    <!-- save button -->
-    <div>
-        <button type="submit" th:text="#{button.save}">Save</button>
-    </div>
+            <!-- Image link input -->
+            <div class="col-md-8">
+                <label for="image" class="form-label fw-semibold" th:text="#{hotels.table.image}">
+                    Image URL
+                </label>
+                <input id="image" type="text" th:field="*{imageUrl}" class="form-control"
+                       placeholder="/images/hotels/example.jpg" required>
+                <div class="invalid-feedback">
+                    Please provide an image URL.
+                </div>
+            </div>
+        </div>
 
-</form>
+        <!-- save button -->
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary px-4" th:text="#{button.save}">
+                Save
+            </button>
+            <a th:href="@{/hotels}" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+    </form>
+</div>
+
+<script th:src="@{/js/form-validation.js}"></script>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
 
 </body>
 </html>

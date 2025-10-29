@@ -2,62 +2,117 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{rooms.title}">Rooms</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
-<body>
+
+<body class="bg-light">
 
 <!-- include the navigation bar -->
 <div th:replace="~{fragments/navbar :: body}"></div>
 
-<h2 th:text="#{rooms.title}">All Rooms</h2>
+<div class="container my-4">
+    <h2 class="text-primary mb-3" th:text="#{rooms.title}">All Rooms</h2>
 
-<!-- filter form for rooms-->
-<form th:action="@{/rooms}" method="get" style="margin:10px 0">
-    <label for="type" th:text="#{rooms.filter.type}">Type (optional):</label>
-    <select id="type" name="type">
-        <option value="">-- Select Type --</option>
-        <option th:each="t : ${types}" th:value="${t}" th:text="${t}"
-                th:selected="${t.toString() == selType}"></option>
-    </select>
+    <!-- filter form for rooms-->
+    <form th:action="@{/rooms}" method="get" class="row g-3 mb-4">
 
-    <label for="sea" th:text="#{rooms.filter.sea}">Sea view (optional):</label>
-    <input id="sea" type="checkbox" name="sea" th:checked="${selSea}">
+        <!-- Type -->
+        <div class="col-md-3">
+            <label for="type" class="form-label fw-semibold" th:text="#{rooms.filter.type}">Type (optional):</label>
+            <select id="type" name="type" class="form-select">
+                <option value="">-- Select Type --</option>
+                <option th:each="t : ${types}" th:value="${t}" th:text="${t}"
+                        th:selected="${t.toString() == selType}"></option>
+            </select>
+        </div>
 
-    <label for="maxPrice" th:text="#{rooms.filter.max}">Max price (optional):</label>
-    <input id="maxPrice" type="number" step="0.01" name="maxPrice" th:value="${selPrice}">
+        <!-- Sea View -->
+        <div class="col-md-2 d-flex align-items-end">
+            <div class="form-check mt-4">
+                <input id="sea" type="checkbox" name="sea" th:checked="${selSea}" class="form-check-input">
+                <label for="sea" class="form-check-label fw-semibold" th:text="#{rooms.filter.sea}">
+                    Sea view </label>
+            </div>
+        </div>
 
-    <button type="submit" th:text="#{button.filter}">Filter</button>
-</form>
+        <!-- Max Price -->
+        <div class="col-md-3">
+            <label for="maxPrice" class="form-label fw-semibold" th:text="#{rooms.filter.max}">
+                Max price: (optional)
+            </label>
+            <input id="maxPrice" type="number" step="0.01" name="maxPrice"
+                   th:value="${selPrice}" class="form-control">
+        </div>
 
-<!-- show table of all rooms -->
-<table class="data-table">
-    <thead>
-    <tr>
-        <th th:text="#{rooms.table.number}">Number</th>
-        <th th:text="#{rooms.table.type}">Type</th>
-        <th th:text="#{rooms.table.price}">Price / night (€)</th>
-        <th th:text="#{rooms.table.seaView}">Sea View</th>
-        <th th:text="#{rooms.table.photo}">Photo URL</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="r : ${rooms}" th:classappend="${r.pricePerNight} >= 300 ? 'expensive' : ''">
-        <td th:text="${r.number}"></td>
-        <td th:text="${r.type}"></td>
-        <td th:text="${r.pricePerNight}"></td>
-        <td th:text="${r.seaView}"></td>
-        <td>
-            <img th:src="@{${r.photoUrl}}" alt="Room photo" class="room-image">
-        </td>
-    </tr>
-    </tbody>
-</table>
+        <!-- Filter button -->
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100" th:text="#{button.filter}">
+                Filter
+            </button>
+        </div>
 
-<p>
-    <span th:text="#{rooms.total}">Total rooms:</span>
-    <span th:text="${#lists.size(rooms)}"></span>
-</p>
+        <!-- Large-screen only element -->
+        <div class="col-md-2 d-none d-lg-block text-end text-muted fst-italic">
+            <i class="bi bi-info-circle"></i>
+            <span th:text="#{rooms.tip}">Tip: Check out the sea-view suites!</span>
+        </div>
+    </form>
+
+    <!-- show table of all rooms -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="col" th:each="r : ${rooms}">
+            <a th:href="@{'/rooms/' + ${r.number}}"
+               class="text-decoration-none text-dark">
+
+                <div class="card h-100 shadow-sm hover-card">
+                    <img th:src="@{${r.photoUrl}}" class="card-img-top room-img" alt="Room photo">
+
+                    <div class="card-body">
+                        <h5 class="card-title text-center fw-bold mb-3"
+                            th:text="'Room ' + ${r.number}">
+                            Room 101
+                        </h5>
+
+                        <p class="card-text mb-2">
+                            <i class="bi bi-door-open"></i>
+                            <span th:text="${r.type}">Type</span>
+                        </p>
+
+                        <p class="card-text mb-2">
+                            <i class="bi bi-cash-coin text-success"></i>
+                            <span th:text="${r.pricePerNight} + ' € / night'"></span>
+                        </p>
+
+                        <p class="card-text">
+                            <i class="bi bi-water text-info"></i>
+                            <span th:text="${r.seaView} ? 'Sea View' : 'No Sea View'"></span>
+                        </p>
+                    </div>
+
+                    <div class="card-footer text-center small text-muted">
+                        <span th:text="#{rooms.footer.text}">
+                            Comfortable & Cozy
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Count rooms -->
+    <p class="mt-4 text-muted">
+        <i class="bi bi-collection"></i>
+        <span th:text="${#lists.size(rooms)} + ' ' + #{rooms.total}">Total rooms: 8</span>
+    </p>
+</div>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
 
 </body>
 </html>

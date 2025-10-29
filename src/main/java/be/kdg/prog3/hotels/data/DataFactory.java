@@ -14,22 +14,29 @@ import java.util.List;
 
 // two public static lists
 public class DataFactory {
+    public static List<Hotel> hotels = new ArrayList<>();
     public static List<Guest> guests = new ArrayList<>();
     public static List<Room> rooms = new ArrayList<>();
 
     // Static method to fill lists with real data
     public static void seed() {
+
+        // Clear previous records before seeding fresh sample data
+        hotels.clear();
+        rooms.clear();
+        guests.clear();
+
         // Hotels with real attributes
-        var h1 = new Hotel("Hotel Plaza Athénée, Paris", LocalDate.of(1913, 5, 20), 5, true,
+        var h1 = new Hotel("plaza-athenee-paris", "Hotel Plaza Athénée, Paris", LocalDate.of(1913, 5, 20), 5, true,
                 "/images/hotels/plaza_athene.jpg");
-        var h2 = new Hotel("The Langham, London", LocalDate.of(1865, 1, 1), 5, false,
+        var h2 = new Hotel("langham-london", "The Langham, London", LocalDate.of(1865, 1, 1), 5, false,
                 "/images/hotels/langham.jpg");
-        var h3 = new Hotel("Radisson Blu Strand, Stockholm", LocalDate.of(1912, 4, 15), 4, false,
+        var h3 = new Hotel("radisson-stockholm","Radisson Blu Strand, Stockholm", LocalDate.of(1912, 4, 15), 4, false,
                 "/images/hotels/radisson_blu_strand.jpg");
-        var h4 = new Hotel("Radisson Blu Astrid Hotel, Antwerp",
+        var h4 = new Hotel("radisson-antwerp", "Radisson Blu Astrid Hotel, Antwerp",
                 LocalDate.of(1998, 6, 15), 4, true,
                 "/images/hotels/radisson_blu_antwerp.jpg");
-        var h5 = new Hotel("Hotel Amigo, Brussels",
+        var h5 = new Hotel("amigo-brussels", "Hotel Amigo, Brussels",
                 LocalDate.of(1957, 9, 1), 5, true,
                 "/images/hotels/amigo.jpg");
 
@@ -158,6 +165,7 @@ public class DataFactory {
 
 
         // Fill public static lists rooms and guests
+        hotels.addAll(List.of(h1, h2, h3, h4, h5));
         rooms.addAll(List.of(r101, r102, r201, r202, r301, r302, r401, r402, r403,
                 r501, r502, r503, r601, r602, r603));
         guests.addAll(List.of(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13));

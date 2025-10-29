@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Room Details - ' + ${room.number}">Room Details</title>
+
+    <!-- Bootstrap & Icons -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <!-- Room Header -->
+    <div class="card shadow-sm mb-4">
+        <div class="row g-0">
+            <div class="col-md-5">
+                <img th:src="@{${room.photoUrl}}" class="img-fluid rounded-start" alt="Room photo">
+            </div>
+            <div class="col-md-7">
+                <div class="card-body">
+                    <h3 class="card-title text-primary fw-bold mb-3">
+                        Room <span th:text="${room.number}">101</span>
+                    </h3>
+
+                    <p class="card-text mb-2">
+                        <i class="bi bi-door-open text-secondary"></i>
+                        <strong th:text="${room.type}">Type</strong>
+                    </p>
+
+                    <p class="card-text mb-2">
+                        <i class="bi bi-cash-coin text-success"></i>
+                        <span th:text="${room.pricePerNight} + ' € / night'">Price</span>
+                    </p>
+
+                    <p class="card-text mb-2">
+                        <i class="bi bi-water text-info"></i>
+                        <span th:text="${room.seaView} ? 'Sea View' : 'No Sea View'">Sea view</span>
+                    </p>
+
+                    <!-- Hotel link -->
+                    <p class="card-text">
+                        <i class="bi bi-building text-warning"></i>
+                        <span th:text="'Hotel: ' + ${room.hotel.name}"></span>
+                        <a th:href="@{'/hotels/' + ${room.hotel.id}}" class="btn btn-outline-primary btn-sm ms-2">
+                            <i class="bi bi-arrow-right"></i> View Hotel
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guests staying in this room -->
+    <h4 class="text-secondary mt-4 mb-3">
+        <i class="bi bi-people-fill"></i> Guests who stayed here
+    </h4>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" th:each="g : ${guests}">
+            <div class="card h-100 text-center shadow-sm">
+                <img th:src="@{${g.avatarUrl}}" class="card-img-top guest-avatar" alt="Guest avatar">
+
+                <div class="card-body">
+                    <h6 class="card-title fw-bold mb-1" th:text="${g.fullName}">Guest Name</h6>
+                    <p class="card-text mb-1 text-muted" th:text="${g.email}">email@example.com</p>
+
+                    <span class="badge"
+                          th:classappend="${g.vip} ? 'bg-warning text-dark' : 'bg-secondary'"
+                          th:text="${g.vip} ? 'VIP' : 'Regular'">
+                        VIP
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back button -->
+    <div class="mt-4">
+        <a href="/rooms" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to all rooms
+        </a>
+    </div>
+
+</div>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>
