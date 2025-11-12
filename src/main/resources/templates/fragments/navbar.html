@@ -37,6 +37,13 @@
                     <a class="nav-link" th:href="@{/rooms/add}" th:text="#{nav.addRoom}">Add Room</a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/history}" th:text="#{nav.history}">
+                        <i class="bi bi-clock-history me-1"></i>
+                        Session History
+                    </a>
+                </li>
+
             </ul>
 
             <!-- Language Switch -->
@@ -53,6 +60,13 @@
                     <a class="nav-link d-flex align-items-center"
                        th:href="@{/(lang='nl')}">
                         <i class="bi bi-translate me-1"></i> NL
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center"
+                       th:href="@{/(lang='bn')}">
+                        <i class="bi bi-translate me-1"></i> BN
                     </a>
                 </li>
 

@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{nav.addRoom}">Add Room</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <script defer th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 <body class="bg-light">
 
@@ -17,8 +18,8 @@
 <div class="container my-4">
     <h2 class="text-primary mb-3" th:text="#{nav.addRoom}">Add Room</h2>
 
-    <!-- Form for adding new room -->
-    <form th:action="@{/rooms/add}" th:object="${room}" method="post"
+    <!-- Form(bound to RoomForm) for adding new room -->
+    <form th:action="@{/rooms/add}" th:object="${roomForm}" method="post"
           class="needs-validation" novalidate>
 
         <div class="row g-3">
@@ -28,9 +29,10 @@
                 <label for="number" class="form-label fw-semibold"
                        th:text="#{rooms.table.number}">Number</label>
                 <input id="number" type="number" th:field="*{number}"
-                       class="form-control" required>
-                <div class="invalid-feedback">
-                    Please enter a valid room number.
+                       class="form-control">
+                <!-- Validation message -->
+                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('number')}"
+                     th:errors="*{number}">Number error
                 </div>
             </div>
 
@@ -38,31 +40,32 @@
             <div class="col-md-4">
                 <label for="type" class="form-label fw-semibold"
                        th:text="#{rooms.table.type}">Type</label>
-                <select id="type" th:field="*{type}" class="form-select" required>
+                <select id="type" th:field="*{type}" class="form-select">
                     <option value="">-- Select Type --</option>
                     <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
                 </select>
-                <div class="invalid-feedback">
-                    Please select a room type.
+                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('type')}"
+                     th:errors="*{type}">Type error
                 </div>
             </div>
 
             <!-- Price per night -->
             <div class="col-md-4">
-                <label for="price" class="form-label fw-semibold"
+                <label for="pricePerNight" class="form-label fw-semibold"
                        th:text="#{rooms.table.price}">Price / night (€)</label>
-                <input id="price" type="number" step="0.01" th:field="*{pricePerNight}"
-                       class="form-control" required>
-                <div class="invalid-feedback">
-                    Please enter a valid price.
+                <input id="pricePerNight" type="number" step="0.01" th:field="*{pricePerNight}"
+                       class="form-control">
+                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('pricePerNight')}"
+                     th:errors="*{pricePerNight}">Price error
                 </div>
             </div>
+        </div>
 
-            <!-- Sea view checkbox -->
+        <!-- Sea view checkbox -->
+        <div class="row mt-3">
             <div class="col-md-4 d-flex align-items-center">
                 <div class="form-check mt-4">
-                    <input id="seaView" type="checkbox" th:field="*{seaView}"
-                           class="form-check-input">
+                    <input id="seaView" type="checkbox" th:field="*{seaView}" class="form-check-input">
                     <label for="seaView" class="form-check-label fw-semibold"
                            th:text="#{rooms.table.seaView}">Sea View</label>
                 </div>
@@ -70,24 +73,25 @@
 
             <!-- Room photo URL -->
             <div class="col-md-8">
-                <label for="photo" class="form-label fw-semibold"
+                <label for="photoUrl" class="form-label fw-semibold"
                        th:text="#{rooms.table.photo}">Photo URL</label>
-                <input id="photo" type="text" th:field="*{photoUrl}"
-                       class="form-control" placeholder="/images/rooms/example.jpg" required>
-                <div class="invalid-feedback">
-                    Please provide a valid photo URL.
+                <input id="photoUrl" type="text" th:field="*{photoUrl}"
+                       class="form-control" placeholder="/images/rooms/example.jpg">
+                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('photoUrl')}"
+                     th:errors="*{photoUrl}">Photo URL error
                 </div>
             </div>
         </div>
 
-            <!-- Save button -->
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary px-4"
-                        th:text="#{button.save}">Save</button>
-                <a th:href="@{/rooms}" class="btn btn-outline-secondary ms-2">
-                    <i class="bi bi-arrow-left"></i> Back
-                </a>
-            </div>
+        <!-- Save button -->
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary px-4"
+                    th:text="#{button.save}">Save
+            </button>
+            <a th:href="@{/rooms}" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
     </form>
 </div>
 

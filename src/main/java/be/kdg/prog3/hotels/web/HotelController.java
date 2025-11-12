@@ -3,6 +3,7 @@ package be.kdg.prog3.hotels.web;
 import be.kdg.prog3.hotels.business.HotelService;
 import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.domain.Hotel;
+import be.kdg.prog3.hotels.viewmodel.HotelForm;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +49,8 @@ public class HotelController {
     // This method shows the "Add Hotel" form when visits "/hotels/add"
     @GetMapping("/add")
     public String addForm(Model model) {
-        // Create empty Hotel object to bind form fields
-        model.addAttribute("hotel", new Hotel()); // lowercase name convention
+        // Create empty Hotel object to bind form fields using HotelForm class
+        model.addAttribute("hotelForm", new HotelForm()); // lowercase name convention
         return "add-hotel";   // Return the add-hotel.html template
 
     }
@@ -57,15 +58,26 @@ public class HotelController {
     // Save  new Hotel
     // This method processes the form submission for adding  new hotel
     @PostMapping("/add")
-    public String addSubmit(@ModelAttribute("hotel") @Valid Hotel hotel,
-                            BindingResult bindingResult) {
+    public String addSubmit(@ModelAttribute("hotelForm") @Valid HotelForm hotelForm,
+                            BindingResult bindingResult,
+                            Model model) {
+
         // If the form has validation errors, reload the same page
         if (bindingResult.hasErrors()) {
+            log.debug("Validation errors found while adding hotel: {}", bindingResult.getAllErrors());
             return "add-hotel";
         }
 
+        // Convert ViewModel → Domain object manually
+        var hotel = new Hotel();
+        hotel.setName(hotelForm.getName());
+        hotel.setOpenedOn(hotelForm.getOpenedOn());
+        hotel.setStars(hotelForm.getStars());
+        hotel.setHasSpa(hotelForm.isHasSpa());
+        hotel.setImageUrl(hotelForm.getImageUrl());
+
         // Log and save the new hotel through the service layer
-        log.debug("Creating hotel: {}", hotel);
+        log.debug("Creating new hotel: {}", hotel);
         hotelService.createdHotel(hotel);
 
         // Redirect to /hotels after successfully adding a new hotel

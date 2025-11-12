@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{nav.history}">Session History</title>
+
+    <!-- Bootstrap + Icons -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- 🔹 Navbar fragment -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<!-- 🔹 Main Content -->
+<div class="container my-4">
+    <h2 class="text-primary mb-3">
+        <i class="bi bi-clock-history me-2"></i>
+        <span th:text="#{nav.history}">Session History</span>
+    </h2>
+
+    <!-- History Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle shadow-sm">
+            <thead class="table-light">
+            <tr>
+                <th class="text-center" style="width: 80px;">#</th>
+                <th>Visited Page & Timestamp</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="h, iter : ${history}">
+                <td class="text-center fw-semibold" th:text="${iter.index + 1}">1</td>
+                <td th:text="${h}">/hotels (2025-10-30 02:31:00)</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(history)}">
+                <td colspan="2" class="text-center text-muted fst-italic">
+                    <i class="bi bi-info-circle"></i> No pages visited yet.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-3">
+        <a th:href="@{/hotels}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Hotels
+        </a>
+    </div>
+</div>
+
+<!-- 🔹 Footer fragment -->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

@@ -4,6 +4,7 @@ import be.kdg.prog3.hotels.business.RoomService;
 import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.RoomType;
+import be.kdg.prog3.hotels.viewmodel.RoomForm;
 
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -60,8 +61,8 @@ public class RoomController {
     // Shows the form when clicks “Add Room”
     @GetMapping("/add")
     public String addForm(Model model) {
-        // Empty Room object to fill form fields
-        model.addAttribute("room", new Room());
+        // Empty Room object to fill form fields using RoomForm class
+        model.addAttribute("roomForm", new RoomForm());
         // Dropdown list for RoomType enum
         model.addAttribute("types", RoomType.values());
         return "add-room";  // Return template add-room.html
@@ -70,16 +71,27 @@ public class RoomController {
 
     // for handling POST request when submits the “Add Room” form
     @PostMapping("/add")
-    public String addSubmit(@ModelAttribute("room") @Valid Room room,
+    public String addSubmit(@ModelAttribute("roomForm") @Valid RoomForm roomForm,
                             BindingResult bindingResult,
                             Model model) {
+
         // if there are validation errors, reload the same page
         if (bindingResult.hasErrors()) {
+            log.debug("Validation errors while adding room: {}", bindingResult.getAllErrors());
             model.addAttribute("types", RoomType.values());
             return "add-room";
         }
+
+        // Convert ViewModel to Domain object manually
+        var room = new Room();
+        room.setNumber(roomForm.getNumber());
+        room.setType(roomForm.getType());
+        room.setPricePerNight(roomForm.getPricePerNight());
+        room.setSeaView(roomForm.isSeaView());
+        room.setPhotoUrl(roomForm.getPhotoUrl());
+
         // Log and save new room data using service layer
-        log.debug("Creating room: {}", room);
+        log.debug("Creating new room: {}", room);
         roomService.createdRoom(room);
         return "redirect:/rooms";   // Redirect back to list of rooms after successful submission
     }
