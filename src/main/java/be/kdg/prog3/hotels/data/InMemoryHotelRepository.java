@@ -9,11 +9,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 
 // In-memory implementation of HotelRepository
 @Repository
+@Profile("inmemory")
 public class InMemoryHotelRepository implements HotelRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryHotelRepository.class);
 

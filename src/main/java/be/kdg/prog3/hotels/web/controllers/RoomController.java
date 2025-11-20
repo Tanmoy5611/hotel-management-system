@@ -1,4 +1,4 @@
-package be.kdg.prog3.hotels.web;
+package be.kdg.prog3.hotels.web.controllers;
 
 import be.kdg.prog3.hotels.business.RoomService;
 import be.kdg.prog3.hotels.data.DataFactory;

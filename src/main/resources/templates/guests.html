@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{guests.title}">Guests</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <!-- Page Title -->
+    <h2 class="text-primary mb-3">
+        <i class="bi bi-people-fill"></i>
+        <span th:text="#{guests.title}">All Guests</span>
+    </h2>
+
+    <!-- Responsive Card Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+
+        <div class="col" th:each="g : ${guests}">
+            <div class="card h-100 shadow-sm hover-card">
+
+                <!-- Avatar -->
+                <img th:src="@{${g.avatarUrl}}"
+                     class="card-img-top guest-img"
+                     alt="Guest photo">
+
+                <div class="card-body">
+
+                    <!-- Name -->
+                    <h5 class="card-title fw-bold text-center mb-2"
+                        th:text="${g.fullName}">
+                        Guest Name
+                    </h5>
+
+                    <!-- VIP / Regular -->
+                    <p class="card-text text-center">
+                        <span th:if="${g.vip}" class="badge bg-warning text-dark">
+                            <i class="bi bi-star-fill"></i>
+                            <span th:text="#{guests.vip}">VIP</span>
+                        </span>
+
+                        <span th:if="${!g.vip}" class="badge bg-secondary">
+                            <span th:text="#{guests.regular}">Regular</span>
+                        </span>
+                    </p>
+
+                    <!-- Email -->
+                    <p class="card-text">
+                        <i class="bi bi-envelope"></i>
+                        <strong th:text="#{guests.email}">Email</strong>:
+                        <span th:text="${g.email}">email</span>
+                    </p>
+
+                    <!-- DOB -->
+                    <p class="card-text">
+                        <i class="bi bi-calendar-event"></i>
+                        <strong th:text="#{guests.dob}">Date of birth</strong>:
+                        <span th:text="${g.dob}">1990-01-01</span>
+                    </p>
+
+                </div>
+
+                <div class="card-footer text-center small text-muted">
+                    <i class="bi bi-person-badge"></i>
+                    <span th:text="#{guests.profile}">Profile Overview</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Total Count -->
+    <p class="mt-4 text-muted">
+        <i class="bi bi-collection"></i>
+        <span th:text="#{guests.total(${#lists.size(guests)})}">
+            0 guests total
+        </span>
+    </p>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

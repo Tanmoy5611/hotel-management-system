@@ -1,6 +1,5 @@
 package be.kdg.prog3.hotels.web.interceptors;
 
-import be.kdg.prog3.hotels.web.SessionHistory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;

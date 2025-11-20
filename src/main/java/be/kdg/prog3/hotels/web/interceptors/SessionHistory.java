@@ -1,4 +1,4 @@
-package be.kdg.prog3.hotels.web;
+package be.kdg.prog3.hotels.web.interceptors;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;

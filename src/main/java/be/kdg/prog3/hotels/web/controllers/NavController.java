@@ -1,4 +1,4 @@
-package be.kdg.prog3.hotels.web;
+package be.kdg.prog3.hotels.web.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
