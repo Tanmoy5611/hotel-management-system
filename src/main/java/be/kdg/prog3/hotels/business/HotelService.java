@@ -14,4 +14,9 @@ public interface HotelService {
     // Creates a new hotel and saves it to the database
     Hotel createdHotel(Hotel hotel);
 
+    // find hotel by id
+    Hotel getHotelById(String id);
+
+    void deleteHotel(String id);
+
 }

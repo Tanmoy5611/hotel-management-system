@@ -40,4 +40,24 @@ public class InMemoryHotelRepository implements HotelRepository {
         return hotel;  // In-memory “save”; list of hotels derived from rooms; adding rooms later will show it.
     }
 
+    @Override
+    public Hotel findById(String id) {
+        return DataFactory.hotels.stream()
+                .filter(h -> h.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public void delete(String id) {
+        // remove hotel
+        DataFactory.hotels.removeIf(h -> h.getId().equals(id));
+
+        // also remove rooms belonging to this hotel
+        DataFactory.rooms.removeIf(r -> r.getHotel() != null &&
+                r.getHotel().getId().equals(id));
+    }
+
+
+
 }

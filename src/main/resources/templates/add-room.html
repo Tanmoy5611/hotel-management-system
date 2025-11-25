@@ -41,7 +41,7 @@
                 <label for="type" class="form-label fw-semibold"
                        th:text="#{rooms.table.type}">Type</label>
                 <select id="type" th:field="*{type}" class="form-select">
-                    <option value="">-- Select Type --</option>
+                    <option value="" th:text="#{rooms.selectType}"></option>
                     <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
                 </select>
                 <div class="text-danger small mt-1" th:if="${#fields.hasErrors('type')}"
@@ -81,6 +81,18 @@
                      th:errors="*{photoUrl}">Photo URL error
                 </div>
             </div>
+
+            <div class="mb-3">
+                <label for="hotelId" class="form-label fw-semibold">Hotel</label>
+                <select id="hotelId" name="hotelId" class="form-select" required>
+                    <option value="" th:text="#{rooms.selectHotel}"></option>
+                    <option th:each="h : ${hotels}"
+                            th:value="${h.id}"
+                            th:text="${h.name}">
+                    </option>
+                </select>
+            </div>
+
         </div>
 
         <!-- Save button -->

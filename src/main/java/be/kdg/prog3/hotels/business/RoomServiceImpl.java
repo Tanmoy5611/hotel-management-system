@@ -30,7 +30,9 @@ public class RoomServiceImpl implements RoomService {
 
     /// Returns rooms filtering with parameters like type, sea view, and max price
     @Override
-    public List<Room> findRooms(Optional<RoomType> type, Optional<Boolean> seaView, Optional<Double> maxPrice) {
+    public List<Room> findRooms(Optional<RoomType> type,
+                                Optional<Boolean> seaView,
+                                Optional<Double> maxPrice) {
         log.debug("Find rooms(type={}, seaView={}, maxPrice={})", type, seaView, maxPrice);
 
         return repo.findAll().stream()
@@ -47,5 +49,30 @@ public class RoomServiceImpl implements RoomService {
     public Room createdRoom(Room room) {
         log.debug("Creating room: {}", room);
         return repo.save(room);
+    }
+
+    //  get all rooms for a hotel (many-to-one)
+    @Override
+    public List<Room> getRoomsByHotel(String hotelId) {
+        log.debug("Getting rooms for hotel {}", hotelId);
+        return repo.findByHotel(hotelId);
+    }
+
+    @Override
+    public Room getRoomByNumber(int number) {
+        log.debug("Get room by number {}", number);
+        return repo.findById(number);
+    }
+
+    @Override
+    public List<Room> getRoomsByGuest(long guestId) {
+        log.debug("Get rooms for guest {}", guestId);
+        return repo.findByGuest(guestId);
+    }
+
+    @Override
+    public void deleteRoom(int number) {
+        log.debug("Deleting room {}", number);
+        repo.delete(number);
     }
 }

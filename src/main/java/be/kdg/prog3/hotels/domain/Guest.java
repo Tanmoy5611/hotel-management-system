@@ -6,6 +6,7 @@ import java.util.Set;
 
 // Attributes of Guest class
 public class Guest {
+    private long id;
     private String email;
     private boolean vip;
     private String avatarUrl;
@@ -32,6 +33,9 @@ public class Guest {
     }
 
     // getters
+    public long getId() {
+        return id;
+    }
     public String getFullName() {
         return fullName;
     }
@@ -53,6 +57,10 @@ public class Guest {
     }
 
     // Setters
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }

@@ -47,10 +47,36 @@ public class HotelServiceImpl implements HotelService {
                 .toList();
     }
 
+
     // Creates hotel and saves it to the repository
     @Override
     public Hotel createdHotel(Hotel hotel) {
         log.debug("Creating hotel: {}", hotel);
+
+        // Auto generate ID based on hotel name
+        String id = hotel.getName()
+                .toLowerCase()
+                .replace(" ", "-")
+                .replace("'", "")
+                .trim();
+
+        hotel.setId(id);
+
         return repo.save(hotel);
+
     }
+
+   // Get Hotel by ID
+    @Override
+    public Hotel getHotelById(String id) {
+        log.debug("Getting hotel by id: {}", id);
+        return repo.findById(id);
+    }
+
+    @Override
+    public void deleteHotel(String id) {
+        log.debug("Deleting hotel {}", id);
+        repo.delete(id);
+    }
+
 }

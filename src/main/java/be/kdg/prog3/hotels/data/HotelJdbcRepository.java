@@ -44,4 +44,35 @@ public class HotelJdbcRepository implements HotelRepository {
 
         return hotel;
     }
+
+    @Override
+    public Hotel findById(String id) {
+        return jdbcClient.sql("SELECT * FROM hotels WHERE id = :id")
+                .param("id", id)
+                .query((rs, row) -> new Hotel(
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getDate("opened_on").toLocalDate(),
+                        rs.getInt("stars"),
+                        rs.getBoolean("has_spa"),
+                        rs.getString("image_url")
+                ))
+                .list()
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public void delete(String id) {
+        // Delete rooms belonging to the hotel (FK safety)
+        jdbcClient.sql("DELETE FROM rooms WHERE hotel_id = :id")
+                .param("id", id)
+                .update();
+
+        // Delete the hotel itself
+        jdbcClient.sql("DELETE FROM hotels WHERE id = :id")
+                .param("id", id)
+                .update();
+    }
 }

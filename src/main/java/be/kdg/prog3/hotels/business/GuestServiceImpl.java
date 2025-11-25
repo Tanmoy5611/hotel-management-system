@@ -24,8 +24,26 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
+    public List<Guest> getGuestsByRoom(int roomNumber) {
+        log.debug("Fetching guests for room {}", roomNumber);
+        return repo.findByRoom(roomNumber);
+    }
+
+    @Override
     public Guest createGuest(Guest guest) {
         log.debug("Creating new guest: {}", guest);
         return repo.save(guest);
+    }
+
+    @Override
+    public Guest getGuestById(long id) {
+        log.debug("Fetching guest by id {}", id);
+        return repo.findById(id);
+    }
+
+    @Override
+    public void deleteGuest(long id) {
+        log.debug("Deleting guest by id {}", id);
+        repo.delete(id);
     }
 }

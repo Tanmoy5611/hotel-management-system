@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Guest - ' + ${guest.fullName}">Guest Detail</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <!-- Guest Header -->
+    <div class="card mb-4 shadow-sm">
+        <div class="row g-0">
+            <div class="col-md-4 text-center p-3">
+                <img th:src="@{${guest.avatarUrl}}" alt="Avatar"
+                     class="rounded-circle"
+                     style="width:150px; height:150px; object-fit:cover;">
+            </div>
+
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h3 class="card-title fw-bold" th:text="${guest.fullName}">Guest Name</h3>
+
+                    <p class="card-text mb-2">
+                        <i class="bi bi-envelope"></i>
+                        <span th:text="${guest.email}">email@example.com</span>
+                    </p>
+
+                    <p class="card-text mb-2">
+                        <i class="bi bi-calendar"></i>
+                        <span th:text="${guest.dob}">DOB</span>
+                    </p>
+
+                    <span class="badge"
+                          th:classappend="${guest.vip} ? 'bg-warning text-dark' : 'bg-secondary'"
+                          th:text="${guest.vip} ? #{guest.vip} : #{guest.regular}">
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rooms table title -->
+    <h4 class="text-primary mb-3">
+        <i class="bi bi-door-open"></i>
+        <span th:text="#{guest.roomsTitle}"></span>
+    </h4>
+
+    <!-- No rooms -->
+    <div th:if="${#lists.isEmpty(rooms)}" class="text-muted mb-3">
+        <i th:text="#{guest.noRooms}"></i>
+    </div>
+
+    <!-- Rooms Table -->
+    <div th:if="${!#lists.isEmpty(rooms)}" class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th th:text="#{guest.table.room}"></th>
+                <th th:text="#{guest.table.type}"></th>
+                <th th:text="#{guest.table.price}"></th>
+                <th th:text="#{guest.table.sea}"></th>
+                <th th:text="#{guest.table.hotel}"></th>
+
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="r : ${rooms}"
+                th:onclick="'window.location.href=\'/rooms/' + '[[${r.number}]]\''"
+                style="cursor:pointer;">
+                <td th:text="${r.number}">101</td>
+                <td th:text="${r.type}">SINGLE</td>
+                <td th:text="${r.pricePerNight} + ' €'">150 €</td>
+                <td th:text="${r.seaView} ? #{guest.seaYes} : #{guest.seaNo}"></td>
+                <td th:text="${r.hotel.name}">Hotel Name</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Back + Delete -->
+    <div class="mt-4 d-flex justify-content-between">
+
+        <a th:href="@{/guests}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            <span th:text="#{guest.back}"></span>
+        </a>
+
+        <!-- DELETE BUTTON opens modal -->
+        <button type="button"
+                class="btn btn-danger"
+                data-bs-toggle="modal"
+                th:data-bs-target="${'#deleteGuestModal-' + guest.id}">
+            <i class="bi bi-trash"></i>
+            <span th:text="#{guest.deleteButton}"></span>
+        </button>
+
+    </div>
+
+    <!-- DELETE MODAL -->
+    <div class="modal fade"
+         th:id="${'deleteGuestModal-' + guest.id}"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+
+                <div class="modal-header bg-danger text-white py-2">
+                    <h6 class="modal-title" th:text="#{modal.delete.title}"></h6>
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body text-center">
+                    <p class="mb-2" th:text="#{modal.delete.guestQuestion}"></p>
+                    <strong th:text="${guest.fullName}"></strong>
+                </div>
+
+                <div class="modal-footer justify-content-between">
+
+                    <!-- CANCEL -->
+                    <button type="button"
+                            class="btn btn-secondary btn-sm"
+                            data-bs-dismiss="modal"
+                            th:text="#{button.cancel}">
+                    </button>
+
+                    <!-- YES DELETE -->
+                    <form th:action="@{|/guests/${guest.id}/delete|}" method="post">
+                        <button type="submit"
+                                class="btn btn-danger btn-sm"
+                                th:text="#{button.delete}">
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

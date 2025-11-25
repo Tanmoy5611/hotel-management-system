@@ -7,4 +7,11 @@ import java.util.List;
 public interface GuestRepository {
     List<Guest> findAll();
     Guest save(Guest guest);
+    Guest findById(long id);
+
+    // for many-to-many query
+    List<Guest> findByRoom(int roomNumber);
+
+    void delete(long id);
+
 }

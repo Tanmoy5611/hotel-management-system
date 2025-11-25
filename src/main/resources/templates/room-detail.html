@@ -38,21 +38,23 @@
 
                     <p class="card-text mb-2">
                         <i class="bi bi-cash-coin text-success"></i>
-                        <span th:text="${room.pricePerNight} + ' € / night'">Price</span>
+                        <span th:text="${room.pricePerNight} + ' ' + #{room.pricePerNight}"></span>
                     </p>
 
                     <p class="card-text mb-2">
                         <i class="bi bi-water text-info"></i>
-                        <span th:text="${room.seaView} ? 'Sea View' : 'No Sea View'">Sea view</span>
+                        <span th:text="${room.seaView} ? #{room.seaYes} : #{room.seaNo}"></span>
                     </p>
 
                     <!-- Hotel link -->
                     <p class="card-text">
                         <i class="bi bi-building text-warning"></i>
-                        <span th:text="'Hotel: ' + ${room.hotel.name}"></span>
+                        <span th:text="#{room.hotel} + ': ' + ${room.hotel.name}"></span>
                         <a th:href="@{'/hotels/' + ${room.hotel.id}}" class="btn btn-outline-primary btn-sm ms-2">
-                            <i class="bi bi-arrow-right"></i> View Hotel
+                            <i class="bi bi-arrow-right"></i>
+                            <span th:text="#{room.viewHotel}"></span>
                         </a>
+
                     </p>
                 </div>
             </div>
@@ -61,33 +63,114 @@
 
     <!-- Guests staying in this room -->
     <h4 class="text-secondary mt-4 mb-3">
-        <i class="bi bi-people-fill"></i> Guests who stayed here
+        <i class="bi bi-people-fill"></i>
+        <span th:text="#{room.guestsTitle}"></span>
     </h4>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <div class="col" th:each="g : ${guests}">
-            <div class="card h-100 text-center shadow-sm">
-                <img th:src="@{${g.avatarUrl}}" class="card-img-top guest-avatar" alt="Guest avatar">
-
-                <div class="card-body">
-                    <h6 class="card-title fw-bold mb-1" th:text="${g.fullName}">Guest Name</h6>
-                    <p class="card-text mb-1 text-muted" th:text="${g.email}">email@example.com</p>
-
-                    <span class="badge"
-                          th:classappend="${g.vip} ? 'bg-warning text-dark' : 'bg-secondary'"
-                          th:text="${g.vip} ? 'VIP' : 'Regular'">
-                        VIP
-                    </span>
-                </div>
-            </div>
-        </div>
+    <!-- If no guests -->
+    <div th:if="${#lists.isEmpty(guests)}" class="text-muted mb-3">
+        <i th:text="#{room.noGuests}"></i>
     </div>
 
-    <!-- Back button -->
-    <div class="mt-4">
+    <!-- Guests table -->
+    <div th:if="${!#lists.isEmpty(guests)}" class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th th:text="#{room.table.avatar}"></th>
+                <th th:text="#{room.table.name}"></th>
+                <th th:text="#{room.table.email}"></th>
+                <th th:text="#{room.table.vip}"></th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="g : ${guests}"
+                th:onclick="'window.location.href=\'/guests/' + '[[${g.id}]]' + '\';'"
+                style="cursor:pointer;">
+
+                <td>
+                    <img th:src="@{${g.avatarUrl}}"
+                         alt="Avatar"
+                         class="rounded-circle"
+                         style="width:35px; height:35px; object-fit:cover;">
+                </td>
+
+                <td th:text="${g.fullName}">Guest Name</td>
+                <td th:text="${g.email}">email@example.com</td>
+
+                <td>
+        <span class="badge"
+              th:classappend="${g.vip} ? 'bg-warning text-dark' : 'bg-secondary'"
+              th:text="${g.vip} ? #{room.vip} : #{room.regular}">
+        </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- Back + Delete -->
+    <div class="mt-4 d-flex justify-content-between">
+
         <a href="/rooms" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to all rooms
+            <i class="bi bi-arrow-left"></i>
+            <span th:text="#{room.back}"></span>
         </a>
+
+        <!-- DELETE BUTTON opens modal -->
+        <button type="button"
+                class="btn btn-danger"
+                data-bs-toggle="modal"
+                th:data-bs-target="${'#deleteRoomModal-' + room.number}">
+            <i class="bi bi-trash"></i>
+            <span th:text="#{room.deleteButton}"></span>
+        </button>
+
+    </div>
+
+    <!-- DELETE MODAL -->
+    <div class="modal fade"
+         th:id="${'deleteRoomModal-' + room.number}"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+
+                <div class="modal-header bg-danger text-white py-2">
+                    <h6 class="modal-title" th:text="#{modal.delete.title}"></h6>
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body text-center">
+                    <p class="mb-2" th:text="#{modal.delete.roomQuestion}"></p>
+                    <strong th:text="'Room ' + ${room.number}"></strong>
+                </div>
+
+                <div class="modal-footer justify-content-between">
+
+                    <!-- CANCEL -->
+                    <button type="button"
+                            class="btn btn-secondary btn-sm"
+                            data-bs-dismiss="modal"
+                            th:text="#{button.cancel}">
+                    </button>
+
+                    <!-- YES DELETE -->
+                    <form th:action="@{|/rooms/${room.number}/delete|}" method="post">
+                        <button type="submit"
+                                class="btn btn-danger btn-sm"
+                                th:text="#{button.delete}">
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
     </div>
 
 </div>

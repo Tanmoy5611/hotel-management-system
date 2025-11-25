@@ -1,5 +1,7 @@
 package be.kdg.prog3.hotels.web.controllers;
 
+import be.kdg.prog3.hotels.business.GuestService;
+import be.kdg.prog3.hotels.business.HotelService;
 import be.kdg.prog3.hotels.business.RoomService;
 import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.domain.Room;
@@ -23,10 +25,14 @@ public class RoomController {
     // Logger for printing debug information in console or log file
     private static final Logger log = LoggerFactory.getLogger(RoomController.class);
     private final RoomService roomService;   // Injecting RoomService to connect to business logic
+    private final GuestService guestService;
+    private final HotelService hotelService;
 
     // Constructor injection (Spring automatically provides the service)
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, GuestService guestService, HotelService hotelService) {
         this.roomService = roomService;
+        this.guestService = guestService;
+        this.hotelService = hotelService;
     }
 
     /* This method handles GET requests to "/rooms"
@@ -65,6 +71,7 @@ public class RoomController {
         model.addAttribute("roomForm", new RoomForm());
         // Dropdown list for RoomType enum
         model.addAttribute("types", RoomType.values());
+        model.addAttribute("hotels", hotelService.getAllHotels());
         return "add-room";  // Return template add-room.html
 
     }
@@ -79,6 +86,8 @@ public class RoomController {
         if (bindingResult.hasErrors()) {
             log.debug("Validation errors while adding room: {}", bindingResult.getAllErrors());
             model.addAttribute("types", RoomType.values());
+            model.addAttribute("hotels", hotelService.getAllHotels());
+
             return "add-room";
         }
 
@@ -90,9 +99,13 @@ public class RoomController {
         room.setSeaView(roomForm.isSeaView());
         room.setPhotoUrl(roomForm.getPhotoUrl());
 
+        var hotel = hotelService.getHotelById(roomForm.getHotelId());
+        room.setHotel(hotel);
+
         // Log and save new room data using service layer
         log.debug("Creating new room: {}", room);
         roomService.createdRoom(room);
+
         return "redirect:/rooms";   // Redirect back to list of rooms after successful submission
     }
 
@@ -101,25 +114,32 @@ public class RoomController {
     public String showRoomDetails(@PathVariable int number, Model model) {
 
         // Find the room that matches the given room number
-        var room = DataFactory.rooms.stream()
+        var room = roomService.getAllRooms().stream()
                 .filter(r -> r.getNumber() == number)
                 .findFirst()
                 .orElse(null);
 
         // If no room found, redirect back to the rooms list
         if (room == null) {
+            log.debug("Room {} not found, redirecting to /rooms", number);
             return "redirect:/rooms";
         }
 
         // Get the list of guests who booked this room (many-to-many relationship)
-        var guests = DataFactory.guests.stream()
-                .filter(g -> g.getRooms().contains(room))
-                .toList();
+        var guests = guestService.getGuestsByRoom(number);
 
         // Add room and its related guests to the model so the view can display them
         model.addAttribute("room", room);
         model.addAttribute("guests", guests);
 
         return "room-detail";
+    }
+
+    // detete roomm
+    @PostMapping("/{number}/delete")
+    public String deleteRoom(@PathVariable int number) {
+        log.debug("Deleting room {}", number);
+        roomService.deleteRoom(number);
+        return "redirect:/rooms";
     }
 }

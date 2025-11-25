@@ -30,55 +30,111 @@
         <div class="col" th:each="g : ${guests}">
             <div class="card h-100 shadow-sm hover-card">
 
-                <!-- Avatar -->
-                <img th:src="@{${g.avatarUrl}}"
-                     class="card-img-top guest-img"
-                     alt="Guest photo">
+                <!-- Clickable area -->
+                <a th:href="@{'/guests/' + ${g.id}}" class="text-decoration-none text-dark">
 
-                <div class="card-body">
+                    <!-- Avatar -->
+                    <img th:src="@{${g.avatarUrl}}"
+                         class="card-img-top guest-img"
+                         alt="Guest photo">
 
-                    <!-- Name -->
-                    <h5 class="card-title fw-bold text-center mb-2"
-                        th:text="${g.fullName}">
-                        Guest Name
-                    </h5>
+                    <div class="card-body">
 
-                    <!-- VIP / Regular -->
-                    <p class="card-text text-center">
+                        <!-- Name -->
+                        <h5 class="card-title fw-bold text-center mb-2"
+                            th:text="${g.fullName}">
+                            Guest Name
+                        </h5>
+
+                        <!-- VIP / Regular -->
+                        <p class="card-text text-center">
                         <span th:if="${g.vip}" class="badge bg-warning text-dark">
                             <i class="bi bi-star-fill"></i>
                             <span th:text="#{guests.vip}">VIP</span>
                         </span>
 
-                        <span th:if="${!g.vip}" class="badge bg-secondary">
+                            <span th:if="${!g.vip}" class="badge bg-secondary">
                             <span th:text="#{guests.regular}">Regular</span>
                         </span>
-                    </p>
+                        </p>
 
-                    <!-- Email -->
-                    <p class="card-text">
-                        <i class="bi bi-envelope"></i>
-                        <strong th:text="#{guests.email}">Email</strong>:
-                        <span th:text="${g.email}">email</span>
-                    </p>
+                        <!-- Email -->
+                        <p class="card-text">
+                            <i class="bi bi-envelope"></i>
+                            <strong th:text="#{guests.email}">Email</strong>:
+                            <span th:text="${g.email}">email</span>
+                        </p>
 
-                    <!-- DOB -->
-                    <p class="card-text">
-                        <i class="bi bi-calendar-event"></i>
-                        <strong th:text="#{guests.dob}">Date of birth</strong>:
-                        <span th:text="${g.dob}">1990-01-01</span>
-                    </p>
+                        <!-- DOB -->
+                        <p class="card-text">
+                            <i class="bi bi-calendar-event"></i>
+                            <strong th:text="#{guests.dob}">Date of birth</strong>:
+                            <span th:text="${g.dob}">1990-01-01</span>
+                        </p>
 
+                    </div>
+                </a>
+
+                <!-- Footer -->
+                <div class="card-footer small d-flex justify-content-between align-items-center">
+                   <span class="text-muted" th:text="#{guests.profile}">
+                        Profile Overview
+                   </span>
+
+                    <!-- DELETE BUTTON opens modal -->
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            th:data-bs-target="${'#deleteGuestModal-' + g.id}">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </div>
 
-                <div class="card-footer text-center small text-muted">
-                    <i class="bi bi-person-badge"></i>
-                    <span th:text="#{guests.profile}">Profile Overview</span>
+            </div> <!-- end card -->
+
+            <!-- Delete Modal -->
+            <div class="modal fade"
+                 th:id="${'deleteGuestModal-' + g.id}"
+                 tabindex="-1">
+
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-danger text-white py-2">
+                            <h6 class="modal-title">Confirm Delete</h6>
+                            <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body text-center">
+                            <p class="mb-2">Delete this guest?</p>
+                            <strong th:text="${g.fullName}"></strong>
+                        </div>
+
+                        <div class="modal-footer justify-content-between">
+
+                            <button type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-bs-dismiss="modal">
+                                Cancel
+                            </button>
+
+                            <form th:action="@{|/guests/${g.id}/delete|}" method="post">
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm">
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
                 </div>
+
             </div>
         </div>
-
     </div>
+
 
     <!-- Total Count -->
     <p class="mt-4 text-muted">

@@ -17,18 +17,21 @@ public class GuestJdbcRepository implements GuestRepository {
         this.jdbcClient = jdbcClient;
     }
 
-    //
     // Retrieve all guests from H2 DB
     @Override
     public List<Guest> findAll() {
         return jdbcClient.sql("SELECT * FROM guests")
-                .query((rs, rowNum) -> new Guest(
-                        rs.getString("full_name"),               // fullName
-                        rs.getDate("dob").toLocalDate(),         // dob
-                        rs.getString("email"),                   // email
-                        rs.getBoolean("vip"),                    // vip
-                        rs.getString("avatar_url")               // avatarUrl
-                ))
+                .query((rs, rowNum) -> {
+                    Guest g = new Guest(
+                            rs.getString("full_name"),
+                            rs.getDate("dob").toLocalDate(),
+                            rs.getString("email"),
+                            rs.getBoolean("vip"),
+                            rs.getString("avatar_url")
+                    );
+                    g.setId(rs.getLong("id"));
+                    return g;
+                })
                 .list();
     }
 
@@ -46,5 +49,62 @@ public class GuestJdbcRepository implements GuestRepository {
                 .param("avatarUrl", guest.getAvatarUrl())
                 .update();
         return guest;
+    }
+
+    @Override
+    public Guest findById(long id) {
+        return jdbcClient.sql("SELECT * FROM guests WHERE id = :id")
+                .param("id", id)
+                .query((rs, rowNum) -> {
+                    Guest g = new Guest(
+                            rs.getString("full_name"),
+                            rs.getDate("dob").toLocalDate(),
+                            rs.getString("email"),
+                            rs.getBoolean("vip"),
+                            rs.getString("avatar_url")
+                    );
+                    g.setId(rs.getLong("id"));
+                    return g;
+                })
+                .list()
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public List<Guest> findByRoom(int roomNumber) {
+        return jdbcClient.sql("""
+            SELECT g.*
+            FROM guests g
+            JOIN rooms_guests rg ON g.id = rg.guest_id
+            WHERE rg.room_number = :num
+            """)
+                .param("num", roomNumber)
+                .query((rs, rowNum) -> {
+                    var guest = new Guest(
+                            rs.getString("full_name"),
+                            rs.getDate("dob").toLocalDate(),
+                            rs.getString("email"),
+                            rs.getBoolean("vip"),
+                            rs.getString("avatar_url")
+                    );
+                    guest.setId(rs.getLong("id"));   // important: set DB id
+                    return guest;
+                })
+                .list();
+    }
+
+    @Override
+    public void delete(long id) {
+        // Delete cross table first
+        jdbcClient.sql("DELETE FROM rooms_guests WHERE guest_id = :id")
+                .param("id", id)
+                .update();
+
+        // Then delete the guest
+        jdbcClient.sql("DELETE FROM guests WHERE id = :id")
+                .param("id", id)
+                .update();
     }
 }

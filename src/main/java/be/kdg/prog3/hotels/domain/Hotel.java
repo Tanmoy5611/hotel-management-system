@@ -2,7 +2,9 @@ package be.kdg.prog3.hotels.domain;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // Attributes of Hotel class
 public class Hotel {

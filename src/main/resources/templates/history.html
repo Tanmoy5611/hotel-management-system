@@ -14,10 +14,10 @@
 
 <body class="bg-light">
 
-<!-- 🔹 Navbar fragment -->
+<!-- Navbar fragment -->
 <div th:replace="~{fragments/navbar :: body}"></div>
 
-<!-- 🔹 Main Content -->
+<!-- Main Content -->
 <div class="container my-4">
     <h2 class="text-primary mb-3">
         <i class="bi bi-clock-history me-2"></i>
@@ -30,7 +30,7 @@
             <thead class="table-light">
             <tr>
                 <th class="text-center" style="width: 80px;">#</th>
-                <th>Visited Page & Timestamp</th>
+                <th th:text="#{history.visited}"></th>
             </tr>
             </thead>
             <tbody>
@@ -40,7 +40,8 @@
             </tr>
             <tr th:if="${#lists.isEmpty(history)}">
                 <td colspan="2" class="text-center text-muted fst-italic">
-                    <i class="bi bi-info-circle"></i> No pages visited yet.
+                    <i class="bi bi-info-circle"></i>
+                    <span th:text="#{history.empty}"></span>
                 </td>
             </tr>
             </tbody>
@@ -50,12 +51,13 @@
     <!-- Back Button -->
     <div class="mt-3">
         <a th:href="@{/hotels}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Hotels
+            <i class="bi bi-arrow-left"></i>
+            <span th:text="#{hotel.back}"></span>
         </a>
     </div>
 </div>
 
-<!-- 🔹 Footer fragment -->
+<!-- Footer fragment -->
 <div th:replace="~{fragments/footer :: body}"></div>
 
 </body>

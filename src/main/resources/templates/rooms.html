@@ -25,7 +25,7 @@
         <div class="col-md-3">
             <label for="type" class="form-label fw-semibold" th:text="#{rooms.filter.type}">Type (optional):</label>
             <select id="type" name="type" class="form-select">
-                <option value="">-- Select Type --</option>
+                <option value="" th:text="#{rooms.selectType}"></option>
                 <option th:each="t : ${types}" th:value="${t}" th:text="${t}"
                         th:selected="${t.toString() == selType}"></option>
             </select>
@@ -56,26 +56,29 @@
             </button>
         </div>
 
-        <!-- Large-screen only element -->
+        <!-- Tip -->
         <div class="col-md-2 d-none d-lg-block text-end text-muted fst-italic">
             <i class="bi bi-info-circle"></i>
-            <span th:text="#{rooms.tip}">Tip: Check out the sea-view suites!</span>
+            <span th:text="#{rooms.tip}">Tip: Try sea-view rooms!</span>
         </div>
+
     </form>
 
-    <!-- show table of all rooms -->
+    <!-- ROOM CARDS -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-        <div class="col" th:each="r : ${rooms}">
-            <a th:href="@{'/rooms/' + ${r.number}}"
-               class="text-decoration-none text-dark">
 
-                <div class="card h-100 shadow-sm hover-card">
+        <div class="col" th:each="r : ${rooms}">
+            <div class="card h-100 shadow-sm hover-card">
+
+                <!-- Clickable area -->
+                <a th:href="@{'/rooms/' + ${r.number}}" class="text-decoration-none text-dark">
+                    <!-- Photo -->
                     <img th:src="@{${r.photoUrl}}" class="card-img-top room-img" alt="Room photo">
 
                     <div class="card-body">
                         <h5 class="card-title text-center fw-bold mb-3"
                             th:text="'Room ' + ${r.number}">
-                            Room 101
+                            Room
                         </h5>
 
                         <p class="card-text mb-2">
@@ -85,29 +88,77 @@
 
                         <p class="card-text mb-2">
                             <i class="bi bi-cash-coin text-success"></i>
-                            <span th:text="${r.pricePerNight} + ' € / night'"></span>
+                            <span th:text="${r.pricePerNight} + ' ' + #{rooms.perNight}"></span>
                         </p>
 
                         <p class="card-text">
                             <i class="bi bi-water text-info"></i>
-                            <span th:text="${r.seaView} ? 'Sea View' : 'No Sea View'"></span>
+                            <span th:text="${r.seaView} ? #{rooms.seaYes} : #{rooms.seaNo}"></span>
                         </p>
                     </div>
+                </a>
 
-                    <div class="card-footer text-center small text-muted">
-                        <span th:text="#{rooms.footer.text}">
-                            Comfortable & Cozy
-                        </span>
+                <!-- Footer (Delete button) -->
+                <div class="card-footer small d-flex justify-content-between align-items-center">
+                    <span class="text-muted" th:text="#{rooms.footer.text}">
+                    Comfortable & Cozy
+                   </span>
+
+                    <!-- DELETE BUTTON opens modal -->
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            th:data-bs-target="${'#deleteRoomModal-' + r.number}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+
+            </div>
+
+
+            <!-- DELETE MODAL -->
+            <div class="modal fade" th:id="${'deleteRoomModal-' + r.number}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-danger text-white py-2">
+                            <h6 class="modal-title" th:text="#{modal.delete.title}"></h6>
+                            <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body text-center">
+                            <p class="mb-2" th:text="#{modal.delete.question}"></p>
+                            <strong th:text="'Room ' + ${r.number}"></strong>
+                        </div>
+
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                    data-bs-dismiss="modal"
+                                    th:text="#{button.cancel}">
+                            </button>
+
+                            <form th:action="@{'/rooms/' + ${r.number} + '/delete'}"
+                                  method="post">
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        th:text="#{button.delete}">
+                                </button>
+                            </form>
+                        </div>
+
                     </div>
                 </div>
-            </a>
+
+            </div>
         </div>
     </div>
 
-    <!-- Count rooms -->
+
+    <!-- Room count -->
     <p class="mt-4 text-muted">
         <i class="bi bi-collection"></i>
-        <span th:text="${#lists.size(rooms)} + ' ' + #{rooms.total}">Total rooms: 8</span>
+        <span th:text="${#lists.size(rooms)} + ' ' + #{rooms.total}"></span>
     </p>
 </div>
 

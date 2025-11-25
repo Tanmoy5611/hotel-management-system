@@ -9,12 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * In-memory implementation of GuestRepository.
- * Works when profile = "inmemory".
- * Data comes directly from DataFactory (just like Hotels & Rooms).
- * Author: Tanmoy ✨
- */
+// In-memory implementation of GuestRepository
+
 @Repository
 @Profile("inmemory")
 public class InMemoryGuestRepository implements GuestRepository {
@@ -35,5 +31,31 @@ public class InMemoryGuestRepository implements GuestRepository {
         log.debug("Saving guest (in-memory): {}", guest.getFullName());
         guests.add(guest);
         return guest; // FOLLOWING HotelRepository style
+    }
+
+
+    @Override
+    public Guest findById(long id) {
+        return guests.stream()
+                .filter(g -> g.getId() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public List<Guest> findByRoom(int roomNumber) {
+        return DataFactory.guests.stream()
+                .filter(g -> g.getRooms().stream().anyMatch(r -> r.getNumber() == roomNumber))
+                .toList();
+    }
+
+    @Override
+    public void delete(long id) {
+        DataFactory.guests.removeIf(g -> g.getId() == id);
+
+        // also remove from rooms list (many-to-many)
+        DataFactory.rooms.forEach(r ->
+                r.getGuests().removeIf(g -> g.getId() == id)
+        );
     }
 }

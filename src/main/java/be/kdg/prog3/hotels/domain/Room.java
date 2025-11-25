@@ -1,5 +1,8 @@
 package be.kdg.prog3.hotels.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 // Attributes of Room class
 public class Room {
     private int number;
@@ -9,6 +12,16 @@ public class Room {
     private String photoUrl;
 
     private Hotel hotel;  /// many-to-one
+
+    private final Set<Guest> guests = new HashSet<>();
+
+    public Set<Guest> getGuests() {
+        return guests;
+    }
+
+    public void addGuest(Guest g) {
+        guests.add(g);
+    }
 
     // Default constructor for Spring and Thymeleaf forms to create objects
     public Room() {
@@ -81,7 +94,7 @@ public class Room {
     public void setHotel(Hotel hotel) {
         this.hotel = hotel;
 
-        if  (hotel != null & !hotel.getRooms().contains(this)) {
+        if  (hotel != null && !hotel.getRooms().contains(this)) {
             hotel.addRoom(this);
         }
     }

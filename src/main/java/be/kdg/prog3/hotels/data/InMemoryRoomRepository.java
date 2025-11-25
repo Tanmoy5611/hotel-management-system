@@ -30,4 +30,33 @@ public class InMemoryRoomRepository implements RoomRepository {
         DataFactory.rooms.add(room);
         return room;
     }
+
+    @Override
+    public Room findById(int number) {
+        return DataFactory.rooms.stream()
+                .filter(r -> r.getNumber() == number)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public List<Room> findByHotel(String hotelId) {
+        return DataFactory.rooms.stream()
+                .filter(r -> r.getHotel().getId().equals(hotelId))
+                .toList();
+    }
+
+    @Override
+    public List<Room> findByGuest(long guestId) {
+        return DataFactory.guests.stream()
+                .filter(g -> g.getId() == guestId)
+                .findFirst()
+                .map(g -> List.copyOf(g.getRooms()))
+                .orElse(List.of());
+    }
+
+    @Override
+    public void delete(int number) {
+        DataFactory.rooms.removeIf(r -> r.getNumber() == number);
+    }
 }

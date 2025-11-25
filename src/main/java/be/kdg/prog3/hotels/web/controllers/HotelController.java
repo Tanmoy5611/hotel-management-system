@@ -1,6 +1,7 @@
 package be.kdg.prog3.hotels.web.controllers;
 
 import be.kdg.prog3.hotels.business.HotelService;
+import be.kdg.prog3.hotels.business.RoomService;
 import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.domain.Hotel;
 import be.kdg.prog3.hotels.viewmodel.HotelForm;
@@ -19,10 +20,12 @@ public class HotelController {
     // Logger for debugging messages
     private static final Logger log = LoggerFactory.getLogger(HotelController.class);
     private final HotelService hotelService;   // injecting the HotelService to access business logic
+    private final RoomService roomService;
 
     // Constructor injection (Spring will automatically provide the HotelService bean)
-    public HotelController(HotelService hotelService) {
+    public HotelController(HotelService hotelService, RoomService roomService) {
         this.hotelService = hotelService;
+        this.roomService = roomService;
     }
 
     // method of showing all Hotels (list) + filter them based on: minStars +  opened date
@@ -37,7 +40,7 @@ public class HotelController {
         if (minStars == null) {
             model.addAttribute("hotels", hotelService.getAllHotels());
 
-        // If minStars is given, call service method to filter by stars and optional date
+            // If minStars is given, call service method to filter by stars and optional date
         } else {
             model.addAttribute("hotels", hotelService.getHotelsByMinStarsAndDate(minStars, dateIn));
         }
@@ -55,12 +58,11 @@ public class HotelController {
 
     }
 
-    // Save  new Hotel
+    // Save new Hotel
     // This method processes the form submission for adding  new hotel
     @PostMapping("/add")
     public String addSubmit(@ModelAttribute("hotelForm") @Valid HotelForm hotelForm,
-                            BindingResult bindingResult,
-                            Model model) {
+                            BindingResult bindingResult) {
 
         // If the form has validation errors, reload the same page
         if (bindingResult.hasErrors()) {
@@ -69,7 +71,7 @@ public class HotelController {
         }
 
         // Convert ViewModel → Domain object manually
-        var hotel = new Hotel();
+        Hotel hotel = new Hotel();
         hotel.setName(hotelForm.getName());
         hotel.setOpenedOn(hotelForm.getOpenedOn());
         hotel.setStars(hotelForm.getStars());
@@ -88,21 +90,34 @@ public class HotelController {
     @GetMapping("/{id}")
     public String showHotelDetails(@PathVariable String id, Model model) {
 
-        // Search for the hotel with the matching id (case-insensitive)
-        var hotel = DataFactory.hotels.stream()
-                .filter(h -> h.getId().equalsIgnoreCase(id))
-                .findFirst()
-                .orElse(null);
+        //  Load hotel from DB using service
+        Hotel hotel = hotelService.getHotelById(id);
 
-        // If no hotel found, redirect to main hotels list
         if (hotel == null) {
             return "redirect:/hotels";
         }
 
+        // Load rooms for this hotel using RoomService (JDBC compatible) (Many-to-One)
+        var rooms = roomService.getRoomsByHotel(id);
+
+        // calculate total guests
+        int totalGuests = rooms.stream()
+                .mapToInt(r -> r.getGuests().size())
+                .sum();
+
         // Add the found hotel to the model so Thymeleaf can display it
         model.addAttribute("hotel", hotel);
+        model.addAttribute("rooms", rooms);
+        model.addAttribute("totalGuests", totalGuests);
+
         return "hotel-detail";
     }
 
+    @PostMapping("/{id}/delete")
+    public String deleteHotel(@PathVariable String id) {
+        log.debug("Deleting hotel {}", id);
+        hotelService.deleteHotel(id);
+        return "redirect:/hotels";
+    }
 
 }

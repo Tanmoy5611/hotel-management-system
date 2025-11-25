@@ -23,6 +23,9 @@ public class RoomForm {
     @NotBlank(message = "{room.photo.required}")
     private String photoUrl;
 
+    @NotBlank
+    private String hotelId;
+
     // Getters and setters
     public int getNumber() {
         return number;
@@ -63,4 +66,8 @@ public class RoomForm {
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
     }
+
+    public String getHotelId() { return hotelId; }
+
+    public void setHotelId(String hotelId) { this.hotelId = hotelId; }
 }
