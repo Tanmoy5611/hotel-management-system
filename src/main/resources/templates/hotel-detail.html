@@ -158,7 +158,7 @@
                         <div class="d-flex mt-1">
 
                             <!-- Guest avatars -->
-                            <img th:each="g, iter : ${r.guests}"
+                            <img th:each="g, iter : ${guestsPerRoom[r.number]}"
                                  th:if="${iter.index < 2}"
                                  th:src="@{${g.avatarUrl}}"
                                  class="rounded-circle me-2"
@@ -166,9 +166,9 @@
                                  alt="Guest">
 
                             <!-- +X more -->
-                            <span th:if="${#lists.size(r.guests) > 2}" class="text-muted ms-1">
-                               +<span th:text="${#lists.size(r.guests) - 2}"></span>
-                               <span th:text="#{hotel.more}"></span>
+                            <span th:if="${#lists.size(guestsPerRoom[r.number]) > 2}" class="text-muted ms-1">
+                                 +<span th:text="${#lists.size(guestsPerRoom[r.number]) - 2}"></span>
+                                 <span th:text="#{hotel.more}"></span>
                             </span>
 
                         </div>

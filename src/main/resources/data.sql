@@ -1,15 +1,14 @@
 INSERT INTO hotels (id, name, opened_on, stars, has_spa, image_url)
-VALUES ('plaza-athenee-paris', 'Hotel Plaza Athénée, Paris', '1913-05-20', 5, TRUE, '/images/hotels/plaza_athene.jpg'),
-       ('langham-london', 'The Langham, London', '1865-01-01', 5, FALSE, '/images/hotels/langham.jpg'),
-       ('radisson-stockholm', 'Radisson Blu Strand, Stockholm', '1912-04-15', 4, FALSE,
+VALUES ('plaza-athenee-paris', 'Hotel Plaza Athénée, Paris', '1913-04-20', 5, TRUE, '/images/hotels/plaza_athene.jpg'),
+       ('langham-london', 'The Langham, London', '1865-06-10', 5, FALSE, '/images/hotels/langham.jpg'),
+       ('radisson-stockholm', 'Radisson Blu Strand, Stockholm', '1912-02-24', 4, FALSE,
         '/images/hotels/radisson_blu_strand.jpg'),
        ('radisson-antwerp', 'Radisson Blu Astrid Hotel, Antwerp', '1998-06-15', 4, TRUE,
         '/images/hotels/radisson_blu_antwerp.jpg'),
        ('amigo-brussels', 'Hotel Amigo, Brussels', '1957-09-01', 5, TRUE, '/images/hotels/amigo.jpg'),
-       ('hilton-old-town', 'Hilton Old Town, Antwerp', '1957-09-01', 5, TRUE, '/images/hotels/hilton.jpg'),
+       ('hilton-old-town', 'Hilton Old Town, Antwerp', '1993-09-01', 5, TRUE, '/images/hotels/hilton.jpg'),
        ('c-hotels-slit', 'C-Hotels Silt, Middelkerke', '2024-03-22', 4, TRUE, '/images/hotels/silt.jpg'),
        ('van-der-valk', 'Van der Valk Hotel, Ghent', '2021-04-01', 4, TRUE, '/images/hotels/van_der.jpg'),
-
        ('pan-pacific', 'Pan Pacific, London', '2021-09-01', 5, TRUE, '/images/hotels/pan_pacific.jpg');
 
 INSERT INTO rooms (number, type, price_per_night, sea_view, photo_url, hotel_id)
@@ -47,7 +46,7 @@ VALUES (101, 'SINGLE', 150.0, FALSE, '/images/rooms/plaza_athene_single.jpg', 'p
 
        (811, 'SUITE', 565.0, FALSE, '/images/rooms/pan_pacific_suite.jpg', 'pan-pacific'),
        (839, 'DOUBLE', 300.0, FALSE, '/images/rooms/pan_pacific_double.jpg', 'pan-pacific'),
-       (857, 'SINGLE', 220.0, FALSE, '/images/rooms/pan_pacific_suite.jpg', 'pan-pacific');
+       (857, 'SINGLE', 220.0, FALSE, '/images/rooms/pan_pacific_single.jpg', 'pan-pacific');
 
 INSERT INTO guests (full_name, dob, email, vip, avatar_url)
 VALUES ('Billie Wilson', '1990-04-10', 'billie.wilson@example.com', TRUE, '/images/guests/billie_wilson.jpg'),
@@ -56,44 +55,121 @@ VALUES ('Billie Wilson', '1990-04-10', 'billie.wilson@example.com', TRUE, '/imag
        ('Ahanyna Saha', '2002-11-28', 'ahanyna.saha@gmail.com', TRUE, '/images/guests/ahanyna_saha.jpg'),
        ('Olivia Garcia', '1995-02-08', 'olivia.garcia@example.com', TRUE, '/images/guests/olivia_garcia.jpg'),
        ('Ethan Brown', '1991-06-15', 'ethan.brown@example.com', FALSE, '/images/guests/ethan_brown.jpg'),
-       ('Mia Chen', '1997-03-22', 'mia.chen@example.com', TRUE, '/images/guests/mia_chen.jpg'),
-       ('Alexander Rossi', '1989-11-09', 'alex.rossi@example.com', FALSE, '/images/guests/alexander_rossi.jpg'),
-       ('Marrison Harri', '2001-06-12', 'harri@example.com', TRUE, '/images/guests/marrison_harri.jpg'),
+       ('Mia Chen', '1997-03-22', 'mia.chen@example.com', FALSE, '/images/guests/mia_chen.jpg'),
+       ('Alexander Rossi', '1989-11-09', 'alex.rossi@example.com', TRUE, '/images/guests/alexander_rossi.jpg'),
+       ('Marrison Harri', '2001-06-12', 'harri@example.com', FALSE, '/images/guests/marrison_harri.jpg'),
        ('Emma Janssens', '1995-04-10', 'emma.janssens@example.com', FALSE, '/images/guests/emma_janssens.jpg'),
        ('Lucas Peeters', '1988-11-21', 'lucas.peeters@example.com', TRUE, '/images/guests/lucas_peeters.jpg'),
        ('Kate Claes', '1992-07-15', 'kate.claes@example.com', FALSE, '/images/guests/kate_claes.jpg'),
-       ('Noah Smith', '1988-07-25', 'noah.smith@example.com', FALSE, '/images/guests/noah_smith.jpg');
+       ('Noah Smith', '1988-07-25', 'noah.smith@example.com', FALSE, '/images/guests/noah_smith.jpg'),
+
+       ('Arthur Evans', '1955-10-10', 'arthur.evans@example.com', FALSE, '/images/guests/arthur_evans.jpg'),
+       ('Robert Sterling', '1962-02-20', 'robert.sterling@example.com', TRUE, '/images/guests/robert_sterling.jpg'),
+       ('Eleanor Vance', '1948-05-18', 'eleanor.vance@example.com', FALSE, '/images/guests/eleanor_vance.jpg'),
+       ('David Chen', '1970-12-05', 'david.chen@example.com', TRUE, '/images/guests/david_chen.jpg'),
+       ('Gabriel Reyes', '1985-08-25', 'gabriel.reyes@example.com', FALSE, '/images/guests/gabriel_reyes.jpg'),
+       ('Anya Lee', '1992-06-01', 'anya.lee@example.com', TRUE, '/images/guests/anya_lee.jpg'),
+       ('Elsa Nordin', '1998-03-15', 'elsa.nordin@example.com', FALSE, '/images/guests/elsa_nordin.jpg'),
+       ('Liam Jensen', '2001-07-22', 'liam.jensen@example.com', FALSE, '/images/guests/liam_jensen.jpg'),
+       ('Sofia Rossi', '1995-11-28', 'sofia.rossi@example.com', TRUE, '/images/guests/sofia_rossi.jpg'),
+       ('Ethan Miller', '1997-04-10', 'ethan.miller@example.com', TRUE, '/images/guests/ethan_miller.jpg'),
+       ('Ronan OConnell', '2002-09-05', 'ronan.oconnell@example.com', FALSE, '/images/guests/ronan_oconnell.jpg'),
+       ('Nancy Sanchez', '2000-01-30', 'nancy.sanchez@example.com', FALSE, '/images/guests/nancy_sanchez.jpg'),
+       ('Mark Thompson', '1968-09-12', 'mark.thompson@example.com', TRUE, '/images/guests/mark_thompson.jpg'),
+       ('Richard Stone', '1961-04-05', 'richard.stone@example.com', TRUE, '/images/guests/richard_stone.jpg'),
+       ('Anna Svensson', '1999-06-20', 'anna.svensson@example.com', FALSE, '/images/guests/anna_svensson.jpg'),
+       ('Chloe Dubois', '2000-01-15', 'chloe.dubois@example.com', FALSE, '/images/guests/chloe_dubois.jpg'),
+       ('Thomas Keller', '1972-03-25', 'thomas.keller@example.com', TRUE, '/images/guests/thomas_keller.jpg'),
+       ('Keya Saha', '1996-10-08', 'keya.saha@example.com', TRUE, '/images/guests/keya_saha.jpg');
+
+
 
 INSERT INTO rooms_guests (room_number, guest_id)
-VALUES (102, 1),
-       (201, 1),
-
-       (101, 2),
-       (202, 2),
-
-       (301, 3),
-       (302, 3),
-
-       (401, 4),
-
-       (102, 5),
-       (402, 5),
-
-       (201, 6),
-
-       (301, 7),
-       (302, 7),
-
+VALUES (101, 2),
+       (101, 27),
+       (101, 30),
+       (101, 15),
+       (101, 9),
        (101, 8),
+       (102, 1),
+       (102, 28),
+       (102, 29),
+       (102, 14),
+       (102, 5),
+       (201, 1),
+       (201, 6),
+       (201, 16),
+       (201, 26),
+       (201, 19),
+       (201, 22),
+
+
+       (202, 2),
+       (202, 23),
+       (202, 17),
+       (301, 3),
+       (301, 22),
+       (301, 7),
+       (401, 4),
+       (401, 21),
+       (401, 18),
+       (401, 19),
+       (401, 28),
+       (401, 7),
+       (401, 9),
+
+       (302, 3),
+       (302, 7),
+       (402, 5),
+       (403, 13),
+       (403, 6),
+       (403, 20),
+       (403, 24),
+
 
        (501, 9),
+       (501, 10),
+       (502, 11),
        (502, 9),
-
        (503, 10),
+       (503, 12),
+       (503, 21),
 
+       (601, 13),
+       (601, 10),
+       (601, 24),
        (601, 11),
+       (602, 30),
        (602, 11),
-
        (603, 12),
+       (603, 27),
 
-       (403, 13);
+       (450, 14),
+       (450, 2),
+       (480, 15),
+       (490, 16),
+       (490, 17),
+       (490, 20),
+
+       (533, 17),
+       (563, 18),
+       (563, 9),
+       (563, 20),
+       (579, 21),
+       (579, 19),
+       (579, 12),
+       (579, 23),
+
+       (703, 20),
+       (705, 21),
+       (709, 22),
+       (709, 23),
+       (709, 4),
+
+       (811, 31),
+       (811, 12),
+       (839, 24),
+       (839, 23),
+       (857, 25),
+       (857, 26),
+       (857, 18);

@@ -47,6 +47,7 @@ public class RoomController {
         Optional<RoomType> t = (type == null || type.isBlank())
                 ? Optional.empty()
                 : Optional.of(RoomType.valueOf(type.toUpperCase()));
+
         Optional<Boolean> v = Optional.ofNullable(sea);
         Optional<Double> p = Optional.ofNullable(maxPrice);
 
@@ -92,7 +93,7 @@ public class RoomController {
         }
 
         // Convert ViewModel to Domain object manually
-        var room = new Room();
+        Room room = new Room();
         room.setNumber(roomForm.getNumber());
         room.setType(roomForm.getType());
         room.setPricePerNight(roomForm.getPricePerNight());
@@ -114,14 +115,11 @@ public class RoomController {
     public String showRoomDetails(@PathVariable int number, Model model) {
 
         // Find the room that matches the given room number
-        var room = roomService.getAllRooms().stream()
-                .filter(r -> r.getNumber() == number)
-                .findFirst()
-                .orElse(null);
+        var room = roomService.getRoomByNumber(number);
 
         // If no room found, redirect back to the rooms list
         if (room == null) {
-            log.debug("Room {} not found, redirecting to /rooms", number);
+            log.error("Room {} not found!", number);
             return "redirect:/rooms";
         }
 

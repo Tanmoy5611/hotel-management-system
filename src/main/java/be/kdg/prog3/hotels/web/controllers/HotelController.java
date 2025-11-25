@@ -1,9 +1,12 @@
 package be.kdg.prog3.hotels.web.controllers;
 
+import be.kdg.prog3.hotels.business.GuestService;
 import be.kdg.prog3.hotels.business.HotelService;
 import be.kdg.prog3.hotels.business.RoomService;
 import be.kdg.prog3.hotels.data.DataFactory;
+import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Hotel;
+import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.viewmodel.HotelForm;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -13,6 +16,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 // this controller handles all web requests for the hotels page
 @Controller
 @RequestMapping("/hotels")        // base url for all methods in this controller
@@ -21,11 +28,13 @@ public class HotelController {
     private static final Logger log = LoggerFactory.getLogger(HotelController.class);
     private final HotelService hotelService;   // injecting the HotelService to access business logic
     private final RoomService roomService;
+    private final GuestService guestService;
 
     // Constructor injection (Spring will automatically provide the HotelService bean)
-    public HotelController(HotelService hotelService, RoomService roomService) {
+    public HotelController(HotelService hotelService, RoomService roomService, GuestService guestService) {
         this.hotelService = hotelService;
         this.roomService = roomService;
+        this.guestService = guestService;
     }
 
     // method of showing all Hotels (list) + filter them based on: minStars +  opened date
@@ -100,14 +109,21 @@ public class HotelController {
         // Load rooms for this hotel using RoomService (JDBC compatible) (Many-to-One)
         var rooms = roomService.getRoomsByHotel(id);
 
-        // calculate total guests
-        int totalGuests = rooms.stream()
-                .mapToInt(r -> r.getGuests().size())
+        // Load guests for each room (JDBC)
+        Map<Integer, List<Guest>> guestsPerRoom = new HashMap<>();
+        for (Room r : rooms) {
+            guestsPerRoom.put(r.getNumber(), guestService.getGuestsByRoom(r.getNumber()));
+        }
+
+        // Total guests (JDBC version)
+        int totalGuests = guestsPerRoom.values().stream()
+                .mapToInt(List::size)
                 .sum();
 
         // Add the found hotel to the model so Thymeleaf can display it
         model.addAttribute("hotel", hotel);
         model.addAttribute("rooms", rooms);
+        model.addAttribute("guestsPerRoom", guestsPerRoom);
         model.addAttribute("totalGuests", totalGuests);
 
         return "hotel-detail";

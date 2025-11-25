@@ -77,7 +77,7 @@
 
             <tbody>
             <tr th:each="r : ${rooms}"
-                th:onclick="'window.location.href=\'/rooms/' + '[[${r.number}]]\''"
+                th:onclick="'window.location.href=\'/rooms/' + ${r.number} + '\';'"
                 style="cursor:pointer;">
                 <td th:text="${r.number}">101</td>
                 <td th:text="${r.type}">SINGLE</td>
@@ -86,6 +86,7 @@
                 <td th:text="${r.hotel.name}">Hotel Name</td>
             </tr>
             </tbody>
+
         </table>
     </div>
 
