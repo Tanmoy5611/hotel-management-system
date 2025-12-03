@@ -8,6 +8,7 @@ import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.RoomType;
 import be.kdg.prog3.hotels.viewmodel.RoomForm;
 
+import jakarta.persistence.Convert;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +93,7 @@ public class RoomController {
             return "add-room";
         }
 
-        // Convert ViewModel to Domain object manually
+        /* Convert ViewModel to Domain object manually
         Room room = new Room();
         room.setNumber(roomForm.getNumber());
         room.setType(roomForm.getType());
@@ -100,7 +101,19 @@ public class RoomController {
         room.setSeaView(roomForm.isSeaView());
         room.setPhotoUrl(roomForm.getPhotoUrl());
 
+        var hotel = hotelService.getHotelById(roomForm.getHotelId()); */
+
+        // using full constructor because JPA no-args constructor is protected
         var hotel = hotelService.getHotelById(roomForm.getHotelId());
+
+        Room room = new Room(
+                roomForm.getNumber(),
+                roomForm.getType(),
+                roomForm.getPricePerNight(),
+                roomForm.isSeaView(),
+                roomForm.getPhotoUrl()
+        );
+
         room.setHotel(hotel);
 
         // Log and save new room data using service layer

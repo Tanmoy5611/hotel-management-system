@@ -36,12 +36,16 @@ public class GuestController {
         return "guests";
     }
 
-    // get guest details + list of rooms they stayed in
+    // get guest details + list of rooms they stayed in (many-to-many)
     @GetMapping("/guests/{id}")
     public String showGuestDetails(@PathVariable long id, Model model) {
 
-        // Load guest by ID using JDBC repository
+        /* Load guest by ID using JDBC repository
+        Guest guest = guestService.getGuestById(id); */
+
+        // Load guest by ID using JPA repository
         Guest guest = guestService.getGuestById(id);
+
         if (guest == null)
             return "redirect:/guests";
 

@@ -8,6 +8,7 @@ import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Hotel;
 import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.viewmodel.HotelForm;
+import jakarta.persistence.Convert;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,13 +80,23 @@ public class HotelController {
             return "add-hotel";
         }
 
-        // Convert ViewModel → Domain object manually
+        /* Convert ViewModel → Domain object manually
         Hotel hotel = new Hotel();
         hotel.setName(hotelForm.getName());
         hotel.setOpenedOn(hotelForm.getOpenedOn());
         hotel.setStars(hotelForm.getStars());
         hotel.setHasSpa(hotelForm.isHasSpa());
-        hotel.setImageUrl(hotelForm.getImageUrl());
+        hotel.setImageUrl(hotelForm.getImageUrl());  */
+
+        // JPA - Using full constructor because no-args is protected
+        Hotel hotel = new Hotel(
+                null,   // ID auto-generated in service layer
+                hotelForm.getName(),
+                hotelForm.getOpenedOn(),
+                hotelForm.getStars(),
+                hotelForm.isHasSpa(),
+                hotelForm.getImageUrl()
+        );
 
         // Log and save the new hotel through the service layer
         log.debug("Creating new hotel: {}", hotel);
@@ -101,7 +112,6 @@ public class HotelController {
 
         //  Load hotel from DB using service
         Hotel hotel = hotelService.getHotelById(id);
-
         if (hotel == null) {
             return "redirect:/hotels";
         }

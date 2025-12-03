@@ -64,7 +64,7 @@
 
     </form>
 
-    <!-- ROOM CARDS -->
+    <!-- Room cards -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
 
         <div class="col" th:each="r : ${rooms}">
@@ -104,7 +104,7 @@
                     Comfortable & Cozy
                    </span>
 
-                    <!-- DELETE BUTTON opens modal -->
+                    <!-- Delete button opens modal -->
                     <button type="button"
                             class="btn btn-sm btn-outline-danger"
                             data-bs-toggle="modal"
@@ -116,7 +116,7 @@
             </div>
 
 
-            <!-- DELETE MODAL -->
+            <!-- Delete modal -->
             <div class="modal fade" th:id="${'deleteRoomModal-' + r.number}" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content">

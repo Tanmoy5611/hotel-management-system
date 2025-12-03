@@ -1,17 +1,19 @@
-package be.kdg.prog3.hotels.data;
+package be.kdg.prog3.hotels.data.jdbc;
 
+import be.kdg.prog3.hotels.data.HotelRepository;
 import be.kdg.prog3.hotels.domain.Hotel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 @Repository
 @Profile("jdbc")
-public class HotelJdbcRepository implements HotelRepository {
+public class JdbcHotelRepository implements HotelRepository {
     private final JdbcClient jdbcClient;
 
-    public HotelJdbcRepository(JdbcClient jdbcClient) {
+    public JdbcHotelRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
 
@@ -31,9 +33,9 @@ public class HotelJdbcRepository implements HotelRepository {
     @Override
     public Hotel save(Hotel hotel) {
         jdbcClient.sql("""
-        INSERT INTO hotels(id, name, opened_on, stars, has_spa, image_url)
-        VALUES(:id, :name, :opened_on, :stars, :spa, :image)
-        """)
+                        INSERT INTO hotels(id, name, opened_on, stars, has_spa, image_url)
+                        VALUES(:id, :name, :opened_on, :stars, :spa, :image)
+                        """)
                 .param("id", hotel.getId())
                 .param("name", hotel.getName())
                 .param("opened_on", hotel.getOpenedOn())
@@ -46,7 +48,7 @@ public class HotelJdbcRepository implements HotelRepository {
     }
 
     @Override
-    public Hotel findById(String id) {
+    public Hotel findHotelById(String id) {
         return jdbcClient.sql("SELECT * FROM hotels WHERE id = :id")
                 .param("id", id)
                 .query((rs, row) -> new Hotel(

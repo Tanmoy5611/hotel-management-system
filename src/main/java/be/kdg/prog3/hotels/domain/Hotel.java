@@ -6,22 +6,47 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.persistence.*;
+
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "hotels")
+
 // Attributes of Hotel class
 public class Hotel {
+
+    @Id
+    @Column(name = "id")
     private String id;           // URL safe identifier for /hotels/{id}
+
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "opened_on")
     private LocalDate openedOn;
+
+    @Column(name = "stars")
     private int stars;
+
+    @Column(name = "has_spa")
     private boolean hasSpa;
+
+    @Column(name = "image_url")
     private String imageUrl;
 
-    // Create a list - Each hotel has many rooms
-    private final List<Room> rooms = new ArrayList<>();
+    // Create a list - Each hotel has many rooms- 1 hotel → many rooms (inverse side)
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+    // This automatically deletes Rooms when Hotel is deleted.
+    private List<Room> rooms = new ArrayList<>();
+
+    // --- JPA requires a no-arg constructor ---
+    protected Hotel() {
+    }
 
     // Default constructor for Spring and Thymeleaf forms to create objects
-    public Hotel() {
-
-    }
+    //  public Hotel() {
+    //  }
 
 
     // Constructor
@@ -36,7 +61,9 @@ public class Hotel {
 
 
     // Getters to access attributes
-    public String getId() { return id; }
+    public String getId() {
+        return id;
+    }
 
     public String getName() {
         return name;
@@ -67,6 +94,7 @@ public class Hotel {
         this.id = id;
 
     }
+
     public void setName(String name) {
         this.name = name;
 
@@ -100,10 +128,18 @@ public class Hotel {
         }
     }
 
+    // Method to remove a room from the hotel
+    public void removeRoom(Room room) {
+        rooms.remove(room);
+        if (room.getHotel() == this) {
+            room.setHotel(null);
+        }
+    }
+
     // Override toString method to print hotel details
     @Override
     public String toString() {
-        return name + " [" + id + stars + "★, spa=" + hasSpa + ", opened=" + openedOn + "]";
+        return name + " [" + id + "'" + stars + "★, spa=" + hasSpa + ", opened=" + openedOn + "]";
 
     }
 

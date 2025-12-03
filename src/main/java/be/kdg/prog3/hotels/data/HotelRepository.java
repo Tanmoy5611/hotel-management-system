@@ -10,7 +10,7 @@ public interface HotelRepository {
 
     Hotel save(Hotel hotel);  // saves a new hotel to the data source
 
-    Hotel findById(String id);
+    Hotel findHotelById(String id);
 
     void delete(String id);
 

@@ -22,14 +22,14 @@ public class MenuView {
     // Shows the main menu options on screen
     public void showMenu() {
         System.out.println("""
-            What would you like to do?
-            ==========================
-            0) Quit
-            1) Show all hotels
-            2) Show hotels with minimum stars and opened date
-            3) Show all rooms
-            4) Show rooms with optional filters (type / sea view / max price)
-            """);
+                What would you like to do?
+                ==========================
+                0) Quit
+                1) Show all hotels
+                2) Show hotels with minimum stars and opened date
+                3) Show all rooms
+                4) Show rooms with optional filters (type / sea view / max price)
+                """);
 
         System.out.print("Make your choice (0-4): ");
 

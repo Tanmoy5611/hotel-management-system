@@ -1,25 +1,42 @@
 package be.kdg.prog3.hotels.domain;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+
 // Attributes of Guest class
+@Entity
+@Table(name = "guests")
 public class Guest {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private String email;
     private boolean vip;
+
+    @Column(name = "avatar_url")
     private String avatarUrl;
+
+    @Column(name = "full_name")
     private String fullName;
     private LocalDate dob;
 
-    /// many-to-many with Room for storing a set of rooms booked
-    private final Set<Room> rooms = new HashSet<>();
+    /// many-to-many with Room for storing a set of rooms booked - inverse side
+    @ManyToMany(mappedBy = "guests")
+    private Set<Room> rooms = new HashSet<>();
+
+    // Empty constructor
+    protected Guest() {
+    }
 
     // Default constructor for Spring and Thymeleaf forms to create objects
-    public Guest() {
-
-    }
+    // public Guest() {
+    // }
 
 
     // Constructor
@@ -36,6 +53,7 @@ public class Guest {
     public long getId() {
         return id;
     }
+
     public String getFullName() {
         return fullName;
     }
@@ -55,6 +73,11 @@ public class Guest {
     public String getAvatarUrl() {
         return avatarUrl;
     }
+
+    public Set<Room> getRooms() {
+        return rooms;
+    }
+
 
     // Setters
     public void setId(long id) {
@@ -84,13 +107,10 @@ public class Guest {
     }
 
 
-    public Set<Room> getRooms() {
-        return rooms;
-    }
-
-    // Method to add a room to guest's booking
+    // Method to add a room to guest's booking - Relationship helper
     public void addRoom(Room room) {
         rooms.add(room);
+        room.getGuests().add(this);   // sync bidirectionally
     }
 
 

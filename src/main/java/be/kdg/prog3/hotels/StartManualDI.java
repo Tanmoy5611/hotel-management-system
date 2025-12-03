@@ -2,6 +2,8 @@ package be.kdg.prog3.hotels;
 
 import be.kdg.prog3.hotels.data.*;
 import be.kdg.prog3.hotels.business.*;
+import be.kdg.prog3.hotels.data.inmemory.InMemoryHotelRepository;
+import be.kdg.prog3.hotels.data.inmemory.InMemoryRoomRepository;
 import be.kdg.prog3.hotels.presentation.*;
 import be.kdg.prog3.hotels.data.DataFactory;
 

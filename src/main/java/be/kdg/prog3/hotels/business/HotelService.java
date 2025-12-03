@@ -1,10 +1,11 @@
 package be.kdg.prog3.hotels.business;
 
 import be.kdg.prog3.hotels.domain.Hotel;
+
 import java.util.List;
 
 
-    // Interface for business logic related to hotels
+// Interface for business logic related to hotels
 public interface HotelService {
     List<Hotel> getAllHotels();   // Returns all hotels
 

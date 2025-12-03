@@ -1,5 +1,7 @@
-package be.kdg.prog3.hotels.data;
+package be.kdg.prog3.hotels.data.inmemory;
 
+import be.kdg.prog3.hotels.data.DataFactory;
+import be.kdg.prog3.hotels.data.HotelRepository;
 import be.kdg.prog3.hotels.domain.Hotel;
 import be.kdg.prog3.hotels.domain.Room;
 
@@ -41,7 +43,7 @@ public class InMemoryHotelRepository implements HotelRepository {
     }
 
     @Override
-    public Hotel findById(String id) {
+    public Hotel findHotelById(String id) {
         return DataFactory.hotels.stream()
                 .filter(h -> h.getId().equals(id))
                 .findFirst()
@@ -57,7 +59,6 @@ public class InMemoryHotelRepository implements HotelRepository {
         DataFactory.rooms.removeIf(r -> r.getHotel() != null &&
                 r.getHotel().getId().equals(id));
     }
-
 
 
 }

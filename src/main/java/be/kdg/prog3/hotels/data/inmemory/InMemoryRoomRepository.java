@@ -1,6 +1,9 @@
-package be.kdg.prog3.hotels.data;
+package be.kdg.prog3.hotels.data.inmemory;
 
+import be.kdg.prog3.hotels.data.DataFactory;
+import be.kdg.prog3.hotels.data.RoomRepository;
 import be.kdg.prog3.hotels.domain.Room;
+
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -25,7 +28,7 @@ public class InMemoryRoomRepository implements RoomRepository {
 
     // Adds new room to the in-memory list
     @Override
-    public Room save (Room room) {
+    public Room save(Room room) {
         log.debug("Saving room: {}", room);
         DataFactory.rooms.add(room);
         return room;

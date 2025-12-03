@@ -2,7 +2,6 @@ package be.kdg.prog3.hotels;
 
 import be.kdg.prog3.hotels.data.DataFactory;
 import org.springframework.boot.SpringApplication;
-
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 

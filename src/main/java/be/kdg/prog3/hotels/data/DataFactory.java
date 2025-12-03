@@ -1,6 +1,9 @@
 package be.kdg.prog3.hotels.data;
 
 import be.kdg.prog3.hotels.domain.*;
+import be.kdg.prog3.hotels.domain.Guest;
+import be.kdg.prog3.hotels.domain.Hotel;
+import be.kdg.prog3.hotels.domain.Room;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,7 +34,7 @@ public class DataFactory {
                 "/images/hotels/plaza_athene.jpg");
         var h2 = new Hotel("langham-london", "The Langham, London", LocalDate.of(1865, 6, 10), 5, false,
                 "/images/hotels/langham.jpg");
-        var h3 = new Hotel("radisson-stockholm","Radisson Blu Strand, Stockholm", LocalDate.of(1912, 2, 24), 4, false,
+        var h3 = new Hotel("radisson-stockholm", "Radisson Blu Strand, Stockholm", LocalDate.of(1912, 2, 24), 4, false,
                 "/images/hotels/radisson_blu_strand.jpg");
         var h4 = new Hotel("radisson-antwerp", "Radisson Blu Astrid Hotel, Antwerp",
                 LocalDate.of(1998, 6, 15), 4, true,
@@ -119,7 +122,6 @@ public class DataFactory {
                 "/images/rooms/pan_pacific_suite.jpg");
 
 
-
         // Attach rooms to hotels (many-to-one)
         h1.addRoom(r101);
         h1.addRoom(r102);
@@ -158,7 +160,6 @@ public class DataFactory {
         h9.addRoom(r857);
 
 
-
         // Guests (>=5, here is 13 guests data)
         var g1 = new Guest("Billie Wilson", LocalDate.of(1990, 4, 10), "billie.wilson@example.com", true,
                 "/images/guests/billie_wilson.jpg");
@@ -166,7 +167,7 @@ public class DataFactory {
                 "/images/guests/liam_johnson.jpg");
         var g3 = new Guest("Sophia Martinez", LocalDate.of(1992, 9, 18), "sophia.martinez@example.com", true,
                 "/images/guests/sophia_martinez.jpg");
-        var g4 = new Guest("Ahanyna Saha", LocalDate.of(2002, 11,28), "ahanyna.saha@gmail.com", true,
+        var g4 = new Guest("Ahanyna Saha", LocalDate.of(2002, 11, 28), "ahanyna.saha@gmail.com", true,
                 "/images/guests/ahanyna_saha.jpg");
         var g5 = new Guest("Olivia Garcia", LocalDate.of(1995, 2, 8), "olivia.garcia@example.com", true,
                 "/images/guests/olivia_garcia.jpg");
@@ -340,7 +341,7 @@ public class DataFactory {
         //  ROOM 705
         g21.addRoom(r705);
 
-       // ROOM 709
+        // ROOM 709
         g22.addRoom(r709);
         g23.addRoom(r709);
         g4.addRoom(r709);
@@ -361,11 +362,12 @@ public class DataFactory {
 
         // Fill public static lists rooms and guests
         hotels.addAll(List.of(h1, h2, h3, h4, h5, h6, h7, h8, h9));
-        rooms.addAll(List.of(r101, r102, r201, r202, r301, r302, r401, r402, r403,
-                r501, r502, r503, r601, r602, r603, r450, r480, r490, r533, r563, r579, r703,
-                r705, r709, r811, r839, r857));
-        guests.addAll(List.of(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14, g15, g16,g17,
-                g18, g19, g20, g21, g22, g23, g24, g25, g26, g27, g28, g29, g30, g31));
+        rooms.addAll(List.of(r101, r102, r201, r202, r301, r302, r401, r402,
+                r403, r501, r502, r503, r601, r602, r603, r450, r480,
+                r490, r533, r563, r579, r703, r705, r709, r811, r839, r857));
+        guests.addAll(List.of(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10,
+                g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21,
+                g22, g23, g24, g25, g26, g27, g28, g29, g30, g31));
 
     }
 }

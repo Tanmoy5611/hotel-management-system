@@ -3,30 +3,54 @@ package be.kdg.prog3.hotels.domain;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.*;
+
+
+@Entity
+@Table(name = "rooms")
 // Attributes of Room class
 public class Room {
+
+    @Id
+    @Column(name = "number")
     private int number;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private RoomType type;
+
+    @Column(name = "price_per_night")
     private double pricePerNight;
+
+    @Column(name = "sea_view")
     private boolean seaView;
+
+    @Column(name = "photo_url")
     private String photoUrl;
 
-    private Hotel hotel;  /// many-to-one
+    //  Many rooms → one hotel
+    @ManyToOne
+    @JoinColumn(name = "hotel_id")     // Must match schema.sql
+    private Hotel hotel;
+    /// many-to-one
 
-    private final Set<Guest> guests = new HashSet<>();
+    // Many-to-Many: rooms_guests
+    @ManyToMany
+    @JoinTable(
+            name = "rooms_guests",
+            joinColumns = @JoinColumn(name = "room_number"),
+            inverseJoinColumns = @JoinColumn(name = "guest_id")
+    )
+    private Set<Guest> guests = new HashSet<>();
 
-    public Set<Guest> getGuests() {
-        return guests;
+    //REQUIRED empty constructor
+    protected Room() {
     }
 
-    public void addGuest(Guest g) {
-        guests.add(g);
-    }
 
     // Default constructor for Spring and Thymeleaf forms to create objects
-    public Room() {
-
-    }
+    // public Room() {
+    //  }
 
 
     // Constructor
@@ -65,6 +89,11 @@ public class Room {
 
     }
 
+    public Set<Guest> getGuests() {
+        return guests;
+    }
+
+
     // Setters
 
     public void setNumber(int number) {
@@ -94,11 +123,15 @@ public class Room {
     public void setHotel(Hotel hotel) {
         this.hotel = hotel;
 
-        if  (hotel != null && !hotel.getRooms().contains(this)) {
+        if (hotel != null && !hotel.getRooms().contains(this)) {
             hotel.addRoom(this);
         }
     }
 
+    public void addGuest(Guest guest) {
+        guests.add(guest);
+        guest.getRooms().add(this);    // ensure bidirectional sync
+    }
 
     // Override toString method to print
     @Override

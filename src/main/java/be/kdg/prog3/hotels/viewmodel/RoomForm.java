@@ -67,7 +67,11 @@ public class RoomForm {
         this.photoUrl = photoUrl;
     }
 
-    public String getHotelId() { return hotelId; }
+    public String getHotelId() {
+        return hotelId;
+    }
 
-    public void setHotelId(String hotelId) { this.hotelId = hotelId; }
+    public void setHotelId(String hotelId) {
+        this.hotelId = hotelId;
+    }
 }

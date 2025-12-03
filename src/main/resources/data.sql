@@ -15,35 +15,27 @@ INSERT INTO rooms (number, type, price_per_night, sea_view, photo_url, hotel_id)
 VALUES (101, 'SINGLE', 150.0, FALSE, '/images/rooms/plaza_athene_single.jpg', 'plaza-athenee-paris'),
        (102, 'DOUBLE', 250.0, TRUE, '/images/rooms/plaza_athene_double.jpg', 'plaza-athenee-paris'),
        (201, 'SUITE', 500.0, TRUE, '/images/rooms/plaza_athene_suite.jpg', 'plaza-athenee-paris'),
-
        (202, 'DOUBLE', 220.0, FALSE, '/images/rooms/langham_double.jpg', 'langham-london'),
        (301, 'SINGLE', 180.0, TRUE, '/images/rooms/langham_single.jpg', 'langham-london'),
        (401, 'SUITE', 450.0, TRUE, '/images/rooms/langham_suite.jpg', 'langham-london'),
-
        (302, 'SUITE', 550.0, FALSE, '/images/rooms/radisson_blu_strand_suite.jpg', 'radisson-stockholm'),
        (402, 'SINGLE', 140.0, FALSE, '/images/rooms/radisson_blu_strand_single.jpg', 'radisson-stockholm'),
        (403, 'DOUBLE', 350.0, FALSE, '/images/rooms/radisson_blu_strand_double.jpg', 'radisson-stockholm'),
-
        (501, 'DOUBLE', 210.0, TRUE, '/images/rooms/radisson_blu_antwerp_double.jpg', 'radisson-antwerp'),
        (502, 'SUITE', 480.0, FALSE, '/images/rooms/radisson_blu_antwerp_suite.jpg', 'radisson-antwerp'),
        (503, 'SINGLE', 130.0, TRUE, '/images/rooms/radisson_blu_antwerp_single.jpg', 'radisson-antwerp'),
-
        (601, 'SINGLE', 160.0, FALSE, '/images/rooms/amigo_single.jpg', 'amigo-brussels'),
        (602, 'DOUBLE', 240.0, TRUE, '/images/rooms/amigo_double.jpg', 'amigo-brussels'),
        (603, 'SUITE', 520.0, TRUE, '/images/rooms/amigo_suite.jpg', 'amigo-brussels'),
-
        (450, 'SUITE', 540.0, FALSE, '/images/rooms/hilton_suite.jpg', 'hilton-old-town'),
        (480, 'DOUBLE', 260.0, FALSE, '/images/rooms/hilton_double.jpg', 'hilton-old-town'),
        (490, 'SINGLE', 140.0, FALSE, '/images/rooms/hilton_single.jpg', 'hilton-old-town'),
-
        (533, 'SUITE', 590.0, TRUE, '/images/rooms/silt_suite.jpg', 'c-hotels-slit'),
        (563, 'DOUBLE', 270.0, TRUE, '/images/rooms/silt_double.jpg', 'c-hotels-slit'),
        (579, 'SINGLE', 160.0, TRUE, '/images/rooms/silt_single.jpg', 'c-hotels-slit'),
-
        (703, 'SUITE', 420.0, TRUE, '/images/rooms/van_der_suite.jpg', 'van-der-valk'),
        (705, 'DOUBLE', 200.0, TRUE, '/images/rooms/van_der_double.jpg', 'van-der-valk'),
        (709, 'SINGLE', 110.0, TRUE, '/images/rooms/van_der_single.jpg', 'van-der-valk'),
-
        (811, 'SUITE', 565.0, FALSE, '/images/rooms/pan_pacific_suite.jpg', 'pan-pacific'),
        (839, 'DOUBLE', 300.0, FALSE, '/images/rooms/pan_pacific_double.jpg', 'pan-pacific'),
        (857, 'SINGLE', 220.0, FALSE, '/images/rooms/pan_pacific_single.jpg', 'pan-pacific');
@@ -62,7 +54,6 @@ VALUES ('Billie Wilson', '1990-04-10', 'billie.wilson@example.com', TRUE, '/imag
        ('Lucas Peeters', '1988-11-21', 'lucas.peeters@example.com', TRUE, '/images/guests/lucas_peeters.jpg'),
        ('Kate Claes', '1992-07-15', 'kate.claes@example.com', FALSE, '/images/guests/kate_claes.jpg'),
        ('Noah Smith', '1988-07-25', 'noah.smith@example.com', FALSE, '/images/guests/noah_smith.jpg'),
-
        ('Arthur Evans', '1955-10-10', 'arthur.evans@example.com', FALSE, '/images/guests/arthur_evans.jpg'),
        ('Robert Sterling', '1962-02-20', 'robert.sterling@example.com', TRUE, '/images/guests/robert_sterling.jpg'),
        ('Eleanor Vance', '1948-05-18', 'eleanor.vance@example.com', FALSE, '/images/guests/eleanor_vance.jpg'),
@@ -83,7 +74,6 @@ VALUES ('Billie Wilson', '1990-04-10', 'billie.wilson@example.com', TRUE, '/imag
        ('Keya Saha', '1996-10-08', 'keya.saha@example.com', TRUE, '/images/guests/keya_saha.jpg');
 
 
-
 INSERT INTO rooms_guests (room_number, guest_id)
 VALUES (101, 2),
        (101, 27),
@@ -102,8 +92,6 @@ VALUES (101, 2),
        (201, 26),
        (201, 19),
        (201, 22),
-
-
        (202, 2),
        (202, 23),
        (202, 17),
@@ -117,7 +105,6 @@ VALUES (101, 2),
        (401, 28),
        (401, 7),
        (401, 9),
-
        (302, 3),
        (302, 7),
        (402, 5),
@@ -125,8 +112,6 @@ VALUES (101, 2),
        (403, 6),
        (403, 20),
        (403, 24),
-
-
        (501, 9),
        (501, 10),
        (502, 11),
@@ -134,7 +119,6 @@ VALUES (101, 2),
        (503, 10),
        (503, 12),
        (503, 21),
-
        (601, 13),
        (601, 10),
        (601, 24),
@@ -143,14 +127,12 @@ VALUES (101, 2),
        (602, 11),
        (603, 12),
        (603, 27),
-
        (450, 14),
        (450, 2),
        (480, 15),
        (490, 16),
        (490, 17),
        (490, 20),
-
        (533, 17),
        (563, 18),
        (563, 9),
@@ -159,13 +141,11 @@ VALUES (101, 2),
        (579, 19),
        (579, 12),
        (579, 23),
-
        (703, 20),
        (705, 21),
        (709, 22),
        (709, 23),
        (709, 4),
-
        (811, 31),
        (811, 12),
        (839, 24),

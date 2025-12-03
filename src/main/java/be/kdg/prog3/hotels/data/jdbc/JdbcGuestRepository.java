@@ -1,5 +1,6 @@
-package be.kdg.prog3.hotels.data;
+package be.kdg.prog3.hotels.data.jdbc;
 
+import be.kdg.prog3.hotels.data.GuestRepository;
 import be.kdg.prog3.hotels.domain.Guest;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -9,11 +10,11 @@ import java.util.List;
 
 @Repository
 @Profile("jdbc")
-public class GuestJdbcRepository implements GuestRepository {
+public class JdbcGuestRepository implements GuestRepository {
     private final JdbcClient jdbcClient;
 
     // Constructor injection (Spring provides JdbcClient automatically)
-    public GuestJdbcRepository(JdbcClient jdbcClient) {
+    public JdbcGuestRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
 
@@ -39,9 +40,9 @@ public class GuestJdbcRepository implements GuestRepository {
     @Override
     public Guest save(Guest guest) {
         jdbcClient.sql("""
-                INSERT INTO guests (full_name, dob, email, vip, avatar_url)
-                VALUES (:fullName, :dob, :email, :vip, :avatarUrl)
-                """)
+                        INSERT INTO guests (full_name, dob, email, vip, avatar_url)
+                        VALUES (:fullName, :dob, :email, :vip, :avatarUrl)
+                        """)
                 .param("fullName", guest.getFullName())
                 .param("dob", guest.getDob())
                 .param("email", guest.getEmail())
@@ -75,11 +76,11 @@ public class GuestJdbcRepository implements GuestRepository {
     @Override
     public List<Guest> findByRoom(int roomNumber) {
         return jdbcClient.sql("""
-            SELECT g.*
-            FROM guests g
-            JOIN rooms_guests rg ON g.id = rg.guest_id
-            WHERE rg.room_number = :num
-            """)
+                        SELECT g.*
+                        FROM guests g
+                        JOIN rooms_guests rg ON g.id = rg.guest_id
+                        WHERE rg.room_number = :num
+                        """)
                 .param("num", roomNumber)
                 .query((rs, rowNum) -> {
                     var guest = new Guest(

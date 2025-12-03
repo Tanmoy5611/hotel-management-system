@@ -28,7 +28,7 @@
                 <label for="name" class="form-label fw-semibold" th:text="#{hotels.table.name}">Name:</label>
                 <input id="name" type="text" th:field="*{name}" class="form-control">
                 <div class="text-danger small mt-1" th:if="${#fields.hasErrors('name')}"
-                th:errors="*{name}">Name error
+                     th:errors="*{name}">Name error
                 </div>
             </div>
 
@@ -40,7 +40,7 @@
                 <input id="openedOn" type="text" th:field="*{openedOn}" class="form-control"
                        placeholder="1998-06-15">
                 <div class="text-danger small mt-1" th:if="${#fields.hasErrors('openedOn')}"
-                th:errors="*{openedOn}">Date error
+                     th:errors="*{openedOn}">Date error
                 </div>
             </div>
 
@@ -51,7 +51,7 @@
                 </label>
                 <input id="stars" type="number" min="1" max="5" th:field="*{stars}" class="form-control">
                 <div class="text-danger small mt-1" th:if="${#fields.hasErrors('stars')}"
-                th:errors="*{stars}">Stars error
+                     th:errors="*{stars}">Stars error
                 </div>
             </div>
 
@@ -74,7 +74,7 @@
                        placeholder="/images/hotels/example.jpg">
                 <div class="text-danger small mt-1" th:if="${#fields.hasErrors('imageUrl')}"
                      th:errors="*{imageUrl}">
-                   Image error
+                    Image error
                 </div>
             </div>
         </div>

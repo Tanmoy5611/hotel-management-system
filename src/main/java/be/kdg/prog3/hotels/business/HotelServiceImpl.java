@@ -66,11 +66,11 @@ public class HotelServiceImpl implements HotelService {
 
     }
 
-   // Get Hotel by ID
+    // Get Hotel by ID
     @Override
     public Hotel getHotelById(String id) {
         log.debug("Getting hotel by id: {}", id);
-        return repo.findById(id);
+        return repo.findHotelById(id);
     }
 
     @Override

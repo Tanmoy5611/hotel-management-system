@@ -1,5 +1,7 @@
-package be.kdg.prog3.hotels.data;
+package be.kdg.prog3.hotels.data.jdbc;
 
+import be.kdg.prog3.hotels.data.HotelRepository;
+import be.kdg.prog3.hotels.data.RoomRepository;
 import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Hotel;
 import be.kdg.prog3.hotels.domain.Room;
@@ -14,11 +16,11 @@ import java.util.List;
 
 @Repository
 @Profile("jdbc")
-public class RoomJdbcRepository implements RoomRepository {
+public class JdbcRoomRepository implements RoomRepository {
     private final JdbcClient jdbcClient;
     private final HotelRepository hotelRepository;
 
-    public RoomJdbcRepository(JdbcClient jdbcClient, HotelRepository hotelRepository) {
+    public JdbcRoomRepository(JdbcClient jdbcClient, HotelRepository hotelRepository) {
         this.jdbcClient = jdbcClient;
         this.hotelRepository = hotelRepository;
     }
@@ -34,15 +36,15 @@ public class RoomJdbcRepository implements RoomRepository {
 
         // Load hotel (Many-to-One)
         String hotelId = rs.getString("hotel_id");
-        Hotel hotel = hotelRepository.findById(hotelId);
+        Hotel hotel = hotelRepository.findHotelById(hotelId);
         room.setHotel(hotel);
 
         // Load guests (Many-to-Many)
         var guests = jdbcClient.sql("""
-        SELECT g.* FROM guests g
-        JOIN rooms_guests rg ON g.id = rg.guest_id
-        WHERE rg.room_number = :num
-        """)
+                        SELECT g.* FROM guests g
+                        JOIN rooms_guests rg ON g.id = rg.guest_id
+                        WHERE rg.room_number = :num
+                        """)
                 .param("num", room.getNumber())
                 .query((grs, grow) -> {
                     Guest g = new Guest(
@@ -91,11 +93,11 @@ public class RoomJdbcRepository implements RoomRepository {
     @Override
     public List<Room> findByGuest(long guestId) {
         return jdbcClient.sql("""
-                SELECT r.*
-                FROM rooms r
-                JOIN rooms_guests rg ON r.number = rg.room_number
-                WHERE rg.guest_id = :gid
-                """)
+                        SELECT r.*
+                        FROM rooms r
+                        JOIN rooms_guests rg ON r.number = rg.room_number
+                        WHERE rg.guest_id = :gid
+                        """)
                 .param("gid", guestId)
                 .query(this::mapRoom)
                 .list();
@@ -104,9 +106,9 @@ public class RoomJdbcRepository implements RoomRepository {
     @Override
     public Room save(Room room) {
         jdbcClient.sql("""
-            INSERT INTO rooms (number, type, price_per_night, sea_view, photo_url, hotel_id)
-            VALUES (:num, :type, :price, :sea, :photo, :hotel)
-            """)
+                        INSERT INTO rooms (number, type, price_per_night, sea_view, photo_url, hotel_id)
+                        VALUES (:num, :type, :price, :sea, :photo, :hotel)
+                        """)
                 .param("num", room.getNumber())
                 .param("type", room.getType().name())
                 .param("price", room.getPricePerNight())
