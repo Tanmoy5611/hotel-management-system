@@ -16,32 +16,40 @@ import org.springframework.stereotype.Repository;
 
 
 // In-memory implementation of HotelRepository
+// (instead of using a database, it works using Java Lists inside DataFactory)
 @Repository
 @Profile("inmemory")
 public class InMemoryHotelRepository implements HotelRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryHotelRepository.class);
 
-    // Counter for generating unique hotel IDs
+    // Counter for generating unique hotel IDs (Fake Auto-Increment)
     private final AtomicInteger seq = new AtomicInteger(1000);
 
-    // retrieves distinct  hotels from the list of rooms
+    /* In-memory data is NOT stored as a list of hotels.
+    Instead: DataFactory.rooms = List<Room>
+    Each Room has a reference → Room.getHotel()  */
     @Override
     public List<Hotel> findAll() {
         log.debug("Reading distinct hotels from rooms list");
         return DataFactory.rooms.stream()
-                .map(Room::getHotel)       // tale hotel from each room
-                .filter(Objects::nonNull)  // skip null hotels
-                .distinct()                // avoiding duplicates
+                .map(Room::getHotel)       // take the hotel from each room
+                .filter(Objects::nonNull)  // some rooms may not have hotel(Skip)
+                .distinct()                // avoiding duplicate hotels
                 .toList();
     }
 
-    // saves a hotel
+    /* Since this is IN-MEMORY and do NOT actually store hotels in a DB,
+        the save simply returns the hotel. The real final storage comes from
+        Room objects referencing hotels Ex: hotel.addRoom(room) */
     @Override
     public Hotel save(Hotel hotel) {
         log.debug("Saving hotel: {}", hotel);
-        return hotel;  // In-memory “save”; list of hotels derived from rooms; adding rooms later will show it.
+        return hotel;    // In-memory save does nothing because hotels come from rooms list.
+
     }
 
+    /* DataFactory.hotels *does* contain the initial hotel list
+       and it simply search that list */
     @Override
     public Hotel findHotelById(String id) {
         return DataFactory.hotels.stream()
@@ -50,6 +58,8 @@ public class InMemoryHotelRepository implements HotelRepository {
                 .orElse(null);
     }
 
+    // delete the hotel from DataFactory.hotels AND remove all associated rooms belonging to that hotel.
+    // This simulates cascade delete in JPA.
     @Override
     public void delete(String id) {
         // remove hotel

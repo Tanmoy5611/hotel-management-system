@@ -5,11 +5,13 @@ import be.kdg.prog3.hotels.business.RoomService;
 import be.kdg.prog3.hotels.domain.RoomType;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 // Connects the MenuView (UI) with HotelService and RoomService (business logic)
+@Profile("console")
 @Component
 public class MenuPresenter implements CommandLineRunner {
     private final HotelService hotelService;

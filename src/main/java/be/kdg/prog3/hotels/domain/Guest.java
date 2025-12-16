@@ -10,6 +10,9 @@ import java.util.Set;
 // Attributes of Guest class
 @Entity
 @Table(name = "guests")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "guest_type")
+@DiscriminatorValue("GUEST")
 public class Guest {
 
     @Id
@@ -111,6 +114,10 @@ public class Guest {
     public void addRoom(Room room) {
         rooms.add(room);
         room.getGuests().add(this);   // sync bidirectionally
+    }
+
+    public double getDiscountPercentage() {
+        return 0;   // regular guests have no discount
     }
 
 

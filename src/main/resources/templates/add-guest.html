@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{guest.add.title}">Add Guest</title>
+
+    <!-- Bootstrap & Icons -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<!-- Main -->
+<main class="flex-grow-1">
+    <div class="container my-4">
+
+        <!-- Page title -->
+        <h2 class="text-primary mb-4">
+            <i class="bi bi-person-plus-fill"></i>
+            <span th:text="#{guest.add.title}">Add Guest</span>
+        </h2>
+
+        <!-- Wide centered form -->
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+
+                <form th:action="@{/guests/add}"
+                      th:object="${guestForm}"
+                      method="post"
+                      class="card p-4 shadow-sm needs-validation"
+                      novalidate>
+
+                    <div class="row g-3">
+
+                        <!-- Full Name -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{guest.form.fullName}">
+                                Full Name
+                            </label>
+                            <input type="text"
+                                   th:field="*{fullName}"
+                                   class="form-control"
+                                   th:placeholder="#{guest.placeholder.name}">
+                            <div class="text-danger small mt-1"
+                                 th:errors="*{fullName}"></div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{guest.form.email}">
+                                Email
+                            </label>
+                            <input type="email"
+                                   th:field="*{email}"
+                                   class="form-control"
+                                   th:placeholder="#{guest.placeholder.email}">
+                            <div class="text-danger small mt-1"
+                                 th:errors="*{email}"></div>
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{guest.form.dob}">
+                                Date of Birth
+                            </label>
+                            <input type="date"
+                                   th:field="*{dob}"
+                                   class="form-control">
+                            <div class="text-danger small mt-1"
+                                 th:errors="*{dob}"></div>
+                        </div>
+
+                        <!-- Avatar URL -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{guest.form.avatar}">
+                                Avatar URL
+                            </label>
+                            <input type="text"
+                                   th:field="*{avatarUrl}"
+                                   class="form-control"
+                                   th:placeholder="#{guest.placeholder.avatar}">
+                        </div>
+
+                        <!-- VIP -->
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input id="vipBox"
+                                       type="checkbox"
+                                       th:field="*{vip}"
+                                       class="form-check-input"
+                                       onclick="toggleDiscount()">
+                                <label for="vipBox"
+                                       class="form-check-label fw-semibold"
+                                       th:text="#{guest.form.vip}">
+                                    VIP Guest?
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Discount (only if VIP) -->
+                        <div id="discountField"
+                             class="col-12"
+                             th:classappend="${guestForm.vip} ? '' : ' d-none'">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{guest.form.discount}">
+                                Discount (%)
+                            </label>
+                            <input type="number"
+                                   min="0"
+                                   max="100"
+                                   th:field="*{discountPercentage}"
+                                   class="form-control"
+                                   th:placeholder="#{guest.placeholder.discount}">
+                            <div class="text-danger small mt-1"
+                                 th:errors="*{discountPercentage}"></div>
+                        </div>
+
+                        <!-- Assign Room -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{guest.form.room}">
+                                Assign Room (optional)
+                            </label>
+                            <input type="number"
+                                   min="1"
+                                   th:field="*{roomNumber}"
+                                   class="form-control"
+                                   th:placeholder="#{guest.placeholder.room}">
+                        </div>
+
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle"></i>
+                            <span th:text="#{button.save}">Save</span>
+                        </button>
+
+                        <a th:href="@{/guests}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i>
+                            <span th:text="#{guest.back}">Back</span>
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+<!-- JS -->
+<script th:src="@{/js/add-discount.js}"></script>
+
+</body>
+</html>

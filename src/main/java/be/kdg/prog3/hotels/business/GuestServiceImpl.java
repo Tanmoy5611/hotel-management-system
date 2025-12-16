@@ -2,19 +2,29 @@ package be.kdg.prog3.hotels.business;
 
 import be.kdg.prog3.hotels.data.GuestRepository;
 import be.kdg.prog3.hotels.domain.Guest;
+import be.kdg.prog3.hotels.domain.Room;
+import be.kdg.prog3.hotels.domain.VIPGuest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 
 @Service
+@Profile({"inmemory", "jdbc", "jpa", "dev", "prod"})
 public class GuestServiceImpl implements GuestService {
     private static final Logger log = LoggerFactory.getLogger(GuestServiceImpl.class);
-    private final GuestRepository repo;
 
-    public GuestServiceImpl(GuestRepository repo) {
+    private final GuestRepository repo;
+    private final RoomService roomService;
+
+    public GuestServiceImpl(GuestRepository repo, RoomService roomService) {
         this.repo = repo;
+        this.roomService = roomService;
+        
     }
 
     @Override
@@ -42,8 +52,93 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
+    @Transactional
     public void deleteGuest(long id) {
-        log.debug("Deleting guest by id {}", id);
+
+        // Find guest (no Optional in JDBC repository)
+        Guest g = repo.findById(id);
+        if (g == null) {
+            throw new IllegalArgumentException("Guest not found");
+        }
+
+        // Unlink guest from all rooms (Many-to-Many)
+        for (Room room : g.getRooms()) {
+            room.getGuests().remove(g);
+        }
+        g.getRooms().clear();
+
+        // Delete using ID, because GuestRepository.delete(long id)
         repo.delete(id);
     }
+
+    @Override
+    public List<Guest> getVipGuests() {
+        log.debug("Fetching VIP guests...");
+        return repo.findAll()
+                .stream()
+                .filter(g -> g instanceof VIPGuest || g.isVip())
+                .toList();
+    }
+
+    @Override
+    public List<Guest> searchGuestsByName(String name) {
+        log.debug("Searching guests by name: {}", name);
+        return repo.findAll()
+                .stream()
+                .filter(g -> g.getFullName().toLowerCase().contains(name.toLowerCase()))
+                .toList();
+    }
+
+    @Override
+    public List<Guest> getGuestsWithManyRooms(int minRooms) {
+        log.debug("Fetching guests with at least {} rooms...", minRooms);
+
+        // We must NOT use g.getRooms() in JDBC — rooms list is empty until JPA loads relations.
+        return repo.findAll()
+                .stream()
+                .filter(g -> roomService.getRoomsByGuest(g.getId()).size() >= minRooms)
+                .toList();
+    }
+
+    @Transactional
+    @Override
+    public Guest createGuestWithRoom(Guest guest, Integer roomNumber) {
+
+        // Save guest first
+        guest = repo.save(guest);
+
+        // If user typed a room number → link it
+        if (roomNumber != null) {
+            Room room = roomService.getRoomByNumber(roomNumber);
+            if (room != null) {
+
+                // Bidirectional sync
+                guest.addRoom(room);
+
+                // Save again so join-table persists
+                repo.save(guest);
+            }
+        }
+
+        return guest;
+    }
+
+//    @Override
+//    public List<Guest> getVipGuests() {
+//        throw new UnsupportedOperationException(
+//                "VIP guest query not supported in inmemory/jdbc/jpa profiles. Use springdata profile.");
+//    }
+//
+//    @Override
+//    public List<Guest> searchGuestsByName(String name) {
+//        throw new UnsupportedOperationException(
+//                "Search by name not supported in inmemory/jdbc/jpa profiles. Use springdata profile.");
+//    }
+//
+//    @Override
+//    public List<Guest> getGuestsWithManyRooms(int minRooms) {
+//        throw new UnsupportedOperationException(
+//                "Guests-with-many-rooms query not supported in inmemory/jdbc/jpa profiles. Use springdata profile.");
+//    }
+
 }

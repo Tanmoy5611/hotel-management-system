@@ -10,37 +10,39 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "hotels")
+@Entity                              // JPA entity - this class becomes a table in the DB
+@Table(name = "hotels")              // map this entity to "hotels" table
 
 // Attributes of Hotel class
 public class Hotel {
 
     @Id
     @Column(name = "id")
-    private String id;           // URL safe identifier for /hotels/{id}
+    private String id;           //  used a String id because it's easier for URLs
 
     @Column(name = "name", nullable = false)
-    private String name;
+    private String name;         // hotel name (required)
 
     @Column(name = "opened_on")
-    private LocalDate openedOn;
+    private LocalDate openedOn;   // opening date of the hotel
 
     @Column(name = "stars")
-    private int stars;
+    private int stars;             // star rating (1–5)
 
     @Column(name = "has_spa")
-    private boolean hasSpa;
+    private boolean hasSpa;       // hotel has a spa or not
 
     @Column(name = "image_url")
-    private String imageUrl;
+    private String imageUrl;      // URL to the hotel's image
 
     // Create a list - Each hotel has many rooms- 1 hotel → many rooms (inverse side)
-    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "hotel",           // the owning side is Room.hotel
+            cascade = CascadeType.ALL,    // remove rooms when hotel is deleted
+            orphanRemoval = true)         // delete room if removed from the list
     // This automatically deletes Rooms when Hotel is deleted.
     private List<Room> rooms = new ArrayList<>();
 
-    // --- JPA requires a no-arg constructor ---
+    // JPA needs a empty constructor (Hibernate uses this to load data)
     protected Hotel() {
     }
 
@@ -118,17 +120,18 @@ public class Hotel {
     }
 
 
-    // Method to add a room to the hotel
+    // helper method to keep both sides of the relationship in sync
     public void addRoom(Room room) {
         if (!rooms.contains(room)) {
             rooms.add(room);
         }
+        // helper method to keep both sides of the relationship in sync
         if (room.getHotel() != this) {
             room.setHotel(this);          // Bidirectional relationship
         }
     }
 
-    // Method to remove a room from the hotel
+    // remove room and also break the relationship correctly
     public void removeRoom(Room room) {
         rooms.remove(room);
         if (room.getHotel() == this) {

@@ -5,95 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{nav.addHotel}">Add Hotel</title>
 
+    <!-- Bootstrap & Icons -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
-<body class="bg-light">
 
-<!-- include the navigation bar -->
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<!-- Navbar -->
 <div th:replace="~{fragments/navbar :: body}"></div>
 
-<div class="container my-4">
-    <h2 class="text-primary mb-3" th:text="#{nav.addHotel}">Add Hotel</h2>
+<!-- MAIN -->
+<main class="flex-grow-1">
+    <div class="container my-4">
 
-    <!-- Form(bound to HotelForm for submitting a new hotel -->
-    <form th:action="@{/hotels/add}" th:object="${hotelForm}" method="post" class="needs-validation" novalidate>
+        <!-- Page title -->
+        <h2 class="text-primary mb-4">
+            <i class="bi bi-building-add"></i>
+            <span th:text="#{nav.addHotel}">Add Hotel</span>
+        </h2>
 
-        <div class="row g-3">
+        <!-- Wide centered form -->
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
 
-            <!-- Hotel name input -->
-            <div class="col-md-8">
-                <label for="name" class="form-label fw-semibold" th:text="#{hotels.table.name}">Name:</label>
-                <input id="name" type="text" th:field="*{name}" class="form-control">
-                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('name')}"
-                     th:errors="*{name}">Name error
-                </div>
-            </div>
+                <form th:action="@{/hotels/add}"
+                      th:object="${hotelForm}"
+                      method="post"
+                      class="card p-4 shadow-sm needs-validation"
+                      novalidate>
 
-            <!-- Hotel opening date input -->
-            <div class="col-md-4">
-                <label for="openedOn" class="form-label fw-semibold" th:text="#{hotels.table.opened}">
-                    Opened On (yyyy-mm-dd)
-                </label>
-                <input id="openedOn" type="text" th:field="*{openedOn}" class="form-control"
-                       placeholder="1998-06-15">
-                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('openedOn')}"
-                     th:errors="*{openedOn}">Date error
-                </div>
-            </div>
+                    <div class="row g-3">
 
-            <!-- Hotel stars input -->
-            <div class="col-md-4">
-                <label for="stars" class="form-label fw-semibold" th:text="#{hotels.table.stars}">
-                    Stars (1–5)
-                </label>
-                <input id="stars" type="number" min="1" max="5" th:field="*{stars}" class="form-control">
-                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('stars')}"
-                     th:errors="*{stars}">Stars error
-                </div>
-            </div>
+                        <!-- Hotel name -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{hotels.table.name}">
+                                Name
+                            </label>
+                            <input type="text"
+                                   th:field="*{name}"
+                                   class="form-control">
+                            <div class="text-danger small mt-1"
+                                 th:errors="*{name}"></div>
+                        </div>
 
-            <!-- Checkbox for spa availability -->
-            <div class="col-md-4 d-flex align-items-center">
-                <div class="form-check mt-4">
-                    <input id="hasSpa" type="checkbox" th:field="*{hasSpa}" class="form-check-input">
-                    <label for="hasSpa" class="form-check-label fw-semibold" th:text="#{hotels.table.spa}">
-                        Has Spa
-                    </label>
-                </div>
-            </div>
+                        <!-- Opened on -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{hotels.table.opened}">
+                                Opened On
+                            </label>
+                            <input type="date"
+                                   th:field="*{openedOn}"
+                                   class="form-control">
+                            <div class="text-danger small mt-1"
+                                 th:errors="*{openedOn}"></div>
+                        </div>
 
-            <!-- Image link input -->
-            <div class="col-md-8">
-                <label for="imageUrl" class="form-label fw-semibold" th:text="#{hotels.table.image}">
-                    Image URL
-                </label>
-                <input id="imageUrl" type="text" th:field="*{imageUrl}" class="form-control"
-                       placeholder="/images/hotels/example.jpg">
-                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('imageUrl')}"
-                     th:errors="*{imageUrl}">
-                    Image error
-                </div>
+                        <!-- Stars -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{hotels.table.stars}">
+                                Stars
+                            </label>
+                            <input type="number"
+                                   min="1"
+                                   max="5"
+                                   th:field="*{stars}"
+                                   class="form-control">
+                            <div class="text-danger small mt-1"
+                                 th:errors="*{stars}"></div>
+                        </div>
+
+                        <!-- Has Spa -->
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input type="checkbox"
+                                       th:field="*{hasSpa}"
+                                       class="form-check-input"
+                                       id="hasSpa">
+                                <label for="hasSpa"
+                                       class="form-check-label fw-semibold"
+                                       th:text="#{hotels.table.spa}">
+                                    Has Spa
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Image URL -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"
+                                   th:text="#{hotels.table.image}">
+                                Image URL
+                            </label>
+                            <input type="text"
+                                   th:field="*{imageUrl}"
+                                   class="form-control"
+                                   placeholder="/images/hotels/example.jpg">
+                            <div class="text-danger small mt-1"
+                                 th:errors="*{imageUrl}"></div>
+                        </div>
+
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle"></i>
+                            <span th:text="#{button.save}">Save</span>
+                        </button>
+
+                        <a th:href="@{/hotels}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i>
+                            <span th:text="#{hotel.back}">Back</span>
+                        </a>
+                    </div>
+
+                </form>
+
             </div>
         </div>
 
-        <!-- save button -->
-        <div class="mt-4">
-            <button type="submit" class="btn btn-primary px-4" th:text="#{button.save}">
-                Save
-            </button>
-            <a th:href="@{/hotels}" class="btn btn-outline-secondary ms-2">
-                <i class="bi bi-arrow-left"></i> Back
-            </a>
-        </div>
-    </form>
-</div>
+    </div>
+</main>
 
-<script th:src="@{/js/form-validation.js}"></script>
-
-<!-- Footer-->
+<!-- Footer -->
 <div th:replace="~{fragments/footer :: body}"></div>
 
 </body>

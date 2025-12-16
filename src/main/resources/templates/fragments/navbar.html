@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+    <title>NavBar</title>
+</head>
+
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
     <div class="container-fluid">
 
         <!--  Home -->
-        <a class="navbar-brand d-flex align-items-center fw-bold" th:href="@{/hotels}">
+        <a class="navbar-brand d-flex align-items-center fw-bold" th:href="@{/home}">
             <i class="bi bi-building-fill me-2 fs-4"></i>
             HotelApp
         </a>
@@ -20,6 +28,13 @@
         <!-- Menu items -->
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/home}" th:text="#{nav.home}">
+                        <i class="bi bi-house-fill me-1"></i>
+                        Home
+                    </a>
+                </li>
 
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/hotels}" th:text="#{nav.hotels}">All Hotels</a>
@@ -42,6 +57,10 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link" th:href="@{/guests/add}" th:text="#{nav.addGuest}">Add Guest</a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link" th:href="@{/history}" th:text="#{nav.history}">
                         <i class="bi bi-clock-history me-1"></i>
                         Session History
@@ -50,31 +69,57 @@
 
             </ul>
 
-            <!-- Language Switch -->
-            <ul class="navbar-nav ms-auto d-flex align-items-center">
+            <ul class="navbar-nav ms-auto">
 
-                <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center"
-                       th:href="@{/(lang='en')}">
-                        <i class="bi bi-translate me-1"></i> EN
-                    </a>
-                </li>
+                <li class="nav-item dropdown">
 
-                <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center"
-                       th:href="@{/(lang='nl')}">
-                        <i class="bi bi-translate me-1"></i> NL
-                    </a>
-                </li>
+                    <a class="nav-link dropdown-toggle d-flex align-items-center"
+                       href="#"
+                       id="languageDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
 
-                <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center"
-                       th:href="@{/(lang='bn')}">
-                        <i class="bi bi-translate me-1"></i> BN
+                        <i class="bi bi-translate me-1"></i>
+                        Language
                     </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm"
+                        aria-labelledby="languageDropdown">
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='en')}">
+                                🇬🇧 English
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='nl')}">
+                                🇳🇱 Nederlands
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='bn')}">
+                                🇧🇩 বাংলা
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='fr')}">
+                                🇫🇷 Français
+                            </a>
+                        </li>
+
+                    </ul>
                 </li>
 
             </ul>
+
         </div>
     </div>
 

@@ -1,17 +1,21 @@
 package be.kdg.prog3.hotels.business;
 
 import be.kdg.prog3.hotels.data.RoomRepository;
+import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.RoomType;
 
 import java.util.List;
 import java.util.Optional;
 
+import be.kdg.prog3.hotels.domain.VIPGuest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
+@Profile({"inmemory", "jdbc", "jpa", "dev", "prod"})
 public class RoomServiceImpl implements RoomService {
     private static final Logger log = LoggerFactory.getLogger(RoomServiceImpl.class);
     private final RoomRepository repo;
@@ -74,5 +78,18 @@ public class RoomServiceImpl implements RoomService {
     public void deleteRoom(int number) {
         log.debug("Deleting room {}", number);
         repo.delete(number);
+    }
+
+    @Override
+    public double calculateDiscountedPrice(Room room, Guest guest) {
+        double base = room.getPricePerNight();
+
+        // Only VIPGuest has discount
+        if (guest instanceof VIPGuest vip) {
+            double discountPercent = vip.getDiscountPercentage();
+            return base - (base * discountPercent / 100.0);
+        }
+
+        return base; // regular guest → no discount
     }
 }

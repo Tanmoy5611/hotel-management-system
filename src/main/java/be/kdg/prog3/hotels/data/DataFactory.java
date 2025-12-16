@@ -97,7 +97,7 @@ public class DataFactory {
                 "/images/rooms/hilton_suite.jpg");
         var r480 = new Room(480, RoomType.DOUBLE, 260.0, false,
                 "/images/rooms/hilton_double.jpg");
-        var r490 = new Room(490, RoomType.SINGLE, 140.0, false,
+        var r490 = new Room(490, RoomType.SINGLE, 180.0, false,
                 "/images/rooms/hilton_single.jpg");
 
         var r533 = new Room(533, RoomType.SUITE, 590.0, true,
@@ -369,5 +369,10 @@ public class DataFactory {
                 g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21,
                 g22, g23, g24, g25, g26, g27, g28, g29, g30, g31));
 
+
+        long idCounter = 1;
+        for (Guest guest : guests) {
+            guest.setId(idCounter++);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package be.kdg.prog3.hotels.business;
 
+import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.RoomType;
 
@@ -24,4 +25,5 @@ public interface RoomService {
 
     void deleteRoom(int number);
 
+    double calculateDiscountedPrice(Room room, Guest guest);
 }

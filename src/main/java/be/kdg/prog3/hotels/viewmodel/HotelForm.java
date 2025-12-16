@@ -4,11 +4,16 @@ import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
+ // HotelForm is a ViewModel used only for form
 public class HotelForm {
 
+    // Validated form fields
+
+    // Hotel name cannot be empty (validation message in messages.properties)
     @NotBlank(message = "{hotel.name.required}")
     private String name;
 
+    // Opening date must not be null
     @NotNull(message = "{hotel.opened.required}")
     private LocalDate openedOn;
 
@@ -16,11 +21,14 @@ public class HotelForm {
     @Max(value = 5, message = "{hotel.stars.max}")
     private int stars;
 
+    // Boolean checkbox: no validation needed
     private boolean hasSpa;
+
+    // Image URL must not be empty
     @NotBlank(message = "{hotel.image.required}")
     private String imageUrl;
 
-    // Getters and Setters
+    // Getters and Setters to allow Thymeleaf to bind form fields to this object
     public String getName() {
         return name;
     }

@@ -1,152 +1,283 @@
+/* Global theme */
+:root {
+    --blue-dark: #003b95;
+    --blue-mid: #0062e3;
+    --blue-light: #3da9fc;
+    --yellow: #f9c700;
+    --gray-light: #f5f7fa;
+    --text-dark: #002244;
+}
+
+/* Base */
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #ffedcc;
-    margin: 20px;
-    padding-top: 70px;
-
+    background-color: var(--gray-light);
+    font-family: 'Inter', Arial, sans-serif;
+    color: var(--text-dark);
 }
 
-h2 {
-    color: #003366;
-    margin-bottom: 10px;
+h1, h2, h3 {
+    font-weight: 700;
 }
 
-.data-table {
-    border-collapse: collapse;
+/* full-height page for sticky footer */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+footer {
+    margin-top: auto;
     width: 100%;
-    margin-top: 10px;
 }
 
-.data-table th, .data-table td {
-    border: 1px solid rgba(106, 61, 61, 0.55);
-    padding: 8px;
-    text-align: left;
+/* NavBar */
+.navbar {
+    background: linear-gradient(90deg, var(--blue-dark), var(--blue-mid));
 }
 
-th {
-    background-color: #f2f2f2;
-}
-
-.highlight {
-    background-color: #fbe986;
-    font-weight: bold;
-}
-
-.expensive {
-    background-color: #f18080;
-}
-
-nav a {
-    color: #003366;
-    text-decoration: none;
-    margin-right: 12px;
-}
-
-nav a:hover {
-    text-decoration: underline;
+.navbar-brand {
+    font-size: 1.4rem;
+    font-weight: 700;
 }
 
 .navbar-nav .nav-link {
-    margin-left: 12px;
-    margin-right: 12px;
+    color: #e9f3ff !important;
+    transition: 0.2s;
 }
 
-/* Hover effect for menu items */
 .navbar-nav .nav-link:hover {
-    color: #ffd700 !important;
-    font-weight: 600;
+    color: var(--yellow) !important;
     transform: scale(1.05);
 }
 
-/* Active page highlight */
 .navbar-nav .nav-link.active {
     color: #fff !important;
     border-bottom: 2px solid #fff;
 }
 
-
-/* Hotel Image */
-.hotel-image {
-    width: 160px;
-    height: 100px;
-    object-fit: cover;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease-in-out;
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, #003b95, #0062e3);
+    padding: 60px 30px;
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    margin-bottom: 50px;
 }
 
-.card {
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+.hero h1 {
+    font-weight: 800;
+    font-size: 2.4rem;
 }
 
-.hover-card:hover {
-    transform: translateY(-3px);
-    transition: 0.2s ease-in-out;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.hero p {
+    opacity: 0.9;
+    font-size: 1.1rem;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-.hotel-image:hover {
-    transform: scale(1.05);
-}
-
-/*  Room Image */
-.room-image {
-    width: 150px;
-    height: 100px;
-    object-fit: cover;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
-    transition: transform 0.2s ease-in-out;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.room-image:hover {
-    transform: scale(1.05);
-}
-
-form.needs-validation {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-}
-
-form.needs-validation {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-}
-
-footer {
-    font-size: 0.9rem;
-    letter-spacing: 0.2px;
-}
-
-
-.card {
+/* Search Bar */
+.booking-search {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.20);
 }
 
-.card > a {
-    display: flex;
-    flex-direction: column;
+.booking-search input {
+    border: none;
+    padding: 12px;
     flex: 1;
+    border-radius: 8px;
+    background: #f2f6fc;
 }
 
+.booking-search input:focus {
+    outline: 2px solid #0062e3;
+    background: white;
+}
+
+.booking-btn {
+    background: #0071c2;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 12px 20px;
+    transition: 0.2s;
+}
+
+.booking-btn:hover {
+    background: #004a93;
+}
+
+/* Section Titles*/
+.section-title {
+    font-weight: bold;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    margin-top: -5px;
+    margin-bottom: 20px;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.section-title i {
+    font-size: 1.7rem;
+    color: var(--blue-dark);
+}
+
+/*Card system ( For All Pages) */
+
+.card {
+    border: none;
+    border-radius: 16px;
+    background: #fff;
+    transition: 0.25s ease-in-out;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+    overflow: hidden;
+    animation: fadeUp 0.6s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+}
+
+/* All images zoom on hover and sizing */
+.card img,
+.hotel-img,
+.hotel-image,
+.room-image,
+.guest-img {
+    width: 100%;
+    height: 240px; /* fixed height like home page */
+    object-fit: cover; /* no distortion */
+    object-position: center; /* good crop on desktop */
+    border-radius: 16px 16px 0 0;
+    transition: transform 0.35s ease-in-out;
+}
+
+/* Universally zoom on hover */
+.card:hover img,
+.card:hover .hotel-image,
+.card:hover .room-image,
+.card:hover .hotel-img,
+.card:hover .guest-img {
+    transform: scale(1.08);
+}
+
+/* Flex layout card with footers (Hotels & Guests):keeps "Profile Overview" / card footer at the bottom */
+
+.card.h-100 {
+    display: flex;
+    flex-direction: column;
+}
+
+/* anchor that wraps image + body */
+.card.h-100 > a {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+/* card body grows to fill space */
 .card-body {
-    flex: 1;
+    flex: 1 1 auto;
+}
+
+/* footer pushed to bottom */
+.card-footer {
+    margin-top: auto;
+}
+
+/* Trust badges */
+
+.badge-box {
+    margin-top: 20px;
+    display: flex;
+    gap: 25px;
+}
+
+.badge-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.badge-item i {
+    font-size: 1.8rem;
+}
+
+/* Footer */
+footer {
+    padding: 20px;
+    background: var(--blue-dark);
+    color: white;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Animations */
+@keyframes fadeUp {
+    from {
+        transform: translateY(12px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Utility */
+.fw-semibold {
+    font-weight: 600 !important;
+}
+
+.text-success {
+    color: #198754 !important;
+}
+
+/* Responsive tweaks */
+
+/* MOBILE: search + guest images */
+@media (max-width: 768px) {
+
+    /* stack search fields*/
+    .booking-search {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .booking-search input,
+    .booking-search button {
+        width: 100%;
+    }
+
+    /* guest images a bit taller and face higher in frame */
+    .guest-img {
+        height: 380px !important; /* slightly taller on mobile */
+        width: 180%;
+        object-fit: cover !important;
+        object-position: top center !important; /* show face more, not just chin */
+    }
 }

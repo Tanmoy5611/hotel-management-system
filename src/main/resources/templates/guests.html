@@ -24,13 +24,51 @@
         <span th:text="#{guests.title}">All Guests</span>
     </h2>
 
-    <!-- Responsive Card Grid -->
+    <!-- Filters + Search -->
+    <form th:action="@{/guests/search}" method="get" class="row g-2 mb-4">
+
+        <!-- VIP Button -->
+        <div class="col-md-3 d-grid">
+            <a th:href="@{/guests/vip}" class="btn btn-warning fw-semibold">
+                <i class="bi bi-star-fill"></i>
+                <span th:text="#{guests.vipButton}">Show VIP Guests</span>
+            </a>
+        </div>
+
+        <!-- Many Rooms Search -->
+        <div class="col-md-3 d-flex gap-2">
+            <input type="number"
+                   name="min"
+                   class="form-control"
+                   th:placeholder="#{guests.filter.minRooms}"
+                   min="1">
+
+            <button formaction="/guests/manyRooms"
+                    formmethod="get"
+                    class="btn btn-danger fw-semibold">
+                <i class="bi bi-people"></i>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="col-md-4 d-flex">
+            <input type="text"
+                   name="q"
+                   class="form-control"
+                   th:placeholder="#{guests.filter.search}"
+                   th:value="${searchQuery}">
+            <button type="submit" class="btn btn-primary ms-2">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </form>
+
+    <!-- Guest Cards -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
 
         <div class="col" th:each="g : ${guests}">
             <div class="card h-100 shadow-sm hover-card">
 
-                <!-- Clickable area -->
                 <a th:href="@{'/guests/' + ${g.id}}" class="text-decoration-none text-dark">
 
                     <!-- Avatar -->
@@ -40,36 +78,43 @@
 
                     <div class="card-body">
 
-                        <!-- Name -->
-                        <h5 class="card-title fw-bold text-center mb-2"
+                        <h5 class="card-title text-center fw-bold mb-2"
                             th:text="${g.fullName}">
                             Guest Name
                         </h5>
 
-                        <!-- VIP / Regular -->
-                        <p class="card-text text-center">
-                        <span th:if="${g.vip}" class="badge bg-warning text-dark">
-                            <i class="bi bi-star-fill"></i>
-                            <span th:text="#{guests.vip}">VIP</span>
-                        </span>
+                        <!-- VIP or Regular -->
+                        <p class="text-center">
+                            <span th:if="${g.vip}" class="badge bg-warning text-dark">
+                                <i class="bi bi-star-fill"></i>
+                                <span th:text="#{guests.vip}">VIP</span>
+                            </span>
 
-                            <span th:if="${!g.vip}" class="badge bg-secondary">
-                            <span th:text="#{guests.regular}">Regular</span>
-                        </span>
+                            <span th:unless="${g.vip}" class="badge bg-secondary">
+                                <span th:text="#{guests.regular}">Regular</span>
+                            </span>
                         </p>
 
+                        <!-- VIP Discount -->
+                        <div th:if="${g.discountPercentage > 0}"
+                             class="text-center text-danger fw-semibold mb-2">
+                            <i class="bi bi-gift"></i>
+                            <span th:text="#{guests.discount}">Discount:</span>
+                            <span th:text="${g.discountPercentage}"></span>%
+                        </div>
+
                         <!-- Email -->
-                        <p class="card-text">
+                        <p class="mb-1">
                             <i class="bi bi-envelope"></i>
                             <strong th:text="#{guests.email}">Email</strong>:
-                            <span th:text="${g.email}">email</span>
+                            <span th:text="${g.email}"></span>
                         </p>
 
                         <!-- DOB -->
-                        <p class="card-text">
+                        <p>
                             <i class="bi bi-calendar-event"></i>
                             <strong th:text="#{guests.dob}">Date of birth</strong>:
-                            <span th:text="${g.dob}">1990-01-01</span>
+                            <span th:text="${g.dob}"></span>
                         </p>
 
                     </div>
@@ -77,64 +122,65 @@
 
                 <!-- Footer -->
                 <div class="card-footer small d-flex justify-content-between align-items-center">
-                   <span class="text-muted" th:text="#{guests.profile}">
-                        Profile Overview
-                   </span>
 
-                    <!-- DELETE BUTTON opens modal -->
+                    <span class="text-muted" th:text="#{guests.profile}">
+                        Profile Overview
+                    </span>
+
                     <button type="button"
                             class="btn btn-sm btn-outline-danger"
                             data-bs-toggle="modal"
-                            th:data-bs-target="${'#deleteGuestModal-' + g.id}">
+                            th:data-bs-target="${'#deleteGuest-' + g.id}">
                         <i class="bi bi-trash"></i>
                     </button>
-                </div>
 
-            </div> <!-- end card -->
+                </div>
+            </div>
 
             <!-- Delete Modal -->
             <div class="modal fade"
-                 th:id="${'deleteGuestModal-' + g.id}"
+                 th:id="${'deleteGuest-' + g.id}"
                  tabindex="-1">
 
                 <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content">
 
                         <div class="modal-header bg-danger text-white py-2">
-                            <h6 class="modal-title">Confirm Delete</h6>
+                            <h6 class="modal-title" th:text="#{modal.delete.title}">Confirm Delete</h6>
                             <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal"></button>
                         </div>
 
                         <div class="modal-body text-center">
-                            <p class="mb-2">Delete this guest?</p>
+                            <p class="mb-2" th:text="#{modal.delete.guestQuestion}">
+                                Delete this guest?
+                            </p>
                             <strong th:text="${g.fullName}"></strong>
                         </div>
 
                         <div class="modal-footer justify-content-between">
-
                             <button type="button"
                                     class="btn btn-secondary btn-sm"
-                                    data-bs-dismiss="modal">
+                                    data-bs-dismiss="modal"
+                                    th:text="#{button.cancel}">
                                 Cancel
                             </button>
 
                             <form th:action="@{|/guests/${g.id}/delete|}" method="post">
                                 <button type="submit"
-                                        class="btn btn-danger btn-sm">
+                                        class="btn btn-danger btn-sm"
+                                        th:text="#{button.delete}">
                                     Delete
                                 </button>
                             </form>
-
                         </div>
 
                     </div>
                 </div>
-
             </div>
+
         </div>
     </div>
-
 
     <!-- Total Count -->
     <p class="mt-4 text-muted">
@@ -143,6 +189,7 @@
             0 guests total
         </span>
     </p>
+
 </div>
 
 <!-- Footer -->

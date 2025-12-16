@@ -61,7 +61,7 @@
 
             </div>
 
-            <!-- DELETE MODAL -->
+            <!-- Delete Modal -->
             <div class="modal fade"
                  th:id="${'deleteHotelModal-' + hotel.id}"
                  tabindex="-1">
@@ -83,14 +83,14 @@
 
                         <div class="modal-footer justify-content-between">
 
-                            <!-- CANCEL -->
+                            <!-- Cancel -->
                             <button type="button"
                                     class="btn btn-secondary btn-sm"
                                     data-bs-dismiss="modal"
                                     th:text="#{button.cancel}">
                             </button>
 
-                            <!-- YES DELETE -->
+                            <!-- Yes Delete-->
                             <form th:action="@{|/hotels/${hotel.id}/delete|}" method="post">
                                 <button type="submit"
                                         class="btn btn-danger btn-sm"

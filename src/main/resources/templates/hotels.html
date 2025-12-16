@@ -18,29 +18,98 @@
 <div class="container my-4">
     <h2 class="text-primary mb-3" th:text="#{hotels.title}">All Hotels</h2>
 
-    <!-- filter form (min stars and opened date) -->
-    <form th:action="@{/hotels}" method="get" class="row g-3 mb-4">
+    <!-- Filter + Search Form -->
+    <form th:action="@{/hotels}" method="get" class="row g-3 mb-4 align-items-end">
 
-        <div class="col-md-3">
-            <label for="minStars" class="form-label fw-semibold" th:text="#{hotels.filter.minStars}">
-                Min stars (mandatory when filtering):
+        <!-- Search by name -->
+        <div class="col-md-4">
+            <label for="name" class="form-label fw-semibold"
+                   th:text="#{hotels.filter.search}">
+                Search hotel:
             </label>
-            <input id="minStars" type="number" name="minStars" min="1" max="5" th:value="${param.minStars}"
-                   class="form-control" required>
+
+            <div class="input-group">
+            <span class="input-group-text">
+                <i class="bi bi-search"></i>
+            </span>
+
+                <input id="name"
+                       type="text"
+                       name="name"
+                       class="form-control"
+                       placeholder="Hotel name..."
+                       th:value="${selectedName}">
+            </div>
         </div>
 
-        <div class="col-md-3">
-            <label for="openedAfter" class="form-label fw-semibold" th:text="#{hotels.filter.openedAfter}">
-                Opened after (yyyy-mm-dd, optional):
+        <!-- Filter by min stars -->
+        <div class="col-md-2">
+            <label for="minStars" class="form-label fw-semibold">Min stars:</label>
+            <label for="minStars" class="form-label fw-semibold"
+                   th:text="#{hotels.filter.minStars}">
+                Min stars:
             </label>
-            <input id="openedAfter" type="text" name="openedAfter" placeholder="1990-01-01"
-                   th:value="${param.openedAfter}" class="form-control">
+
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-star-fill text-warning"></i></span>
+                <input id="minStars"
+                       type="number"
+                       name="minStars"
+                       min="1" max="5"
+                       class="form-control"
+                       th:value="${selectedMinStars}">
+            </div>
         </div>
 
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100" th:text="#{button.filter}">
-                Filter
+        <!-- Filter by opened date -->
+        <div class="col-md-3">
+            <label for="opened" class="form-label fw-semibold"
+                   th:text="#{hotels.filter.openedAfter}">
+                Opened after:
+            </label>
+
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                <input id="opened"
+                       type="date"
+                       name="opened"
+                       class="form-control"
+                       th:value="${selectedOpened}">
+            </div>
+        </div>
+
+        <!-- Sorting -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold"
+                   th:text="#{hotels.filter.sort}">
+                Sort:
+            </label>
+
+            <select name="sort" class="form-select" th:value="${selectedSort}">
+                <option value="" th:text="#{hotels.filter.none}">None</option>
+                <option value="name" th:text="#{hotels.filter.nameAsc}">
+                    Name (A → Z)
+                </option>
+                <option value="stars" th:text="#{hotels.filter.starsDesc}">
+                    Stars (High → Low)
+                </option>
+            </select>
+        </div>
+
+        <!-- Filter button -->
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-primary w-100"
+                    th:text="#{hotels.filter.go}">
+                Go
             </button>
+        </div>
+
+        <!-- Reset button -->
+        <div class="col-12 mt-2">
+            <a th:href="@{/hotels}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                <span th:text="#{hotels.filter.reset}">Reset Filters</span>
+            </a>
         </div>
 
         <!-- element only visible on large screens -->
@@ -68,7 +137,7 @@
 
                         <p class="card-text mb-2">
                             <i class="bi bi-star-fill text-warning"></i>
-                            <span th:text="${h.stars} + ' ★'"></span>
+                            <span th:text="${h.stars} + ' Stars'"></span>
                         </p>
 
                         <p class="card-text mb-2">
@@ -138,7 +207,7 @@
     <!-- Count hotels below -->
     <p class="mt-4 text-muted">
         <i class="bi bi-collection"></i>
-        <span th:text="${#lists.size(hotels)} + ' ' + #{hotels.total}">Total hotels: 5</span>
+        <span th:text="${#lists.size(hotels)} + ' ' + #{hotels.total}">Total hotels: 0</span>
     </p>
 </div>
 

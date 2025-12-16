@@ -15,5 +15,12 @@ public interface GuestService {
 
     void deleteGuest(long id);
 
+    // Week 10 query methods
+    List<Guest> getVipGuests();
 
+    List<Guest> searchGuestsByName(String name);
+
+    List<Guest> getGuestsWithManyRooms(int minRooms);
+
+    Guest createGuestWithRoom(Guest guest, Integer roomNumber);
 }

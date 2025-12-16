@@ -31,7 +31,7 @@ dependencies {
     implementation("org.webjars:webjars-locator-core:0.59")
     implementation("org.webjars.npm:bootstrap-icons:1.11.3")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.postgresql:postgresql:42.7.1")
+    implementation("org.postgresql:postgresql:42.7.7")
 }
 
 tasks.withType<Test> {

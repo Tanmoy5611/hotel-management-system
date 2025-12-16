@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class NavController {
     // When user visits the root URL ("/"), redirect them to the hotels page
     @GetMapping("/")
-    public String home() {
-        // Redirect to the main hotels list
-        return "redirect:/hotels";
+    public String root() {
+        return "redirect:/home";
     }
 }

@@ -16,32 +16,40 @@ import java.util.List;
 public class JpaHotelRepository implements HotelRepository {
 
     @PersistenceContext
-    private EntityManager em;
+    private EntityManager em;    // EntityManager is a JPA tool to talk to the database
 
+    // find all hotels
     @Override
     public List<Hotel> findAll() {
+        // JPQL query: "Hotel" is the ENTITY name (not table name)
+        // SELECT h FROM Hotel h then fetch all Hotel objects from DB
         return em.createQuery("SELECT h FROM Hotel h", Hotel.class)
                 .getResultList();
     }
 
+    // save or update hotel
     @Override
     public Hotel save(Hotel hotel) {
+        // If the hotel already exists, update it (merge)
         if (em.find(Hotel.class, hotel.getId()) != null) {
-            return em.merge(hotel);
+            return em.merge(hotel);    // merge is update the existing row
         } else {
-            em.persist(hotel);
+            em.persist(hotel);         // persist is insert new row
             return hotel;
         }
     }
 
+    // find hotel by id
     @Override
     public Hotel findHotelById(String id) {
+        // em.find() = SELECT * FROM hotels WHERE id = ?
         return em.find(Hotel.class, id);
     }
 
+    // Delete hotel by id
     @Override
     public void delete(String id) {
         Hotel h = em.find(Hotel.class, id);
-        if (h != null) em.remove(h);
+        if (h != null) em.remove(h);   // remove(entity) = DELETE FROM hotels WHERE id = ?
     }
 }

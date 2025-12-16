@@ -41,10 +41,18 @@
                         <span th:text="${guest.dob}">DOB</span>
                     </p>
 
-                    <span class="badge"
+                    <!-- VIP/Regular badge -->
+                    <span class="badge me-2"
                           th:classappend="${guest.vip} ? 'bg-warning text-dark' : 'bg-secondary'"
                           th:text="${guest.vip} ? #{guest.vip} : #{guest.regular}">
                     </span>
+
+                    <!-- Discount badge (only for VIP) -->
+                    <span class="badge bg-success text-white"
+                          th:if="${guest.vip}"
+                          th:text="${guest.getDiscountPercentage()} + '% off'">
+                    </span>
+
                 </div>
             </div>
         </div>
@@ -57,18 +65,20 @@
     </h4>
 
     <!-- No rooms -->
-    <div th:if="${#lists.isEmpty(rooms)}" class="text-muted mb-3">
+    <div th:if="${#lists.isEmpty(roomRows)}" class="text-muted mb-3">
         <i th:text="#{guest.noRooms}"></i>
     </div>
 
     <!-- Rooms Table -->
-    <div th:if="${!#lists.isEmpty(rooms)}" class="table-responsive">
+    <div th:if="${!#lists.isEmpty(roomRows)}" class="table-responsive">
         <table class="table table-hover align-middle">
             <thead class="table-light">
             <tr>
                 <th th:text="#{guest.table.room}"></th>
                 <th th:text="#{guest.table.type}"></th>
                 <th th:text="#{guest.table.price}"></th>
+                <th th:text="#{guest.table.discount}"></th>
+                <th th:text="#{guest.table.finalPrice}"></th>
                 <th th:text="#{guest.table.sea}"></th>
                 <th th:text="#{guest.table.hotel}"></th>
 
@@ -76,16 +86,32 @@
             </thead>
 
             <tbody>
-            <tr th:each="r : ${rooms}"
-                th:onclick="'window.location.href=\'/rooms/' + ${r.number} + '\';'"
+            <tr th:each="row : ${roomRows}"
+                th:onclick="'window.location.href=\'/rooms/' + ${row.room.number} + '\';'"
                 style="cursor:pointer;">
-                <td th:text="${r.number}">101</td>
-                <td th:text="${r.type}">SINGLE</td>
-                <td th:text="${r.pricePerNight} + ' €'">150 €</td>
-                <td th:text="${r.seaView} ? #{guest.seaYes} : #{guest.seaNo}"></td>
-                <td th:text="${r.hotel.name}">Hotel Name</td>
+
+                <td th:text="${row.room.number}"></td>
+                <td th:text="${row.room.type}"></td>
+
+                <!-- Price -->
+                <td th:text="${row.room.pricePerNight} + ' €'"></td>
+
+                <!-- Discount -->
+                <td th:text="${row.discount} + '%'"></td>
+
+                <!-- Final Price (green) -->
+                <td class="text-success fw-semibold"
+                    th:text="${row.finalPrice} + ' €'"></td>
+
+                <!-- Sea View -->
+                <td th:text="${row.room.seaView} ? #{guest.seaYes} : #{guest.seaNo}"></td>
+
+                <!-- Hotel -->
+                <td th:text="${row.room.hotel.name}"></td>
+
             </tr>
             </tbody>
+
 
         </table>
     </div>
@@ -98,7 +124,7 @@
             <span th:text="#{guest.back}"></span>
         </a>
 
-        <!-- DELETE BUTTON opens modal -->
+        <!-- Delete button opens modal -->
         <button type="button"
                 class="btn btn-danger"
                 data-bs-toggle="modal"
@@ -109,7 +135,7 @@
 
     </div>
 
-    <!-- DELETE MODAL -->
+    <!-- Delete Modal -->
     <div class="modal fade"
          th:id="${'deleteGuestModal-' + guest.id}"
          tabindex="-1">
@@ -131,14 +157,14 @@
 
                 <div class="modal-footer justify-content-between">
 
-                    <!-- CANCEL -->
+                    <!-- Cancel -->
                     <button type="button"
                             class="btn btn-secondary btn-sm"
                             data-bs-dismiss="modal"
                             th:text="#{button.cancel}">
                     </button>
 
-                    <!-- YES DELETE -->
+                    <!-- Yes Delete -->
                     <form th:action="@{|/guests/${guest.id}/delete|}" method="post">
                         <button type="submit"
                                 class="btn btn-danger btn-sm"

@@ -14,12 +14,12 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="postgres" uuid="ba071d12-da0d-4e48-bcdd-7e80bc5824dd">
+    <data-source source="LOCAL" name="pro3_db@localhost" uuid="ba85299d-dd04-4419-901d-e252979417d3">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql:pro3_db</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/pro3_db</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

@@ -6,9 +6,11 @@ import be.kdg.prog3.hotels.domain.Room;
 import java.util.List;
 import java.util.Scanner;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 // Handles all console input/output for the menu
+@Profile("console")
 @Component
 public class MenuView {
     private final Scanner sc;

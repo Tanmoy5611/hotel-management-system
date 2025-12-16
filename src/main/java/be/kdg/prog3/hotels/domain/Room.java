@@ -35,12 +35,13 @@ public class Room {
     /// many-to-one
 
     // Many-to-Many: rooms_guests
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "rooms_guests",
             joinColumns = @JoinColumn(name = "room_number"),
             inverseJoinColumns = @JoinColumn(name = "guest_id")
     )
+
     private Set<Guest> guests = new HashSet<>();
 
     //REQUIRED empty constructor

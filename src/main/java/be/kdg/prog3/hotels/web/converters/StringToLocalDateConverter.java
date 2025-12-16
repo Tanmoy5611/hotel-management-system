@@ -3,13 +3,12 @@ package be.kdg.prog3.hotels.web.converters;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import javax.swing.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-/**
- * Custom converter that lets Spring automatically turn String to LocalDate.
- */
+// Custom converter that lets Spring automatically turn String to LocalDate
 @Component
 public class StringToLocalDateConverter implements Converter<String, LocalDate> {
 
