@@ -73,6 +73,7 @@
 
                 <li class="nav-item dropdown">
 
+                    <!-- Current language show -->
                     <a class="nav-link dropdown-toggle d-flex align-items-center"
                        href="#"
                        id="languageDropdown"
@@ -81,7 +82,15 @@
                        aria-expanded="false">
 
                         <i class="bi bi-translate me-1"></i>
-                        Language
+
+                        <span th:switch="${#locale.language}">
+                            <span th:case="'en'">🇬🇧 English</span>
+                            <span th:case="'nl'">🇳🇱 Nederlands</span>
+                            <span th:case="'bn'">🇧🇩 বাংলা</span>
+                            <span th:case="'fr'">🇫🇷 Français</span>
+                            <span th:case="'de'">🇩🇪 Deutsch</span>
+                            <span th:case="*">Language</span>
+                        </span>
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm"
@@ -115,7 +124,15 @@
                             </a>
                         </li>
 
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='de')}">
+                                🇩🇪 Deutsch
+                            </a>
+                        </li>
+
                     </ul>
+
                 </li>
 
             </ul>

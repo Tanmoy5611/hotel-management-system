@@ -18,48 +18,87 @@
 <div class="container my-4">
     <h2 class="text-primary mb-3" th:text="#{rooms.title}">All Rooms</h2>
 
-    <!-- filter form for rooms-->
-    <form th:action="@{/rooms}" method="get" class="row g-3 mb-4">
+    <!-- Filter form for rooms -->
+    <form th:action="@{/rooms}" method="get"
+          class="row g-3 mb-4 align-items-end">
+
+        <!-- Room Number -->
+        <div class="col-md-3">
+            <label class="form-label fw-semibold"
+                   th:text="#{rooms.filter.number}">
+                Room number
+            </label>
+            <input type="number"
+                   name="number"
+                   class="form-control"
+                   th:placeholder="#{rooms.filter.number.placeholder}">
+        </div>
 
         <!-- Type -->
         <div class="col-md-3">
-            <label for="type" class="form-label fw-semibold" th:text="#{rooms.filter.type}">Type (optional):</label>
+            <label for="type"
+                   class="form-label fw-semibold"
+                   th:text="#{rooms.filter.type}">
+                Type
+            </label>
             <select id="type" name="type" class="form-select">
                 <option value="" th:text="#{rooms.selectType}"></option>
-                <option th:each="t : ${types}" th:value="${t}" th:text="${t}"
-                        th:selected="${t.toString() == selType}"></option>
+                <option th:each="t : ${types}"
+                        th:value="${t}"
+                        th:text="${t}"
+                        th:selected="${t.toString() == selType}">
+                </option>
             </select>
         </div>
 
         <!-- Sea View -->
-        <div class="col-md-2 d-flex align-items-end">
-            <div class="form-check mt-4">
-                <input id="sea" type="checkbox" name="sea" th:checked="${selSea}" class="form-check-input">
-                <label for="sea" class="form-check-label fw-semibold" th:text="#{rooms.filter.sea}">
-                    Sea view </label>
+        <div class="col-md-2">
+            <label class="form-label fw-semibold d-block"
+                   th:text="#{rooms.filter.sea}">
+                Sea View
+            </label>
+            <div class="form-check mt-2">
+                <input id="sea"
+                       type="checkbox"
+                       name="sea"
+                       th:checked="${selSea}"
+                       class="form-check-input">
+                <label for="sea" class="form-check-label">
+                    ✓
+                </label>
             </div>
         </div>
 
         <!-- Max Price -->
-        <div class="col-md-3">
-            <label for="maxPrice" class="form-label fw-semibold" th:text="#{rooms.filter.max}">
-                Max price: (optional)
+        <div class="col-md-2">
+            <label for="maxPrice"
+                   class="form-label fw-semibold"
+                   th:text="#{rooms.filter.max}">
+                Max price
             </label>
-            <input id="maxPrice" type="number" step="0.01" name="maxPrice"
-                   th:value="${selPrice}" class="form-control">
+            <input id="maxPrice"
+                   type="number"
+                   step="0.01"
+                   name="maxPrice"
+                   th:value="${selPrice}"
+                   class="form-control">
         </div>
 
-        <!-- Filter button -->
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100" th:text="#{button.filter}">
-                Filter
+        <!-- Filter Button -->
+        <div class="col-md-2">
+            <button type="submit"
+                    class="btn btn-primary w-100">
+                <i class="bi bi-search"></i>
+                <span th:text="#{button.filter}">Filter</span>
             </button>
         </div>
 
-        <!-- Tip -->
-        <div class="col-md-2 d-none d-lg-block text-end text-muted fst-italic">
-            <i class="bi bi-info-circle"></i>
-            <span th:text="#{rooms.tip}">Tip: Try sea-view rooms!</span>
+        <!-- Tip (right aligned, desktop only) -->
+        <div class="col-12 d-none d-lg-flex justify-content-end text-muted fst-italic mt-1">
+            <i class="bi bi-info-circle me-1"></i>
+            <span th:text="#{rooms.tip}">
+            Tip: Check out the sea-view suites!
+        </span>
         </div>
 
     </form>
@@ -115,7 +154,6 @@
 
             </div>
 
-
             <!-- Delete modal -->
             <div class="modal fade" th:id="${'deleteRoomModal-' + r.number}" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -153,7 +191,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Room count -->
     <p class="mt-4 text-muted">

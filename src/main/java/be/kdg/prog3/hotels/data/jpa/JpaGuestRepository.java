@@ -2,7 +2,6 @@ package be.kdg.prog3.hotels.data.jpa;
 
 import be.kdg.prog3.hotels.data.GuestRepository;
 import be.kdg.prog3.hotels.domain.Guest;
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

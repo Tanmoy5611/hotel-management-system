@@ -5,7 +5,6 @@ import be.kdg.prog3.hotels.domain.Hotel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 // This talks directly to the PostgreSQL database using SQL queries.

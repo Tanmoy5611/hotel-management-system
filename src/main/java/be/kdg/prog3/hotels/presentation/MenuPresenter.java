@@ -3,11 +3,9 @@ package be.kdg.prog3.hotels.presentation;
 import be.kdg.prog3.hotels.business.HotelService;
 import be.kdg.prog3.hotels.business.RoomService;
 import be.kdg.prog3.hotels.domain.RoomType;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
 import java.util.Optional;
 
 // Connects the MenuView (UI) with HotelService and RoomService (business logic)
@@ -23,7 +21,6 @@ public class MenuPresenter implements CommandLineRunner {
         this.hotelService = hotelService;
         this.roomService = roomService;
         this.view = view;
-
     }
 
     // runs automatically when Spring Boot starts

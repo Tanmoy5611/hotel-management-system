@@ -2,10 +2,8 @@ package be.kdg.prog3.hotels.business;
 
 import be.kdg.prog3.hotels.data.HotelRepository;
 import be.kdg.prog3.hotels.domain.Hotel;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -58,7 +56,6 @@ public class HotelServiceImpl implements HotelService {
                 .toList();
     }
 
-
     // create a new hotel and save it (used in add-hotel form)
     @Override
     public Hotel createdHotel(Hotel hotel) {
@@ -91,7 +88,7 @@ public class HotelServiceImpl implements HotelService {
         repo.delete(id);
     }
 
-    // week 10 Extra methods for Spring Data Jpa (fallback java implementations)
+    // for Spring Data Jpa (fallback java implementations)
     // ( Real JPA implementations are inside HotelRepositoryJPA)
 
     @Override
@@ -101,7 +98,6 @@ public class HotelServiceImpl implements HotelService {
                 .filter(h -> h.getName().toLowerCase().contains(text.toLowerCase()))
                 .toList();
     }
-
 
     @Override
     public List<Hotel> filterByStars(int minStars) {
@@ -134,5 +130,4 @@ public class HotelServiceImpl implements HotelService {
                 .filter(h -> h.isHasSpa() == hasSpa)
                 .toList();
     }
-
 }

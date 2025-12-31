@@ -1,7 +1,6 @@
 package be.kdg.prog3.hotels.data;
 
 import be.kdg.prog3.hotels.domain.Hotel;
-
 import java.util.List;
 
     // Repository interface for Hotel entity
@@ -26,8 +25,8 @@ public interface HotelRepository {
     Hotel findHotelById(String id);
 
      // Cascade deletes rooms
-     // In-memory → list.remove()
-     // JDBC → DELETE FROM hotels WHERE id=?
-     // JPA → em.remove()
+     // In-memory - list.remove()
+     // JDBC - DELETE FROM hotels WHERE id=?
+     // JPA - em.remove()
     void delete(String id);
 }

@@ -9,11 +9,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Stores a user's page-visit history within one browser session.
- */
+// Stores a user's page-visit history within one browser session
 @Component
-@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS) // ✅ Important fix
+@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SessionHistory {
 
     private final List<String> history = new LinkedList<>();

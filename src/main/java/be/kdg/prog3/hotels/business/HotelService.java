@@ -1,7 +1,6 @@
 package be.kdg.prog3.hotels.business;
 
 import be.kdg.prog3.hotels.domain.Hotel;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -38,5 +37,4 @@ public interface HotelService {
 
     // get only hotels that have or don't have spa
     List<Hotel> getHotelsWithSpa(boolean hasSpa);
-
 }

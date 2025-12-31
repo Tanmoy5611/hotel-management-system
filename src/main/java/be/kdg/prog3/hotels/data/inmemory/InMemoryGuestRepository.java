@@ -7,9 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 // In-memory implementation of GuestRepository
 
@@ -19,19 +17,13 @@ public class InMemoryGuestRepository implements GuestRepository {
 
     private static final Logger log = LoggerFactory.getLogger(InMemoryGuestRepository.class);
 
-    // Use the existing DataFactory list (thread-safe wrapper)
-//    private final List<Guest> guests = new CopyOnWriteArrayList<>(DataFactory.guests);
-//
-//    private long nextId = 1;
-
-
     private final List<Guest> guests;
 
     private long nextId;
 
     public InMemoryGuestRepository() {
-        // Load seeded data ONCE
-        this.guests = new CopyOnWriteArrayList<>(DataFactory.guests);
+        // Load data
+        this.guests = DataFactory.guests;
 
         // Determine next ID safely
         long maxId = guests.stream()
@@ -92,5 +84,4 @@ public class InMemoryGuestRepository implements GuestRepository {
                 room.getGuests().removeIf(g -> g.getId() == id)
         );
     }
-
 }

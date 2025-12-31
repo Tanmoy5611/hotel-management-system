@@ -5,9 +5,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-/**
- * Intercepts every request and records the visited URL and time.
- */
+// Intercepts every request and records the visited URL and time.
+
 @Component
 public class HistoryInterceptor implements HandlerInterceptor {
 

@@ -1,12 +1,13 @@
 package be.kdg.prog3.hotels.business;
 
+import be.kdg.prog3.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog3.hotels.data.springdata.SpringDataRoomRepository;
 import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.RoomType;
+import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +41,7 @@ public class SpringDataRoomServiceImpl implements RoomService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public Room createdRoom(Room room) {
         return repo.save(room);
@@ -54,9 +56,11 @@ public class SpringDataRoomServiceImpl implements RoomService {
                 .toList();
     }
 
+    ///  throws exception
     @Override
     public Room getRoomByNumber(int number) {
-        return repo.findById(number).orElse(null);
+        return repo.findById(number)
+                .orElseThrow(() -> new RoomNotFoundException(number));
     }
 
     @Override

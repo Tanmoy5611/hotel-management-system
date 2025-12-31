@@ -13,7 +13,6 @@ CREATE TABLE rooms (
                        price_per_night DOUBLE PRECISION,
                        sea_view BOOLEAN,
                        photo_url VARCHAR(255),
-
                        hotel_id VARCHAR(50) NOT NULL,
                        CONSTRAINT fk_rooms_hotels
                            FOREIGN KEY (hotel_id) REFERENCES hotels(id)
@@ -33,10 +32,8 @@ CREATE TABLE guests (
 CREATE TABLE rooms_guests (
                               room_number INT NOT NULL,
                               guest_id BIGINT NOT NULL,
-
                               CONSTRAINT fk_rooms_guests_room
                                   FOREIGN KEY (room_number) REFERENCES rooms(number),
-
                               CONSTRAINT fk_rooms_guests_guest
                                   FOREIGN KEY (guest_id) REFERENCES guests(id)
 );

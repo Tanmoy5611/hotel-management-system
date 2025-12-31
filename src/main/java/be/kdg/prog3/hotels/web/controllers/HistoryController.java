@@ -17,6 +17,7 @@ public class HistoryController {
     @GetMapping("/history")
     public String showHistory(Model model) {
         model.addAttribute("history", sessionHistory.getHistory());
+
         return "history";     // refers to history.html
     }
 }

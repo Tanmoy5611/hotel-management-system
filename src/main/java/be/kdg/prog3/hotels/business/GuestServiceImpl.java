@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.business;
-
 import be.kdg.prog3.hotels.data.GuestRepository;
 import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Room;
@@ -9,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
 import java.util.List;
 
 @Service
@@ -24,7 +21,6 @@ public class GuestServiceImpl implements GuestService {
     public GuestServiceImpl(GuestRepository repo, RoomService roomService) {
         this.repo = repo;
         this.roomService = roomService;
-        
     }
 
     @Override
@@ -107,13 +103,14 @@ public class GuestServiceImpl implements GuestService {
         // Save guest first
         guest = repo.save(guest);
 
-        // If user typed a room number → link it
+        // If user typed a room number -  link it
         if (roomNumber != null) {
             Room room = roomService.getRoomByNumber(roomNumber);
             if (room != null) {
 
                 // Bidirectional sync
                 guest.addRoom(room);
+                room.getGuests().add(guest);
 
                 // Save again so join-table persists
                 repo.save(guest);
@@ -122,23 +119,4 @@ public class GuestServiceImpl implements GuestService {
 
         return guest;
     }
-
-//    @Override
-//    public List<Guest> getVipGuests() {
-//        throw new UnsupportedOperationException(
-//                "VIP guest query not supported in inmemory/jdbc/jpa profiles. Use springdata profile.");
-//    }
-//
-//    @Override
-//    public List<Guest> searchGuestsByName(String name) {
-//        throw new UnsupportedOperationException(
-//                "Search by name not supported in inmemory/jdbc/jpa profiles. Use springdata profile.");
-//    }
-//
-//    @Override
-//    public List<Guest> getGuestsWithManyRooms(int minRooms) {
-//        throw new UnsupportedOperationException(
-//                "Guests-with-many-rooms query not supported in inmemory/jdbc/jpa profiles. Use springdata profile.");
-//    }
-
 }

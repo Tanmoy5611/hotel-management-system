@@ -5,19 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository
 public interface SpringDataGuestRepository extends JpaRepository<Guest, Long> {
 
-    // Week 10 Query Method: VIP guests
+    // Query Method: VIP guests
     List<Guest> findByVipTrue();
 
-    // Week 10 Query Method: Search by name
+    // Query Method: Search by name
     List<Guest> findByFullNameContainingIgnoreCase(String text);
 
-    // Week 10 Custom @Query: Guests with more than X booked rooms
+    // Custom @Query: Guests with more than X booked rooms
     @Query("""
            SELECT g
            FROM Guest g

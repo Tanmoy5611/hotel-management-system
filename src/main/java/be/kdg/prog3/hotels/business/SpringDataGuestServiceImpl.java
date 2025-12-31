@@ -4,7 +4,6 @@ import be.kdg.prog3.hotels.data.springdata.SpringDataGuestRepository;
 import be.kdg.prog3.hotels.domain.Guest;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -17,7 +16,6 @@ public class SpringDataGuestServiceImpl implements GuestService {
     public SpringDataGuestServiceImpl(SpringDataGuestRepository repo, RoomService roomService) {
         this.repo = repo;
         this.roomService = roomService;
-
     }
 
     // Required Interface methods
@@ -47,7 +45,6 @@ public class SpringDataGuestServiceImpl implements GuestService {
         repo.deleteById(id);
     }
 
-    // Week 10 Extra methods
     public List<Guest> getVipGuests() {
         return repo.findByVipTrue();
     }

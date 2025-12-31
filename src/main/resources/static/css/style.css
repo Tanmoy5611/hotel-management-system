@@ -9,7 +9,6 @@
 }
 
 /* Base */
-
 body {
     background-color: var(--gray-light);
     font-family: 'Inter', Arial, sans-serif;
@@ -83,41 +82,79 @@ footer {
     font-size: 1.1rem;
 }
 
-/* Search Bar */
+/* Booking search container */
 .booking-search {
-    background: white;
-    padding: 18px;
-    border-radius: 12px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.20);
+    align-items: center;
+    gap: 14px;
+    flex-wrap: nowrap;
+    background: #fff;
+    padding: 14px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.15);
 }
 
-.booking-search input {
-    border: none;
-    padding: 12px;
+/* Shared input style */
+.booking-input {
+    height: 56px;
+    font-size: 16px;
+    border-radius: 12px;
+    transition: .2s ease;
+}
+
+/* Destination */
+.booking-destination {
     flex: 1;
-    border-radius: 8px;
-    background: #f2f6fc;
+    min-width: 380px;
 }
 
-.booking-search input:focus {
-    outline: 2px solid #0062e3;
-    background: white;
+/* Dates */
+.booking-date {
+    flex: 0 0 170px;
 }
 
+.booking-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6c757d;
+    margin: 0 0 6px 2px;
+}
+
+/* Button */
 .booking-btn {
-    background: #0071c2;
-    color: white;
-    font-weight: bold;
-    border-radius: 10px;
-    padding: 12px 20px;
-    transition: 0.2s;
+    height: 56px;
+    padding: 0 26px;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #2f6db5;
+    color: #fff;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: .25s ease;
 }
 
 .booking-btn:hover {
-    background: #004a93;
+    background: #245a96;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0,0,0,.2);
+}
+
+/* Input hover/focus */
+.booking-search input:hover,
+.booking-search input:focus {
+    background: #f8f9fa;
+    box-shadow: 0 0 0 2px rgba(13,110,253,.15);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .booking-search { flex-wrap: wrap; }
+    .booking-destination { min-width: 100%; }
+    .booking-date { flex: 1 1 220px; }
+    .booking-btn { width: 100%; justify-content: center; }
 }
 
 /* Section Titles*/
@@ -143,8 +180,7 @@ footer {
     color: var(--blue-dark);
 }
 
-/*Card system ( For All Pages) */
-
+/* Card system ( For All Pages) */
 .card {
     border: none;
     border-radius: 16px;
@@ -167,9 +203,9 @@ footer {
 .room-image,
 .guest-img {
     width: 100%;
-    height: 240px; /* fixed height like home page */
-    object-fit: cover; /* no distortion */
-    object-position: center; /* good crop on desktop */
+    height: 240px;
+    object-fit: cover;
+    object-position: center;
     border-radius: 16px 16px 0 0;
     transition: transform 0.35s ease-in-out;
 }
@@ -184,7 +220,6 @@ footer {
 }
 
 /* Flex layout card with footers (Hotels & Guests):keeps "Profile Overview" / card footer at the bottom */
-
 .card.h-100 {
     display: flex;
     flex-direction: column;
@@ -208,7 +243,6 @@ footer {
 }
 
 /* Trust badges */
-
 .badge-box {
     margin-top: 20px;
     display: flex;
@@ -257,9 +291,7 @@ footer {
     color: #198754 !important;
 }
 
-/* Responsive tweaks */
-
-/* MOBILE: search + guest images */
+/* Responsive */
 @media (max-width: 768px) {
 
     /* stack search fields*/
@@ -273,11 +305,10 @@ footer {
         width: 100%;
     }
 
-    /* guest images a bit taller and face higher in frame */
     .guest-img {
-        height: 380px !important; /* slightly taller on mobile */
+        height: 380px !important;
         width: 180%;
         object-fit: cover !important;
-        object-position: top center !important; /* show face more, not just chin */
+        object-position: top center !important;
     }
 }

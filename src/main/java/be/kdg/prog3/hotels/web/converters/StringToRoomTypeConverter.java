@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Custom converter that lets Spring automatically convert
- * form text values like "SINGLE" → RoomType.SINGLE.
+ * form text values like "SINGLE" - RoomType.SINGLE.
  */
 
 @Component

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
- // HotelForm is a ViewModel used only for form
+// HotelForm is a ViewModel used only for form
 public class HotelForm {
 
     // Validated form fields
@@ -68,8 +68,6 @@ public class HotelForm {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
-
 }
 
 

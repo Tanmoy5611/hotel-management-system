@@ -9,7 +9,6 @@ import be.kdg.prog3.hotels.domain.RoomType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;

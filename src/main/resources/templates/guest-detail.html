@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'Guest - ' + ${guest.fullName}">Guest Detail</title>
-
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
@@ -81,7 +80,6 @@
                 <th th:text="#{guest.table.finalPrice}"></th>
                 <th th:text="#{guest.table.sea}"></th>
                 <th th:text="#{guest.table.hotel}"></th>
-
             </tr>
             </thead>
 
@@ -108,7 +106,6 @@
 
                 <!-- Hotel -->
                 <td th:text="${row.room.hotel.name}"></td>
-
             </tr>
             </tbody>
 

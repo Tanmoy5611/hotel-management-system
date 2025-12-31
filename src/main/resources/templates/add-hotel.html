@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{nav.addHotel}">Add Hotel</title>
-
-    <!-- Bootstrap & Icons -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
@@ -45,9 +43,9 @@
                                    th:text="#{hotels.table.name}">
                                 Name
                             </label>
-                            <input type="text"
-                                   th:field="*{name}"
-                                   class="form-control">
+                                <input type="text"
+                                       th:field="*{name}"
+                                       class="form-control">
                             <div class="text-danger small mt-1"
                                  th:errors="*{name}"></div>
                         </div>
@@ -58,9 +56,9 @@
                                    th:text="#{hotels.table.opened}">
                                 Opened On
                             </label>
-                            <input type="date"
-                                   th:field="*{openedOn}"
-                                   class="form-control">
+                                <input type="date"
+                                       th:field="*{openedOn}"
+                                       class="form-control">
                             <div class="text-danger small mt-1"
                                  th:errors="*{openedOn}"></div>
                         </div>
@@ -71,11 +69,11 @@
                                    th:text="#{hotels.table.stars}">
                                 Stars
                             </label>
-                            <input type="number"
-                                   min="1"
-                                   max="5"
-                                   th:field="*{stars}"
-                                   class="form-control">
+                                <input type="number"
+                                       min="1"
+                                       max="5"
+                                       th:field="*{stars}"
+                                       class="form-control">
                             <div class="text-danger small mt-1"
                                  th:errors="*{stars}"></div>
                         </div>
@@ -101,10 +99,10 @@
                                    th:text="#{hotels.table.image}">
                                 Image URL
                             </label>
-                            <input type="text"
-                                   th:field="*{imageUrl}"
-                                   class="form-control"
-                                   placeholder="/images/hotels/example.jpg">
+                                <input type="text"
+                                       th:field="*{imageUrl}"
+                                       class="form-control"
+                                       placeholder="/images/hotels/example.jpg">
                             <div class="text-danger small mt-1"
                                  th:errors="*{imageUrl}"></div>
                         </div>

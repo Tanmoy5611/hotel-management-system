@@ -3,9 +3,7 @@ package be.kdg.prog3.hotels.data.inmemory;
 import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.data.RoomRepository;
 import be.kdg.prog3.hotels.domain.Room;
-
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;

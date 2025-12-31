@@ -1,12 +1,10 @@
 package be.kdg.prog3.hotels.viewmodel;
-
+import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.RoomType;
 import jakarta.validation.constraints.*;
 
-/**
- * Simple ViewModel for Room form (used in add-room.html).
- * This class only handles form data and validation,
- */
+// Simple ViewModel for Room form (used in add-room.html) - only handles form data and validation
+
 public class RoomForm {
 
     @Min(value = 1, message = "{room.number.min}")

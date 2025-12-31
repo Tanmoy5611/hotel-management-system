@@ -13,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +38,7 @@ public class GuestController {
         log.debug("Loading all guests from GuestService");
         List<Guest> guests = guestService.getAllGuests();
         model.addAttribute("guests", guests);
+
         return "guests";
     }
 
@@ -84,6 +84,7 @@ public class GuestController {
     @PostMapping("/guests/{id}/delete")
     public String deleteGuest(@PathVariable long id) {
         guestService.deleteGuest(id);
+
         return "redirect:/guests";
     }
 
@@ -92,6 +93,7 @@ public class GuestController {
     @GetMapping("/guests/vip")
     public String showVipGuests(Model model) {
         model.addAttribute("guests", guestService.getVipGuests());
+
         return "guests";   // reuse guests.html
     }
 
@@ -99,6 +101,7 @@ public class GuestController {
     public String searchGuests(@RequestParam("q") String query, Model model) {
         model.addAttribute("guests", guestService.searchGuestsByName(query));
         model.addAttribute("searchQuery", query);
+
         return "guests";   // reuse guests.html
     }
 
@@ -106,6 +109,7 @@ public class GuestController {
     public String showGuestsWithManyRooms(@RequestParam("min") int minRooms, Model model) {
         model.addAttribute("guests", guestService.getGuestsWithManyRooms(minRooms));
         model.addAttribute("minRooms", minRooms);
+
         return "guests";   // reuse guests.html
     }
 
@@ -113,9 +117,10 @@ public class GuestController {
     @GetMapping("/guests/add")
     public String showAddGuestForm(Model model) {
         model.addAttribute("guestForm", new GuestForm());
+        model.addAttribute("rooms", roomService.getAllRooms());
+
         return "add-guest";
     }
-
 
     @PostMapping("/guests/add")
     public String processAddGuest(
@@ -124,7 +129,8 @@ public class GuestController {
             Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("guestForm", guestForm);  // <-- REQUIRED FIX
+            model.addAttribute("guestForm", guestForm);
+
             return "add-guest";
         }
 
@@ -150,6 +156,7 @@ public class GuestController {
         }
 
         guestService.createGuestWithRoom(guest, guestForm.getRoomNumber());
+
         return "redirect:/guests";
     }
 }

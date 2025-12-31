@@ -8,7 +8,6 @@ import be.kdg.prog3.hotels.domain.VIPGuest;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -63,17 +62,6 @@ public class JdbcGuestRepository implements GuestRepository {
     public List<Guest> findAll() {
         return jdbcClient.sql("SELECT * FROM guests")
                 .query(this::mapGuest)
-//                .query((rs, rowNum) -> {
-//                    Guest g = new Guest(
-//                            rs.getString("full_name"),
-//                            rs.getDate("dob").toLocalDate(),
-//                            rs.getString("email"),
-//                            rs.getBoolean("vip"),
-//                            rs.getString("avatar_url")
-//                    );
-//                    g.setId(rs.getLong("id"));
-//                    return g;
-//                })
                 .list();
     }
 
@@ -123,17 +111,6 @@ public class JdbcGuestRepository implements GuestRepository {
         Guest guest = jdbcClient.sql("SELECT * FROM guests WHERE id = :id")
                 .param("id", id)
                 .query(this::mapGuest)
-//                .query((rs, rowNum) -> {
-//                    Guest g = new Guest(
-//                            rs.getString("full_name"),
-//                            rs.getDate("dob").toLocalDate(),
-//                            rs.getString("email"),
-//                            rs.getBoolean("vip"),
-//                            rs.getString("avatar_url")
-//                    );
-//                    g.setId(rs.getLong("id"));
-//                    return g;
-//                })
                 .list()
                 .stream()
                 .findFirst()
@@ -166,10 +143,8 @@ public class JdbcGuestRepository implements GuestRepository {
     }
 
 
-
     // Find by room
     // Find all guests for a given room
-    // -------------------------------------------------------------
     @Override
     public List<Guest> findByRoom(int roomNumber) {
         return jdbcClient.sql("""
@@ -180,17 +155,6 @@ public class JdbcGuestRepository implements GuestRepository {
                 """)
                 .param("num", roomNumber)
                 .query(this::mapGuest)
-//                .query((rs, rowNum) -> {
-//                    var guest = new Guest(
-//                            rs.getString("full_name"),
-//                            rs.getDate("dob").toLocalDate(),
-//                            rs.getString("email"),
-//                            rs.getBoolean("vip"),
-//                            rs.getString("avatar_url")
-//                    );
-//                    guest.setId(rs.getLong("id"));   // important: set DB id
-//                    return guest;
-//                })
                 .list();
 
     }

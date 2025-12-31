@@ -2,13 +2,9 @@ package be.kdg.prog3.hotels.domain;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.persistence.*;
-
-import java.time.LocalDate;
 
 @Entity                              // JPA entity - this class becomes a table in the DB
 @Table(name = "hotels")              // map this entity to "hotels" table
@@ -37,19 +33,14 @@ public class Hotel {
 
     // Create a list - Each hotel has many rooms- 1 hotel → many rooms (inverse side)
     @OneToMany(mappedBy = "hotel",           // the owning side is Room.hotel
-            cascade = CascadeType.ALL,    // remove rooms when hotel is deleted
-            orphanRemoval = true)         // delete room if removed from the list
+            cascade = CascadeType.ALL,       // remove rooms when hotel is deleted
+            orphanRemoval = true)            // delete room if removed from the list
     // This automatically deletes Rooms when Hotel is deleted.
     private List<Room> rooms = new ArrayList<>();
 
     // JPA needs a empty constructor (Hibernate uses this to load data)
     protected Hotel() {
     }
-
-    // Default constructor for Spring and Thymeleaf forms to create objects
-    //  public Hotel() {
-    //  }
-
 
     // Constructor
     public Hotel(String id, String name, LocalDate openedOn, int stars, boolean hasSpa, String imageUrl) {
@@ -61,32 +52,25 @@ public class Hotel {
         this.imageUrl = imageUrl;
     }
 
-
     // Getters to access attributes
     public String getId() {
         return id;
     }
-
     public String getName() {
         return name;
     }
-
     public LocalDate getOpenedOn() {
         return openedOn;
     }
-
     public int getStars() {
         return stars;
     }
-
     public boolean isHasSpa() {
         return hasSpa;
     }
-
     public String getImageUrl() {
         return imageUrl;
     }
-
     public List<Room> getRooms() {
         return rooms;
     }
@@ -94,27 +78,19 @@ public class Hotel {
     // Setters
     public void setId(String id) {
         this.id = id;
-
     }
-
     public void setName(String name) {
         this.name = name;
-
     }
-
     public void setOpenedOn(LocalDate openedOn) {
         this.openedOn = openedOn;
     }
-
     public void setStars(int stars) {
         this.stars = stars;
     }
-
-
     public void setHasSpa(boolean hasSpa) {
         this.hasSpa = hasSpa;
     }
-
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }

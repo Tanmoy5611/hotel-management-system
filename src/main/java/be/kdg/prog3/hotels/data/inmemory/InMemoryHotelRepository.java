@@ -23,19 +23,21 @@ public class InMemoryHotelRepository implements HotelRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryHotelRepository.class);
 
     // Counter for generating unique hotel IDs (Fake Auto-Increment)
-    private final AtomicInteger seq = new AtomicInteger(1000);
+   // private final AtomicInteger seq = new AtomicInteger(1000);
 
     /* In-memory data is NOT stored as a list of hotels.
     Instead: DataFactory.rooms = List<Room>
     Each Room has a reference → Room.getHotel()  */
     @Override
     public List<Hotel> findAll() {
-        log.debug("Reading distinct hotels from rooms list");
-        return DataFactory.rooms.stream()
-                .map(Room::getHotel)       // take the hotel from each room
-                .filter(Objects::nonNull)  // some rooms may not have hotel(Skip)
-                .distinct()                // avoiding duplicate hotels
-                .toList();
+        log.debug("Reading hotels from DataFactory (in-memory)");
+        return DataFactory.hotels;
+
+//        return DataFactory.rooms.stream()
+//                .map(Room::getHotel)       // take the hotel from each room
+//                .filter(Objects::nonNull)  // some rooms may not have hotel(Skip)
+//                .distinct()                // avoiding duplicate hotels
+//                .toList();
     }
 
     /* Since this is IN-MEMORY and do NOT actually store hotels in a DB,
@@ -44,8 +46,12 @@ public class InMemoryHotelRepository implements HotelRepository {
     @Override
     public Hotel save(Hotel hotel) {
         log.debug("Saving hotel: {}", hotel);
-        return hotel;    // In-memory save does nothing because hotels come from rooms list.
 
+        // Avoid duplicates
+        DataFactory.hotels.removeIf(h -> h.getId().equals(hotel.getId()));
+        DataFactory.hotels.add(hotel);
+
+        return hotel;
     }
 
     /* DataFactory.hotels *does* contain the initial hotel list
@@ -66,9 +72,8 @@ public class InMemoryHotelRepository implements HotelRepository {
         DataFactory.hotels.removeIf(h -> h.getId().equals(id));
 
         // also remove rooms belonging to this hotel
-        DataFactory.rooms.removeIf(r -> r.getHotel() != null &&
+        DataFactory.rooms.removeIf(r ->
+                r.getHotel() != null &&
                 r.getHotel().getId().equals(id));
     }
-
-
 }

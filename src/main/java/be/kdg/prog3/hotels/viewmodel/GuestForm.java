@@ -23,7 +23,7 @@ public class GuestForm {
 
     private String avatarUrl;
 
-    // NEW: assign room during creation (optional)
+    // assign room during creation (optional)
     private Integer roomNumber;
 
     // getters + setters

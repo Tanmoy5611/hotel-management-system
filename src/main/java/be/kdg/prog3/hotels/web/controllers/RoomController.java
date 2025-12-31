@@ -3,12 +3,10 @@ package be.kdg.prog3.hotels.web.controllers;
 import be.kdg.prog3.hotels.business.GuestService;
 import be.kdg.prog3.hotels.business.HotelService;
 import be.kdg.prog3.hotels.business.RoomService;
-import be.kdg.prog3.hotels.data.DataFactory;
+import be.kdg.prog3.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.RoomType;
 import be.kdg.prog3.hotels.viewmodel.RoomForm;
-
-import jakarta.persistence.Convert;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +37,18 @@ public class RoomController {
     /* This method handles GET requests to "/rooms"
     It can show all rooms, or filter them by type, sea view, or max price */
     @GetMapping
-    public String list(@RequestParam(name = "type", required = false) String type,
+    public String list(@RequestParam(name = "number", required = false) Integer number,
+                       @RequestParam(name = "type", required = false) String type,
                        @RequestParam(name = "sea", required = false) Boolean sea,
                        @RequestParam(name = "maxPrice", required = false) Double maxPrice,
                        Model model) {
+
+        // If room number is provided : direct lookup
+        if (number != null) {
+            Room room = roomService.getRoomByNumber(number); // throws RoomNotFoundException
+
+            return "redirect:/rooms/" + room.getNumber();
+        }
 
         // Convert incoming query parameters to Optional values
         Optional<RoomType> t = (type == null || type.isBlank())
@@ -53,7 +59,7 @@ public class RoomController {
         Optional<Double> p = Optional.ofNullable(maxPrice);
 
         // Debug log for filter inputs
-        log.debug("Listing rooms with filters type={}, sea={}, maxPrice={}", type, sea, maxPrice);
+        log.debug("Listing rooms with filters number={}, type={}, sea={}, maxPrice={}", number, type, sea, maxPrice);
 
         // Add filtered results and other attributes to Model (to display on HTML)
         model.addAttribute("rooms", roomService.findRooms(t, v, p));
@@ -61,6 +67,7 @@ public class RoomController {
         model.addAttribute("selType", type);
         model.addAttribute("selSea", sea);
         model.addAttribute("selPrice", maxPrice);
+        model.addAttribute("selNumber", number);
 
         return "rooms";   //Return Thymeleaf page name (rooms.html)
     }
@@ -74,8 +81,8 @@ public class RoomController {
         // Dropdown list for RoomType enum
         model.addAttribute("types", RoomType.values());
         model.addAttribute("hotels", hotelService.getAllHotels());
-        return "add-room";  // Return template add-room.html
 
+        return "add-room";  // Return template add-room.html
     }
 
     // for handling POST request when submits the “Add Room” form
@@ -92,16 +99,6 @@ public class RoomController {
 
             return "add-room";
         }
-
-        /* Convert ViewModel to Domain object manually
-        Room room = new Room();
-        room.setNumber(roomForm.getNumber());
-        room.setType(roomForm.getType());
-        room.setPricePerNight(roomForm.getPricePerNight());
-        room.setSeaView(roomForm.isSeaView());
-        room.setPhotoUrl(roomForm.getPhotoUrl());
-
-        var hotel = hotelService.getHotelById(roomForm.getHotelId()); */
 
         // using full constructor because JPA no-args constructor is protected
         var hotel = hotelService.getHotelById(roomForm.getHotelId());
@@ -133,6 +130,7 @@ public class RoomController {
         // If no room found, redirect back to the rooms list
         if (room == null) {
             log.error("Room {} not found!", number);
+
             return "redirect:/rooms";
         }
 
@@ -146,11 +144,22 @@ public class RoomController {
         return "room-detail";
     }
 
-    // detete roomm
+    // delete a room
     @PostMapping("/{number}/delete")
     public String deleteRoom(@PathVariable int number) {
         log.debug("Deleting room {}", number);
         roomService.deleteRoom(number);
         return "redirect:/rooms";
+    }
+
+    ///  Business exception handler
+    @ExceptionHandler(RoomNotFoundException.class)
+    public String handleRoomNotFound(RoomNotFoundException ex, Model model) {
+
+        log.warn("Business error: {}", ex.getMessage());
+
+        model.addAttribute("errorMessage", ex.getMessage());
+
+        return "error/general-error";
     }
 }

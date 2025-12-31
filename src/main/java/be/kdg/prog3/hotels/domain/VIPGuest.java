@@ -1,8 +1,6 @@
 package be.kdg.prog3.hotels.domain;
-
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-
 import java.time.LocalDate;
 
 @Entity

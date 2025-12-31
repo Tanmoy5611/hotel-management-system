@@ -2,7 +2,6 @@ package be.kdg.prog3.hotels.domain;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import jakarta.persistence.*;
 
 
@@ -44,14 +43,9 @@ public class Room {
 
     private Set<Guest> guests = new HashSet<>();
 
-    //REQUIRED empty constructor
+    //Required empty constructor
     protected Room() {
     }
-
-
-    // Default constructor for Spring and Thymeleaf forms to create objects
-    // public Room() {
-    //  }
 
 
     // Constructor
@@ -68,55 +62,41 @@ public class Room {
     public int getNumber() {
         return number;
     }
-
     public RoomType getType() {
         return type;
     }
-
     public double getPricePerNight() {
         return pricePerNight;
     }
-
     public boolean isSeaView() {
         return seaView;
     }
-
     public String getPhotoUrl() {
         return photoUrl;
     }
-
     public Hotel getHotel() {
         return hotel;
-
     }
-
     public Set<Guest> getGuests() {
         return guests;
     }
 
 
     // Setters
-
     public void setNumber(int number) {
         this.number = number;
     }
-
     public void setType(RoomType type) {
         this.type = type;
     }
-
     public void setPricePerNight(double pricePerNight) {
         this.pricePerNight = pricePerNight;
     }
-
     public void setSeaView(boolean seaView) {
-
         this.seaView = seaView;
     }
-
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
-
     }
 
 
@@ -124,9 +104,9 @@ public class Room {
     public void setHotel(Hotel hotel) {
         this.hotel = hotel;
 
-        if (hotel != null && !hotel.getRooms().contains(this)) {
-            hotel.addRoom(this);
-        }
+//        if (hotel != null && !hotel.getRooms().contains(this)) {
+//            hotel.addRoom(this);
+//        }
     }
 
     public void addGuest(Guest guest) {
@@ -143,4 +123,3 @@ public class Room {
 
     }
 }
-

@@ -10,13 +10,11 @@ import be.kdg.prog3.hotels.viewmodel.HotelForm;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +23,7 @@ import java.util.Map;
 
 // this controller handles all web requests for the hotels page
 @Controller
-@RequestMapping("/hotels")        // base url for all methods in this controller
+@RequestMapping("/hotels")          // base url for all methods in this controller
 public class HotelController {        // All URLs in this controller start with /hotels
 
     // Logger for debugging messages in console
@@ -62,15 +60,6 @@ public class HotelController {        // All URLs in this controller start with 
             hotels = hotelService.searchByName(name.trim());
         }
 
-
-        // If no filter is given, show all hotels
-//        if (minStars == null) {
-//            model.addAttribute("hotels", hotelService.getAllHotels());
-//
-//            // If minStars is given, call service method to filter by stars and optional date
-//        } else {
-//            model.addAttribute("hotels", hotelService.getHotelsByMinStarsAndDate(minStars, dateIn));
-//        }
 
         // filter by minimum stars (and optional opened date) (uses @Query) ---
         else if (minStars != null) {
@@ -113,8 +102,8 @@ public class HotelController {        // All URLs in this controller start with 
     public String addForm(Model model) {
         // Create empty Hotel object to bind form fields using HotelForm class
         model.addAttribute("hotelForm", new HotelForm()); // lowercase name convention
-        return "add-hotel";   // Return the add-hotel.html template
 
+        return "add-hotel";   // Return the add-hotel.html template
     }
 
     // Save new Hotel
@@ -126,17 +115,10 @@ public class HotelController {        // All URLs in this controller start with 
         // Check form validation errors (from annotations in HotelForm)
         if (bindingResult.hasErrors()) {
             log.debug("Validation errors found while adding hotel: {}", bindingResult.getAllErrors());
+
             // Return same page, errors will be displayed under fields
             return "add-hotel";
         }
-
-        /* Convert ViewModel → Domain object manually
-        Hotel hotel = new Hotel();
-        hotel.setName(hotelForm.getName());
-        hotel.setOpenedOn(hotelForm.getOpenedOn());
-        hotel.setStars(hotelForm.getStars());
-        hotel.setHasSpa(hotelForm.isHasSpa());
-        hotel.setImageUrl(hotelForm.getImageUrl());  */
 
         // JPA - Using full constructor because no-args is protected
         Hotel hotel = new Hotel(
@@ -164,6 +146,7 @@ public class HotelController {        // All URLs in this controller start with 
         //  Load hotel from DB using business service
         Hotel hotel = hotelService.getHotelById(id);
         if (hotel == null) {
+
             // If hotel not found, go back to list
             return "redirect:/hotels";
         }
@@ -195,7 +178,7 @@ public class HotelController {        // All URLs in this controller start with 
     public String deleteHotel(@PathVariable String id) {
         log.debug("Deleting hotel {}", id);
         hotelService.deleteHotel(id);          // Business layer handles cascading / repo
+
         return "redirect:/hotels";
     }
-
 }

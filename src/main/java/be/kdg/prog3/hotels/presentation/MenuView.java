@@ -2,10 +2,8 @@ package be.kdg.prog3.hotels.presentation;
 
 import be.kdg.prog3.hotels.domain.Hotel;
 import be.kdg.prog3.hotels.domain.Room;
-
 import java.util.List;
 import java.util.Scanner;
-
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +16,6 @@ public class MenuView {
     // Scanner is injected from Spring (defined as @Bean in main class)
     public MenuView(Scanner sc) {
         this.sc = sc;
-
     }
 
     // Shows the main menu options on screen
@@ -34,9 +31,7 @@ public class MenuView {
                 """);
 
         System.out.print("Make your choice (0-4): ");
-
     }
-
 
     // Read one line from user input
     public String readLine() {

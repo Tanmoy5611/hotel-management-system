@@ -2,7 +2,6 @@ package be.kdg.prog3.hotels.web.converters;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-
 import javax.swing.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{nav.addRoom}">Add Room</title>
-
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
@@ -44,9 +43,9 @@
                                    th:text="#{rooms.table.number}">
                                 Number
                             </label>
-                            <input type="number"
-                                   th:field="*{number}"
-                                   class="form-control">
+                                <input type="number"
+                                       th:field="*{number}"
+                                       class="form-control">
                             <div class="text-danger small mt-1"
                                  th:errors="*{number}"></div>
                         </div>
@@ -57,13 +56,13 @@
                                    th:text="#{rooms.table.type}">
                                 Type
                             </label>
-                            <select th:field="*{type}" class="form-select">
-                                <option value="" th:text="#{rooms.selectType}"></option>
-                                <option th:each="t : ${types}"
-                                        th:value="${t}"
-                                        th:text="${t}">
-                                </option>
-                            </select>
+                                <select th:field="*{type}" class="form-select">
+                                    <option value="" th:text="#{rooms.selectType}"></option>
+                                    <option th:each="t : ${types}"
+                                            th:value="${t}"
+                                            th:text="${t}">
+                                    </option>
+                                </select>
                             <div class="text-danger small mt-1"
                                  th:errors="*{type}"></div>
                         </div>
@@ -74,10 +73,10 @@
                                    th:text="#{rooms.table.price}">
                                 Price / night
                             </label>
-                            <input type="number"
-                                   step="0.01"
-                                   th:field="*{pricePerNight}"
-                                   class="form-control">
+                                <input type="number"
+                                       step="0.01"
+                                       th:field="*{pricePerNight}"
+                                       class="form-control">
                             <div class="text-danger small mt-1"
                                  th:errors="*{pricePerNight}"></div>
                         </div>
@@ -103,10 +102,10 @@
                                    th:text="#{rooms.table.photo}">
                                 Photo URL
                             </label>
-                            <input type="text"
-                                   th:field="*{photoUrl}"
-                                   class="form-control"
-                                   placeholder="/images/rooms/example.jpg">
+                                <input type="text"
+                                       th:field="*{photoUrl}"
+                                       class="form-control"
+                                       placeholder="/images/rooms/example.jpg">
                             <div class="text-danger small mt-1"
                                  th:errors="*{photoUrl}"></div>
                         </div>
@@ -117,15 +116,15 @@
                                    th:text="#{room.hotel}">
                                 Hotel
                             </label>
-                            <select name="hotelId"
-                                    class="form-select"
-                                    required>
-                                <option value="" th:text="#{rooms.selectHotel}"></option>
-                                <option th:each="h : ${hotels}"
-                                        th:value="${h.id}"
-                                        th:text="${h.name}">
-                                </option>
-                            </select>
+                                <select name="hotelId"
+                                        class="form-select"
+                                        required>
+                                    <option value="" th:text="#{rooms.selectHotel}"></option>
+                                    <option th:each="h : ${hotels}"
+                                            th:value="${h.id}"
+                                            th:text="${h.name}">
+                                    </option>
+                                </select>
                         </div>
 
                     </div>

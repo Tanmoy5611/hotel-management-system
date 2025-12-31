@@ -14,7 +14,7 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="pro3_db@localhost" uuid="ba85299d-dd04-4419-901d-e252979417d3">
+    <data-source source="LOCAL" name="pro3_db@localhost" uuid="59915664-90e1-43fa-b6b3-21d9352c0d35">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>

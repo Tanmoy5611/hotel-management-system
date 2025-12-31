@@ -10,7 +10,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
-
 import java.util.Locale;
 
 @Configuration
@@ -18,7 +17,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final StringToLocalDateConverter converter;
     private final HistoryInterceptor historyInterceptor;
-
 
     // Constructor injection
     public WebConfig(StringToLocalDateConverter converter, HistoryInterceptor historyInterceptor) {
@@ -31,7 +29,6 @@ public class WebConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(converter);
     }
-
 
     @Bean
     public LocaleResolver localeResolver() {
@@ -50,7 +47,6 @@ public class WebConfig implements WebMvcConfigurer {
         return interceptor;
     }
 
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
@@ -58,6 +54,4 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(localeChangeInterceptor());
         registry.addInterceptor(historyInterceptor);
     }
-
-
 }
