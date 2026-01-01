@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.web.controllers;
-
 import be.kdg.prog3.hotels.business.GuestService;
 import be.kdg.prog3.hotels.domain.Hotel;
 import be.kdg.prog3.hotels.domain.Room;
@@ -8,11 +7,11 @@ import be.kdg.prog3.hotels.business.RoomService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// Controller responsible for preparing dashboard style data
 @Controller
 public class HomeController {
 
@@ -32,7 +31,7 @@ public class HomeController {
         // load all hotels
         List<Hotel> allHotels = hotelService.getAllHotels();
 
-        // Feature hotels: highest stars first
+        // Feature hotels: highest stars rating first
         List<Hotel> featuredHotels = allHotels.stream()
                 .sorted(Comparator.comparing(Hotel::getStars).reversed())
                 .limit(4)
@@ -62,7 +61,7 @@ public class HomeController {
                 .limit(4)
                 .collect(Collectors.toList());
 
-        // TOP PICKS: sorted by number of guests
+        // Top picks: sorted by number of guests
         List<Room> topPickedRooms = roomService.getAllRooms().stream()
                 .sorted(Comparator.comparingInt(
                         (Room r) -> guestService.getGuestsByRoom(r.getNumber()).size()

@@ -1,93 +1,355 @@
-# Programming 3 Project-hotels
+# Programming 3 – Hotels Project (Final Submission)
 
+## Student Information
 
+- **Name:** ``Tanmoy Das``
+- **Course:** Programming 3
+- **Group:** ACS 201
+- **Project:** Hotels Management Application
+- **Academic Year:** 2025–2026
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Domain Description
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+This project models a **hotel management domain**.  
+The goal is to manage **hotels**, their **rooms**, and the **guests** staying in those rooms.
 
-## Add your files
+### Entities
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+#### Hotel
+
+- Represents a hotel
+- Main attributes: ``id, name, openedOn, stars, hasSpa, imageUrl``
+- A hotel has **many rooms** (one-to-many)
+
+#### Room
+
+- Represents a hotel room
+- Main attributes: ``number, type, pricePerNight, seaView, photoUrl``
+- A room belongs to **one hotel**
+- A room can have **many guests**
+
+#### RoomType (enum)
+- ``SINGLE, DOUBLE, SUITE``
+
+#### Guest
+
+- Represents a person staying in a hotel
+- Main attributes: ``id, fullName, dob, email, vip, avatarUrl``
+- A guest can stay in **many rooms**
+
+---
+
+## Relationships
+
+- **Hotel → Room:** one-to-many
+- **Room ↔ Guest:** many-to-many
+    - Implemented using a cross table `rooms_guests`
+
+---
+
+## Inheritance
+
+- `VIPGuest` is a **subclass of Guest**
+- Extra attribute: `discountPercentage`
+- Implemented using **JPA inheritance with a discriminator column**
+
+---
+
+## Application Evolution (Weeks 1–11)
+
+The project was developed step-by-step following the weekly assignments:
+
+- **Week 1:** Console application with datasets, filtering, streams, fluent programming style
+- **Week 2:** Layered architecture (presentation, business, data), interfaces, dependency injection
+- **Week 3:** Spring MVC web application
+- **Week 4:** Thymeleaf templates, fragments, internationalization
+- **Week 5:** Bootstrap styling, responsive layout, cards, client-side validation
+- **Week 6:** ViewModels, custom converters, Bean Validation, session history
+- **Week 7:** JDBC repositories using `JdbcClient` with H2 database
+- **Week 8:** Database relationships and cross tables
+- **Week 9:** JPA repository implementation and profiles
+- **Week 10:** Subclass integration and Spring Data JPA
+- **Week 11:** Exception handling and custom error pages
+
+``All required features and specifications as defined in the course assignments from week 1 to 11 has been implemented on time.``
+
+---
+
+## Profiles & Configuration
+
+The project uses **Spring Profiles** to switch between different persistence implementations.
+
+---
+
+### ▶ Active Profile
+
+Configured in `application.properties`:
+
+```properties
+spring.profiles.active=jpa
+```
+
+---
+
+### Available Profiles
+
+| Profile        | Description                                                                        |
+|----------------|------------------------------------------------------------------------------------|
+| **inmemory**   | Java collections only, seeded via `DataFactory`. No database required.             |
+| **jdbc**       | Spring JDBC (`JdbcClient`) with H2 database. Uses `schema.sql` and `data.sql`.     |
+| **jpa**        | JPA with Hibernate and H2 database.                                                |
+| **springdata** | Spring Data `JpaRepository`, method queries & custom queries.                      |
+| `dev` | Development profile using H2 + JPA with SQL logging and SQL initialization enabled.         |
+| **prod**       | PostgreSQL configuration for production environment.                               |
+
+---
+
+## Database Configuration
+
+The application supports both **H2 (development)** and **PostgreSQL (production)** via Spring Profiles.
+
+---
+
+### H2 Database (Development / JDBC / JPA)
+
+- Used for `inmemory`, `jdbc`, and `jpa` profiles
+- In-memory database, automatically initialized
+- Schema and data loaded via `schema.sql` and `data.sql` (JDBC / JPA)
+  **H2 Console:**
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/tanmoy.das1/programming-3-project-hotels.git
-git branch -M main
-git push -uf origin main
+http://localhost:8080/h2-console
 ```
 
-## Integrate with your tools
+---
 
-- [ ] [Set up project integrations](https://gitlab.com/tanmoy.das1/programming-3-project-hotels/-/settings/integrations)
+### PostgreSQL (Production)
 
-## Collaborate with your team
+Used when running with the `prod` profile.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+```properties
+spring.datasource.url=jdbc:postgresql:pro3_db
+spring.datasource.username=postgres
+spring.datasource.password=Student_1234
+```
 
-## Test and Deploy
+⚠ **Important:** When running with the `prod` profile, the PostgreSQL database **must already exist**.
 
-Use the built-in continuous integration in GitLab.
+---
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## ▶ How to Run the Project
 
-***
+### Requirements
 
-# Editing this README
+- **Java 21**
+- **Gradle**
+- *(Optional)* PostgreSQL (only for `prod` profile)
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+---
 
-## Suggestions for a good README
+### Steps
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+1. Clone the repository
+2. Open the project in **IntelliJ IDEA**
+3. Select **SpringHotelsApplication**
+4. Run the application with the desired profile  
+   *(default profile: `jpa`)*
+- or
+```bash
+./gradlew bootRun
+```
 
-## Name
-Choose a self-explaining name for your project.
+5. Open your browser at:
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+```
+http://localhost:8080
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+---
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### 🌐 Start URL (Web Application)
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```
+http://localhost:8080/
+```
+This redirects to the **Home page** of the application.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+---
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Available Pages
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+| URL               | Description                       |
+|-------------------|-----------------------------------|
+| `/home`           | Landing page                      |
+| `/hotels`         | List and filter hotels            |
+| `/hotels/{id}`    | Hotel details with rooms & guests |
+| `/rooms`          | List and filter rooms             |
+| `/rooms/{number}` | Room details with guests          |
+| `/guests`         | List, search & filter guests      |
+| `/guests/{id}`    | Guest details with rooms          |
+| `/hotels/add`     | Add hotel form                    |
+| `/rooms/add`      | Add room form                     |
+| `/guests/add`     | Add guest form                    |
+| `/history`        | Session history                   |
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+---
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## 🌍 Internationalization (i18n)
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+The application supports **multiple languages** using Spring message bundles:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+- 🇬🇧 **English** (default)
+- 🇳🇱 **Dutch**
+- 🇫🇷 **French**
+- 🇩🇪 **German**
+- 🇧🇩 **Bengali**
+  
+Language can be changed dynamically using the `lang` parameter:
 
-## License
-For open source projects, say how it is licensed.
+```
+?lang=en
+?lang=nl
+?lang=fr
+?lang=de
+?lang=bn
+```
+A language selector is also available in the navigation bar.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+---
+
+## Features Implemented
+
+- **Hotel, Room, and Guest management**
+- **Filtering and searching** using different data types
+- **One-to-many and many-to-many** relationships
+- **VIP Guest subclass** with discount logic
+- **Multiple repository implementations**  
+  (InMemory, JDBC, JPA, Spring Data)
+- **Profile-based configuration**
+- **Layered architecture**
+- **Thymeleaf fragments** (navbar & footer)
+- **Bootstrap UI** with responsive cards
+- **Internationalization (i18n)**
+- **Session history tracking** using interceptors
+- **Custom converters**
+- **Bean Validation** with translated error messages
+- **Custom exception handling**
+- **Separate database and general error pages**
+- **Logging using SLF4J**
+
+---
+
+### Home Page
+
+The **Home page** is designed in the style of a **real hotel booking platform**, focusing on usability and visual
+clarity.
+
+- **Hero search-style layout** (redirects to ``All Hotels`` page)
+- **Featured Hotels, Beach & Spa, Popular Cities** Sections
+- **Best Value Rooms, Premium Rooms, Top Picks**
+- **Clear navigation** to all major application pages
+
+---
+
+## What Makes This Project Unique
+
+### Technical
+
+- **Four repository implementations**  
+  *(InMemory, JDBC, JPA, Spring Data JPA)*
+- **Clean layered architecture** with loose coupling
+- **Profile-based switching** without code changes
+- **Open Session in View explicitly disabled**
+
+### ⚙ Functional
+
+- **Session-based visit history** per user
+- **VIP Guest subclass** integrated across:
+    - UI
+    - Service layer
+    - Persistence layer
+- **Realistic dataset** with meaningful relationships
+
+### Presentation
+
+- **Bootstrap cards** instead of plain tables
+- **Responsive layout** for different screen sizes
+- **Consistent navigation and footer** using Thymeleaf fragments
+- **Clean, readable, user-friendly UI**
+
+---
+
+## Application Flow & Architecture
+
+The application uses a **layered architecture** for all domain entities (**Hotel, Room, Guest**).
+Every web request follows the same execution path, independent of the active persistence profile.
+
+- **Browser (HTTP Request)**
+  ↓
+- **Controller Layer**  
+  *(HotelController / RoomController / GuestController)*
+  ↓
+- **Service Layer (Interfaces)**  
+  *(HotelService / RoomService / GuestService)*
+  ↓
+- **Service Implementations**  
+  *(HotelServiceImpl / RoomServiceImpl / GuestServiceImpl)*
+  ↓
+- **Repository Interfaces**  
+  *(HotelRepository / RoomRepository / GuestRepository)*
+  ↓
+- **Repository Implementations (Profile-based)**  
+  *(InMemory / JDBC / JPA / Spring Data)*
+  ↓
+- **Database or In-Memory Data Source**
+
+### Explanation
+
+- **Controllers** handle HTTP requests and prepare data for the views
+- **Services** contain all business logic and validation
+- **Repository interfaces** provide loose coupling
+- **Repository implementations** are selected using Spring profiles
+- No controller accesses the database directly
+- The same flow applies to all entities (Hotel, Room, Guest)
+  This design allows the application to switch persistence strategies without changing business or presentation logic.
+
+---
+
+## Code Quality
+
+- **Obsolete code removed**
+- **No commented-out dead code**
+- **Clear and logical package structure**
+- **Logging added** to complex or critical methods
+- **Comments added** where logic is not immediately obvious
+
+---
+
+## Verification
+
+Before final submission, the project was:
+
+- **Cloned into a new directory**
+- **Built and run successfully**
+- **Tested with multiple Spring profiles**
+
+---
+
+## Final Notes
+
+All assignments from **Week 1 to Week 11** were completed **on time** and fully implement
+all required features and specifications defined in each weekly assignment.
+
+The project demonstrates a **gradual evolution** from:
+
+- a **console application**
+- to a **full Spring Boot web application**
+- with **multiple persistence strategies**
+### Acknowledgements
+
+Special thanks to ``Mr. de Rijke`` for the guidance and teaching throughout the **Programming 3** course.
+
+**Final version tagged as `final` on the `main` branch**
+---

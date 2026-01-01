@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels;
-
 import be.kdg.prog3.hotels.web.converters.StringToLocalDateConverter;
 import be.kdg.prog3.hotels.web.interceptors.HistoryInterceptor;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +11,8 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import java.util.Locale;
 
-@Configuration
+// configures Spring MVC behavior such as converters, interceptors, and internationalization.
+@Configuration         // marks this class as a Spring configuration class that defines beans and MVC setup
 public class WebConfig implements WebMvcConfigurer {
 
     private final StringToLocalDateConverter converter;
@@ -30,6 +30,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addConverter(converter);
     }
 
+    // enables internationalization using cookies instead of sessions
     @Bean
     public LocaleResolver localeResolver() {
         // create Cookie-based locale resolver
@@ -39,6 +40,7 @@ public class WebConfig implements WebMvcConfigurer {
         return resolver;
     }
 
+    // interceptor switches the UI language based on a request parameter
     @Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {
         // Intercepts requests and changes language if ?lang=xx is present
@@ -47,9 +49,9 @@ public class WebConfig implements WebMvcConfigurer {
         return interceptor;
     }
 
+    // Interceptors run before controllers to add cross-cutting behavior
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-
         // register the interceptor so it works for all URLs
         registry.addInterceptor(localeChangeInterceptor());
         registry.addInterceptor(historyInterceptor);

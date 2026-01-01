@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.web.controllers;
-
 import be.kdg.prog3.hotels.business.GuestService;
 import be.kdg.prog3.hotels.business.HotelService;
 import be.kdg.prog3.hotels.business.RoomService;
@@ -42,6 +41,7 @@ public class HotelController {        // All URLs in this controller start with 
     }
 
     // method of showing all Hotels (list) + filter them based on: minStars +  opened date
+    // The controller only orchestrates which business method to call based on user input.
     @GetMapping
     public String list(@RequestParam(name = "minStars", required = false) Integer minStars,
                        @RequestParam(name = "opened", required = false)
@@ -59,7 +59,6 @@ public class HotelController {        // All URLs in this controller start with 
         if (name != null && !name.isBlank()) {
             hotels = hotelService.searchByName(name.trim());
         }
-
 
         // filter by minimum stars (and optional opened date) (uses @Query) ---
         else if (minStars != null) {
@@ -107,7 +106,7 @@ public class HotelController {        // All URLs in this controller start with 
     }
 
     // Save new Hotel
-    // This method processes the form submission for adding  new hotel
+    // This method processes the HotelForm submission for adding  new hotel
     @PostMapping("/add")
     public String addSubmit(@ModelAttribute("hotelForm") @Valid HotelForm hotelForm,
                             BindingResult bindingResult) {

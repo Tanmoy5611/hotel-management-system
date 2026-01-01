@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.web.controllers;
-
 import be.kdg.prog3.hotels.business.GuestService;
 import be.kdg.prog3.hotels.business.RoomService;
 import be.kdg.prog3.hotels.domain.Guest;
@@ -18,9 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Controller responsible for displaying all guests
-
-@Controller
+// Controllers handle HTTP requests and delegate all business logic to services
+@Controller        // Marks this class as a Spring MVC controller
 public class GuestController {
     private static final Logger log = LoggerFactory.getLogger(GuestController.class);
     private final GuestService guestService;
@@ -45,9 +43,6 @@ public class GuestController {
     // get guest details + list of rooms they stayed in (many-to-many)
     @GetMapping("/guests/{id}")
     public String showGuestDetails(@PathVariable long id, Model model) {
-
-        /* Load guest by ID using JDBC repository
-        Guest guest = guestService.getGuestById(id); */
 
         // Load guest by ID using JPA repository
         Guest guest = guestService.getGuestById(id);
@@ -89,7 +84,6 @@ public class GuestController {
     }
 
     // Spring Data Queries
-
     @GetMapping("/guests/vip")
     public String showVipGuests(Model model) {
         model.addAttribute("guests", guestService.getVipGuests());
@@ -124,7 +118,7 @@ public class GuestController {
 
     @PostMapping("/guests/add")
     public String processAddGuest(
-            @Valid @ModelAttribute GuestForm guestForm,
+            @Valid @ModelAttribute GuestForm guestForm,    //  Validation before business logic
             BindingResult bindingResult,
             Model model) {
 
@@ -134,9 +128,11 @@ public class GuestController {
             return "add-guest";
         }
 
+        // ViewModel to Domain Conversion
         Guest guest;
 
         if (guestForm.isVip()) {
+            // VIP guest
             guest = new VIPGuest(
                     guestForm.getFullName(),
                     guestForm.getDob(),
@@ -146,6 +142,7 @@ public class GuestController {
                     guestForm.getDiscountPercentage()
             );
         } else {
+            // Normal guest - polymorphism
             guest = new Guest(
                     guestForm.getFullName(),
                     guestForm.getDob(),
@@ -155,6 +152,7 @@ public class GuestController {
             );
         }
 
+        // Room Assignment
         guestService.createGuestWithRoom(guest, guestForm.getRoomNumber());
 
         return "redirect:/guests";

@@ -1,8 +1,6 @@
 package be.kdg.prog3.hotels.web.converters;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-import javax.swing.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -20,7 +18,7 @@ public class StringToLocalDateConverter implements Converter<String, LocalDate> 
         try {
             return LocalDate.parse(source.trim(), FORMATTER);
         } catch (DateTimeParseException e) {
-            // Fallback: avoid breaking validation
+            // Invalid date format - let validation handle it
             return null;
         }
     }

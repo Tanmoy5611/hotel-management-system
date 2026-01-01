@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.web.controllers;
-
 import be.kdg.prog3.hotels.business.GuestService;
 import be.kdg.prog3.hotels.business.HotelService;
 import be.kdg.prog3.hotels.business.RoomService;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
 
 // Controller for handling all requests related to Rooms
@@ -69,7 +67,7 @@ public class RoomController {
         model.addAttribute("selPrice", maxPrice);
         model.addAttribute("selNumber", number);
 
-        return "rooms";   //Return Thymeleaf page name (rooms.html)
+        return "rooms";   // Return Thymeleaf page (rooms.html)
     }
 
     // Add Room Form

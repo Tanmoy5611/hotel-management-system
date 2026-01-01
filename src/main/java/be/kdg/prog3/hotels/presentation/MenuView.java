@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.presentation;
-
 import be.kdg.prog3.hotels.domain.Hotel;
 import be.kdg.prog3.hotels.domain.Room;
 import java.util.List;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Profile("console")
 @Component
 public class MenuView {
-    private final Scanner sc;
+    private final Scanner sc;     // scanner is injected to keep the view loosely coupled and testable
 
     // Scanner is injected from Spring (defined as @Bean in main class)
     public MenuView(Scanner sc) {
@@ -46,12 +45,10 @@ public class MenuView {
     // Print a list of rooms in console
     public void printRooms(List<Room> rooms) {
         rooms.forEach(System.out::println);
-
     }
 
     // Prints a simple message to console
     public void print(String msg) {
-
         System.out.println(msg);
     }
 }

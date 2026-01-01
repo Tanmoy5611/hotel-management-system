@@ -1,14 +1,12 @@
 package be.kdg.prog3.hotels.viewmodel;
 
 import jakarta.validation.constraints.*;
-
 import java.time.LocalDate;
 
 // HotelForm is a ViewModel used only for form
 public class HotelForm {
 
-    // Validated form fields
-
+    // Validated form fields (Jakarta Validation)
     // Hotel name cannot be empty (validation message in messages.properties)
     @NotBlank(message = "{hotel.name.required}")
     private String name;

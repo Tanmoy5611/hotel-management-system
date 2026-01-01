@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.business;
-
 import be.kdg.prog3.hotels.domain.Hotel;
 import java.time.LocalDate;
 import java.util.List;

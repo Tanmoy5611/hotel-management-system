@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.data.inmemory;
-
 import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.data.GuestRepository;
 import be.kdg.prog3.hotels.domain.Guest;

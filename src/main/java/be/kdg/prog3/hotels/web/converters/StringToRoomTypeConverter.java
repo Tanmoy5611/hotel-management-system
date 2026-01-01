@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.web.converters;
-
 import be.kdg.prog3.hotels.domain.RoomType;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,6 @@ public class StringToRoomTypeConverter implements Converter<String, RoomType> {
         if (source == null || source.isBlank()) {
             return null;
         }
-
         try {
             // convert text (case-insensitive) to RoomType enum
             return RoomType.valueOf(source.trim().toUpperCase());

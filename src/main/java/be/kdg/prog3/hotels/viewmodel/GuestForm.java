@@ -1,10 +1,11 @@
 package be.kdg.prog3.hotels.viewmodel;
-
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
+// ViewModels transfer user input from the view to the controller with validation
 public class GuestForm {
 
+    // Jakarta Validation
     @NotBlank(message = "Full name is required")
     private String fullName;
 
@@ -26,7 +27,7 @@ public class GuestForm {
     // assign room during creation (optional)
     private Integer roomNumber;
 
-    // getters + setters
+    // getters + setters Required for: Spring binding, Thymeleaf th:field, Validation
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
 

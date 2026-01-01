@@ -1,3 +1,4 @@
+-- hotels
 INSERT INTO hotels (id, name, opened_on, stars, has_spa, image_url)
 VALUES ('plaza-athenee-paris', 'Hotel Plaza Athénée, Paris', '1913-04-20', 5, TRUE, '/images/hotels/plaza_athene.jpg'),
        ('langham-london', 'The Langham, London', '1865-06-10', 5, FALSE, '/images/hotels/langham.jpg'),
@@ -11,6 +12,7 @@ VALUES ('plaza-athenee-paris', 'Hotel Plaza Athénée, Paris', '1913-04-20', 5, 
        ('van-der-valk', 'Van der Valk Hotel, Ghent', '2021-04-01', 4, TRUE, '/images/hotels/van_der.jpg'),
        ('pan-pacific', 'Pan Pacific, London', '2021-09-01', 5, TRUE, '/images/hotels/pan_pacific.jpg');
 
+-- rooms
 INSERT INTO rooms (number, type, price_per_night, sea_view, photo_url, hotel_id)
 VALUES (101, 'SINGLE', 150.0, FALSE, '/images/rooms/plaza_athene_single.jpg', 'plaza-athenee-paris'),
        (102, 'DOUBLE', 250.0, TRUE, '/images/rooms/plaza_athene_double.jpg', 'plaza-athenee-paris'),
@@ -40,6 +42,7 @@ VALUES (101, 'SINGLE', 150.0, FALSE, '/images/rooms/plaza_athene_single.jpg', 'p
        (839, 'DOUBLE', 300.0, FALSE, '/images/rooms/pan_pacific_double.jpg', 'pan-pacific'),
        (857, 'SINGLE', 220.0, FALSE, '/images/rooms/pan_pacific_single.jpg', 'pan-pacific');
 
+-- guests
 INSERT INTO guests (full_name, dob, email, vip, avatar_url, guest_type, discount_percentage)
 VALUES ('Billie Wilson', '1990-04-10', 'billie.wilson93@gmail.com', TRUE, '/images/guests/billie_wilson.jpg', 'VIP', 15),
        ('Liam Johnson', '1985-12-03', 'liam.johnson_27@outlook.com', FALSE, '/images/guests/liam_johnson.jpg', 'GUEST', 0),
@@ -73,6 +76,7 @@ VALUES ('Billie Wilson', '1990-04-10', 'billie.wilson93@gmail.com', TRUE, '/imag
        ('Thomas Keller', '1972-03-25', 'thomas.keller72@yahoo.com', TRUE, '/images/guests/thomas_keller.jpg', 'VIP', 8),
        ('Keya Saha', '1996-10-08', 'keya.saha96@gmail.com', TRUE, '/images/guests/keya_saha.jpg', 'VIP', 25);
 
+-- rooms_guests
 INSERT INTO rooms_guests (room_number, guest_id)
 VALUES (101, 2),
        (101, 27),

@@ -1,19 +1,12 @@
 package be.kdg.prog3.hotels.data.inmemory;
-
 import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.data.HotelRepository;
 import be.kdg.prog3.hotels.domain.Hotel;
-import be.kdg.prog3.hotels.domain.Room;
-
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-
 
 // In-memory implementation of HotelRepository
 // (instead of using a database, it works using Java Lists inside DataFactory)
@@ -22,22 +15,13 @@ import org.springframework.stereotype.Repository;
 public class InMemoryHotelRepository implements HotelRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryHotelRepository.class);
 
-    // Counter for generating unique hotel IDs (Fake Auto-Increment)
-   // private final AtomicInteger seq = new AtomicInteger(1000);
-
     /* In-memory data is NOT stored as a list of hotels.
     Instead: DataFactory.rooms = List<Room>
     Each Room has a reference → Room.getHotel()  */
     @Override
     public List<Hotel> findAll() {
         log.debug("Reading hotels from DataFactory (in-memory)");
-        return DataFactory.hotels;
-
-//        return DataFactory.rooms.stream()
-//                .map(Room::getHotel)       // take the hotel from each room
-//                .filter(Objects::nonNull)  // some rooms may not have hotel(Skip)
-//                .distinct()                // avoiding duplicate hotels
-//                .toList();
+        return DataFactory.hotels;   // from DataFactory.java
     }
 
     /* Since this is IN-MEMORY and do NOT actually store hotels in a DB,

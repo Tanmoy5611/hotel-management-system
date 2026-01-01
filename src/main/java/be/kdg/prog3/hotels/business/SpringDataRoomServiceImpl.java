@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.business;
-
 import be.kdg.prog3.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog3.hotels.data.springdata.SpringDataRoomRepository;
 import be.kdg.prog3.hotels.domain.Guest;

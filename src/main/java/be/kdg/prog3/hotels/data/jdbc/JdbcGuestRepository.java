@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.data.jdbc;
-
 import be.kdg.prog3.hotels.data.GuestRepository;
 import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Room;
@@ -12,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+// JDBC-based repository by using SQL queries and join tables
 @Repository
 @Profile("jdbc")
 public class JdbcGuestRepository implements GuestRepository {
@@ -22,7 +22,7 @@ public class JdbcGuestRepository implements GuestRepository {
         this.jdbcClient = jdbcClient;
     }
 
-    // RowMapper for Guest / VIPGuest (used everywhere)
+    // RowMapper (translator between SQL row to Java object) for Guest / VIPGuest (used everywhere)
     private Guest mapGuest(ResultSet rs, int rowNum) throws SQLException {
 
         String type = rs.getString("guest_type");
@@ -71,9 +71,9 @@ public class JdbcGuestRepository implements GuestRepository {
 
         // Insert into guests table
         jdbcClient.sql("""
-                INSERT INTO guests (full_name, dob, email, vip, avatar_url, guest_type, discount_percentage)
-                VALUES (:fullName, :dob, :email, :vip, :avatarUrl, :guestType, :discount)
-                """)
+                        INSERT INTO guests (full_name, dob, email, vip, avatar_url, guest_type, discount_percentage)
+                        VALUES (:fullName, :dob, :email, :vip, :avatarUrl, :guestType, :discount)
+                        """)
                 .param("fullName", guest.getFullName())
                 .param("dob", guest.getDob())
                 .param("email", guest.getEmail())
@@ -93,9 +93,9 @@ public class JdbcGuestRepository implements GuestRepository {
         // Insert rooms for join-table: rooms_guests
         for (Room room : guest.getRooms()) {
             jdbcClient.sql("""
-                    INSERT INTO rooms_guests (guest_id, room_number)
-                    VALUES (:guestId, :roomNumber)
-                    """)
+                            INSERT INTO rooms_guests (guest_id, room_number)
+                            VALUES (:guestId, :roomNumber)
+                            """)
                     .param("guestId", guest.getId())
                     .param("roomNumber", room.getNumber())
                     .update();
@@ -122,11 +122,11 @@ public class JdbcGuestRepository implements GuestRepository {
 
         // Load associated rooms from rooms_guests
         List<Room> rooms = jdbcClient.sql("""
-                SELECT r.number, r.type, r.price_per_night, r.sea_view, r.photo_url
-                FROM rooms r
-                JOIN rooms_guests rg ON r.number = rg.room_number
-                WHERE rg.guest_id = :id
-                """)
+                        SELECT r.number, r.type, r.price_per_night, r.sea_view, r.photo_url
+                        FROM rooms r
+                        JOIN rooms_guests rg ON r.number = rg.room_number
+                        WHERE rg.guest_id = :id
+                        """)
                 .param("id", id)
                 .query((rs, rowNum) -> new Room(
                         rs.getInt("number"),
@@ -148,11 +148,11 @@ public class JdbcGuestRepository implements GuestRepository {
     @Override
     public List<Guest> findByRoom(int roomNumber) {
         return jdbcClient.sql("""
-                SELECT g.*
-                FROM guests g
-                JOIN rooms_guests rg ON g.id = rg.guest_id
-                WHERE rg.room_number = :num
-                """)
+                        SELECT g.*
+                        FROM guests g
+                        JOIN rooms_guests rg ON g.id = rg.guest_id
+                        WHERE rg.room_number = :num
+                        """)
                 .param("num", roomNumber)
                 .query(this::mapGuest)
                 .list();

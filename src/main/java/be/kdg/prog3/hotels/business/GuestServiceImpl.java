@@ -89,7 +89,7 @@ public class GuestServiceImpl implements GuestService {
     public List<Guest> getGuestsWithManyRooms(int minRooms) {
         log.debug("Fetching guests with at least {} rooms...", minRooms);
 
-        // We must NOT use g.getRooms() in JDBC — rooms list is empty until JPA loads relations.
+        // must NOT use g.getRooms() in JDBC — rooms list is empty until JPA loads relations.
         return repo.findAll()
                 .stream()
                 .filter(g -> roomService.getRoomsByGuest(g.getId()).size() >= minRooms)

@@ -1,13 +1,12 @@
 package be.kdg.prog3.hotels.web.interceptors;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 // Intercepts every request and records the visited URL and time.
-
 @Component
+// Interceptors run before controllers and are used for cross-cutting concerns.
 public class HistoryInterceptor implements HandlerInterceptor {
 
     private final SessionHistory sessionHistory;
@@ -16,6 +15,7 @@ public class HistoryInterceptor implements HandlerInterceptor {
         this.sessionHistory = sessionHistory;
     }
 
+    // preHandle runs before the controller and allows request processing to continue
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,

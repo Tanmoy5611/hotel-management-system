@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.data.jdbc;
-
 import be.kdg.prog3.hotels.data.HotelRepository;
 import be.kdg.prog3.hotels.data.RoomRepository;
 import be.kdg.prog3.hotels.domain.Guest;
@@ -24,7 +23,10 @@ public class JdbcRoomRepository implements RoomRepository {
         this.hotelRepository = hotelRepository;
     }
 
+    // RowMapper converts one row from the rooms table into a Room object, and also loads its related Hotel and Guests
     private Room mapRoom(ResultSet rs, int row) throws SQLException {
+
+        // Create Room from rooms table
         Room room = new Room(
                 rs.getInt("number"),
                 RoomType.valueOf(rs.getString("type").toUpperCase()),
@@ -33,7 +35,7 @@ public class JdbcRoomRepository implements RoomRepository {
                 rs.getString("photo_url")
         );
 
-        // Load hotel (Many-to-One)
+        // Load hotel (Many-to-One) using HotelRepository
         String hotelId = rs.getString("hotel_id");
         Hotel hotel = hotelRepository.findHotelById(hotelId);
         room.setHotel(hotel);
@@ -58,11 +60,12 @@ public class JdbcRoomRepository implements RoomRepository {
                 })
                 .list();
 
-        guests.forEach(room::addGuest);
+        guests.forEach(room::addGuest); // Attach guests to room
 
         return room;
     }
 
+    // Returns all rooms from the database with full relations loaded
     @Override
     public List<Room> findAll() {
         return jdbcClient.sql("SELECT * FROM rooms")
@@ -70,6 +73,7 @@ public class JdbcRoomRepository implements RoomRepository {
                 .list();
     }
 
+    // Returns a single room by its number or null if not found
     @Override
     public Room findById(int number) {
         return jdbcClient.sql("SELECT * FROM rooms WHERE number = :num")
@@ -81,6 +85,7 @@ public class JdbcRoomRepository implements RoomRepository {
                 .orElse(null);
     }
 
+    // Returns all rooms belonging to a specific hotel
     @Override
     public List<Room> findByHotel(String hotelId) {
         return jdbcClient.sql("SELECT * FROM rooms WHERE hotel_id = :hid")
@@ -89,6 +94,7 @@ public class JdbcRoomRepository implements RoomRepository {
                 .list();
     }
 
+    // Returns all rooms assigned to a given guest (many-to-many)
     @Override
     public List<Room> findByGuest(long guestId) {
         return jdbcClient.sql("""
@@ -102,6 +108,7 @@ public class JdbcRoomRepository implements RoomRepository {
                 .list();
     }
 
+    // Inserts a new room into the database
     @Override
     public Room save(Room room) {
         jdbcClient.sql("""
@@ -119,6 +126,7 @@ public class JdbcRoomRepository implements RoomRepository {
         return room;
     }
 
+    // Deletes a room and its join-table entries
     @Override
     public void delete(int number) {
         // First delete many-to-many links

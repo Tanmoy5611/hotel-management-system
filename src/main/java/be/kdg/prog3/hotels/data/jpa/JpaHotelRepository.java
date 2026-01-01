@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.data.jpa;
-
 import be.kdg.prog3.hotels.data.HotelRepository;
 import be.kdg.prog3.hotels.domain.Hotel;
 import jakarta.persistence.EntityManager;

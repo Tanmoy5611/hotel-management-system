@@ -1,10 +1,8 @@
 package be.kdg.prog3.hotels.data;
-
 import be.kdg.prog3.hotels.domain.*;
 import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Hotel;
 import be.kdg.prog3.hotels.domain.Room;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +13,13 @@ import java.util.List;
  * seed() fills both lists with >= 5 items, with real data, and sets relationships.
  */
 
-// two public static lists
+// Three public static lists
 public class DataFactory {
     public static List<Hotel> hotels = new ArrayList<>();
     public static List<Guest> guests = new ArrayList<>();
     public static List<Room> rooms = new ArrayList<>();
 
-    // Static method to fill lists with real data
+    // Static method to fill lists with real data (CommandLiner)
     public static void seed() {
 
         // Clear previous records before seeding fresh sample data
@@ -299,6 +297,7 @@ public class DataFactory {
                 g22, g23, g24, g25, g26, g27, g28, g29, g30, g31));
 
 
+        // id for guests (in-memory)
         long idCounter = 1;
         for (Guest guest : guests) {
             guest.setId(idCounter++);

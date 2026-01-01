@@ -1,9 +1,7 @@
 package be.kdg.prog3.hotels.domain;
-
 import java.util.HashSet;
 import java.util.Set;
 import jakarta.persistence.*;
-
 
 @Entity
 @Table(name = "rooms")
@@ -11,10 +9,10 @@ import jakarta.persistence.*;
 public class Room {
 
     @Id
-    @Column(name = "number")
+    @Column(name = "number")        // primary key
     private int number;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)    // stores enum values safely as readable strings
     @Column(name = "type")
     private RoomType type;
 
@@ -28,25 +26,23 @@ public class Room {
     private String photoUrl;
 
     //  Many rooms → one hotel
-    @ManyToOne
-    @JoinColumn(name = "hotel_id")     // Must match schema.sql
-    private Hotel hotel;
-    /// many-to-one
+    @ManyToOne                         // represents a foreign-key (rooms.hotel_id) relationship where many rooms belong to one hotel
+    @JoinColumn(name = "hotel_id")     // specifies the foreign key column in the database.
+    private Hotel hotel;               /// many-to-one
 
     // Many-to-Many: rooms_guests
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
+    @ManyToMany(fetch = FetchType.EAGER)   // models many-to-many relationship using a join table (Avoids LazyInitializationException for EAGER)
+    @JoinTable(                            //  defines the join table and its foreign keys explicitly.
             name = "rooms_guests",
-            joinColumns = @JoinColumn(name = "room_number"),
-            inverseJoinColumns = @JoinColumn(name = "guest_id")
+            joinColumns = @JoinColumn(name = "room_number"),      // FK - Room
+            inverseJoinColumns = @JoinColumn(name = "guest_id")   // FK - Guest
     )
 
     private Set<Guest> guests = new HashSet<>();
 
-    //Required empty constructor
+    // Required empty constructor for entity instantiation.
     protected Room() {
     }
-
 
     // Constructor
     public Room(int number, RoomType type, double pricePerNight, boolean seaView, String photoUrl) {
@@ -55,7 +51,6 @@ public class Room {
         this.pricePerNight = pricePerNight;
         this.seaView = seaView;
         this.photoUrl = photoUrl;
-
     }
 
     // getters to access attributes
@@ -81,7 +76,6 @@ public class Room {
         return guests;
     }
 
-
     // Setters
     public void setNumber(int number) {
         this.number = number;
@@ -99,19 +93,19 @@ public class Room {
         this.photoUrl = photoUrl;
     }
 
-
     // method to set the hotel of the room
     public void setHotel(Hotel hotel) {
         this.hotel = hotel;
-
-//        if (hotel != null && !hotel.getRooms().contains(this)) {
-//            hotel.addRoom(this);
-//        }
     }
 
     public void addGuest(Guest guest) {
         guests.add(guest);
         guest.getRooms().add(this);    // ensure bidirectional sync
+    }
+
+    public void removeGuest(Guest guest) {
+        guests.remove(guest);
+        guest.getRooms().remove(this);
     }
 
     // Override toString method to print
@@ -120,6 +114,5 @@ public class Room {
         String hotelName = (hotel != null ? hotel.getName() : "no-hotel");
         return "#" + number + " " + type + " " + (seaView ? "(sea)" : "") +
                 " €" + pricePerNight + " @ " + hotelName;
-
     }
 }

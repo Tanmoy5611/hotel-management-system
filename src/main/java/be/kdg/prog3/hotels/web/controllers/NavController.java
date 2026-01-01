@@ -1,12 +1,11 @@
 package be.kdg.prog3.hotels.web.controllers;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-// used only for simple navigation at the start of the web app
+// Controller responsible for simple navigation redirects
 @Controller
 public class NavController {
-    // When user visits the root URL ("/"), redirect them to the hotels page
+    // When user visits the root URL ("/"), redirect them to the home page
     @GetMapping("/")
     public String root() {
         return "redirect:/home";

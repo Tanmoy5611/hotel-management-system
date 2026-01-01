@@ -28,8 +28,5 @@ public class SpringHotelsApplication {
     }
 }
 
-/* TODO: please run the current app and check the following URLs:
-         http://localhost:8080/hotels
-         http://localhost:8080/rooms
-         http://localhost:8080/hotels/add
-         http://localhost:8080/rooms/add   */
+/* TODO: please run the current app and check the following URL:
+    http://localhost:8080/home  */

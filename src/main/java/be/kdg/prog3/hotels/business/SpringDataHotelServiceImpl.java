@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.business;
-
 import be.kdg.prog3.hotels.data.springdata.SpringDataHotelRepository;
 import be.kdg.prog3.hotels.domain.Hotel;
 import org.springframework.context.annotation.Profile;
@@ -50,7 +49,6 @@ public class SpringDataHotelServiceImpl implements HotelService {
         // JPA handles cascade rules and deletes the hotel (built-in)
         repo.deleteById(id);
     }
-
 
     // Search hotels where the name contains given text (case-insensitive)
     public List<Hotel> searchByName(String text) {

@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.domain;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +118,5 @@ public class Hotel {
     @Override
     public String toString() {
         return name + " [" + id + "'" + stars + "★, spa=" + hasSpa + ", opened=" + openedOn + "]";
-
     }
-
 }

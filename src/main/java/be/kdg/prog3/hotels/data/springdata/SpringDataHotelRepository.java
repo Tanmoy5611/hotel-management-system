@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.data.springdata;
-
 import be.kdg.prog3.hotels.domain.Hotel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

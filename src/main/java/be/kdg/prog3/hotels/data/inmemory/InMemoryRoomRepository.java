@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.data.inmemory;
-
 import be.kdg.prog3.hotels.data.DataFactory;
 import be.kdg.prog3.hotels.data.RoomRepository;
 import be.kdg.prog3.hotels.domain.Room;
@@ -15,13 +14,11 @@ import org.springframework.stereotype.Repository;
 public class InMemoryRoomRepository implements RoomRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryRoomRepository.class);
 
-
     // Returns all rooms from the data factory
     @Override
     public List<Room> findAll() {
         log.debug("Reading rooms: {} found", DataFactory.rooms.size());
         return List.copyOf(DataFactory.rooms);
-
     }
 
     // Adds new room to the in-memory list

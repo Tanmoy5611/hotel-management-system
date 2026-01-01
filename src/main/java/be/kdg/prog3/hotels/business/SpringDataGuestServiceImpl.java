@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.business;
-
 import be.kdg.prog3.hotels.data.springdata.SpringDataGuestRepository;
 import be.kdg.prog3.hotels.domain.Guest;
 import org.springframework.context.annotation.Profile;

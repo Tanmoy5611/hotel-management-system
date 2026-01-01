@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.presentation;
-
 import be.kdg.prog3.hotels.business.HotelService;
 import be.kdg.prog3.hotels.business.RoomService;
 import be.kdg.prog3.hotels.domain.RoomType;
@@ -10,7 +9,8 @@ import java.util.Optional;
 
 // Connects the MenuView (UI) with HotelService and RoomService (business logic)
 @Profile("console")
-@Component
+@Component          // allows Spring to detect and manage this class automatically
+// CommandLineRunner allows execution of logic immediately after Spring Boot startup
 public class MenuPresenter implements CommandLineRunner {
     private final HotelService hotelService;
     private final RoomService roomService;
@@ -47,7 +47,6 @@ public class MenuPresenter implements CommandLineRunner {
         }
     }
 
-
     /// Handles option 2: filter hotels by stars and date
     private void hotelsByMinStarsAndDate() {
         view.print("Minimum stars (1-5): ");
@@ -60,7 +59,7 @@ public class MenuPresenter implements CommandLineRunner {
     }
 
     /// Handles option 4: filter rooms by type, sea view, and price
-    private void roomsWithOptionalFilters() {
+    private void roomsWithOptionalFilters() {                        // Optional is used to represent optional user input safely
         view.print("Type (SINGLE/DOUBLE/SUITE) or empty: ");
         String t = view.readLine().trim();
         Optional<RoomType> type = t.isEmpty() ? Optional.empty() : Optional.of(RoomType.valueOf(t.toUpperCase()));

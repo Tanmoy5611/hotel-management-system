@@ -1,9 +1,7 @@
 package be.kdg.prog3.hotels.web.interceptors;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
@@ -14,7 +12,9 @@ import java.util.List;
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SessionHistory {
 
+    // used a list because order of visited pages matters
     private final List<String> history = new LinkedList<>();
+    // Timestamp formatting is handled inside the model, not the controller
     private final DateTimeFormatter formatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 

@@ -1,5 +1,4 @@
 package be.kdg.prog3.hotels.web.exceptions;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -7,12 +6,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@ControllerAdvice
+@ControllerAdvice      // for global exception handling across all controllers
 public class DatabaseExceptionHandler {
 
     private static final Logger log =
             LoggerFactory.getLogger(DatabaseExceptionHandler.class);
 
+    // DataAccessException is Spring abstraction that covers all database-related errors
     @ExceptionHandler(DataAccessException.class)
     public String handleDatabaseException(
             DataAccessException ex,
