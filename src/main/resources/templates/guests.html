@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{guests.title}">Guests</title>
+
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
@@ -24,43 +25,59 @@
     </h2>
 
     <!-- Filters + Search -->
-    <form th:action="@{/guests/search}" method="get" class="row g-2 mb-4">
+    <div class="row g-2 mb-4 align-items-end">
 
-        <!-- VIP Button -->
-        <div class="col-md-3 d-grid">
-            <a th:href="@{/guests/vip}" class="btn btn-warning fw-semibold">
-                <i class="bi bi-star-fill"></i>
+        <!-- VIP Filter -->
+        <div class="col-md-3">
+            <a th:href="@{/guests/vip}"
+               class="btn btn-warning fw-semibold w-100">
+                <i class="bi bi-star-fill me-1"></i>
                 <span th:text="#{guests.vipButton}">Show VIP Guests</span>
             </a>
         </div>
 
-        <!-- Many Rooms Search -->
-        <div class="col-md-3 d-flex gap-2">
+        <!-- Min Rooms Filter -->
+        <div class="col-md-3">
+            <form th:action="@{/guests/manyRooms}" method="get" class="d-flex gap-2">
                 <input type="number"
                        name="min"
                        class="form-control"
                        th:placeholder="#{guests.filter.minRooms}"
-                       min="1">
+                       min="1"
+                       required>
 
-            <button formaction="/guests/manyRooms"
-                    formmethod="get"
-                    class="btn btn-danger fw-semibold">
-                <i class="bi bi-people"></i>
-            </button>
+                <button type="submit"
+                        class="btn btn-danger">
+                    <i class="bi bi-people"></i>
+                </button>
+            </form>
         </div>
 
-        <!-- Search Bar -->
-        <div class="col-md-4 d-flex">
+        <!-- Name Search -->
+        <div class="col-md-4">
+            <form th:action="@{/guests/search}" method="get" class="d-flex">
                 <input type="text"
                        name="q"
                        class="form-control"
                        th:placeholder="#{guests.filter.search}"
                        th:value="${searchQuery}">
-            <button type="submit" class="btn btn-primary ms-2">
-                <i class="bi bi-search"></i>
-            </button>
+
+                <button type="submit" class="btn btn-primary ms-2">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
         </div>
-    </form>
+
+        <!-- Reset Filters -->
+        <div class="col-md-2">
+            <a th:href="@{/guests}"
+               class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                <span th:text="#{filter.reset}">Reset Filters</span>
+            </a>
+        </div>
+
+    </div>
 
     <!-- Guest Cards -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">

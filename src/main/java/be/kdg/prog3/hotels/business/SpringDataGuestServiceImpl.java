@@ -1,8 +1,12 @@
 package be.kdg.prog3.hotels.business;
 import be.kdg.prog3.hotels.data.springdata.SpringDataGuestRepository;
+import be.kdg.prog3.hotels.data.springdata.SpringDataRoomRepository;
 import be.kdg.prog3.hotels.domain.Guest;
+import be.kdg.prog3.hotels.domain.Room;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -10,11 +14,11 @@ import java.util.List;
 public class SpringDataGuestServiceImpl implements GuestService {
 
     private final SpringDataGuestRepository repo;
-    private final RoomService roomService;
+    private final SpringDataRoomRepository roomRepo;
 
-    public SpringDataGuestServiceImpl(SpringDataGuestRepository repo, RoomService roomService) {
+    public SpringDataGuestServiceImpl(SpringDataGuestRepository repo, SpringDataRoomRepository roomRepo) {
         this.repo = repo;
-        this.roomService = roomService;
+        this.roomRepo = roomRepo;
     }
 
     // Required Interface methods
@@ -25,8 +29,8 @@ public class SpringDataGuestServiceImpl implements GuestService {
     }
 
     @Override
-    public List<Guest> getGuestsByRoom(int roomNumber) {
-        return repo.findByRoom(roomNumber);
+    public List<Guest> getGuestsByRoom(Long roomId) {
+        return repo.findByRoom(roomId);
     }
 
     @Override
@@ -35,12 +39,12 @@ public class SpringDataGuestServiceImpl implements GuestService {
     }
 
     @Override
-    public Guest getGuestById(long id) {
+    public Guest getGuestById(Long id) {
         return repo.findById(id).orElse(null);
     }
 
     @Override
-    public void deleteGuest(long id) {
+    public void deleteGuest(Long id) {
         repo.deleteById(id);
     }
 
@@ -57,26 +61,24 @@ public class SpringDataGuestServiceImpl implements GuestService {
     }
 
     @Override
-    public Guest createGuestWithRoom(Guest guest, Integer roomNumber) {
+    @Transactional
+    public Guest createGuestWithRoom(Guest guest, Long roomId) {
 
-        // Save guest first (needed to generate the ID)
-        guest = repo.save(guest);
+        // 1️⃣ Save guest first
+        Guest savedGuest = repo.save(guest);
 
-        // If room number provided, link room
-        if (roomNumber != null) {
+        if (roomId != null) {
+            // 2️⃣ Load room INSIDE transaction
+            Room room = roomRepo.findById(roomId)
+                    .orElseThrow(() -> new IllegalArgumentException("Room not found"));
 
-            // Load room through RoomService
-            var room = roomService.getRoomByNumber(roomNumber);
+            // 3️⃣ Modify OWNING SIDE only
+            room.addGuest(savedGuest);
 
-            if (room != null) {
-                // maintain bidirectional relation
-                guest.addRoom(room);
-
-                // save again so join table is updated
-                repo.save(guest);
-            }
+            // 4️⃣ Save OWNING SIDE
+            roomRepo.save(room);
         }
 
-        return guest;
+        return savedGuest;
     }
 }

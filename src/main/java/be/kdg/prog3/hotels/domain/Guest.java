@@ -14,7 +14,7 @@ public class Guest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // primary key which is auto created by database
-    private long id;
+    private Long id;
 
     private String email;
     private boolean vip;
@@ -22,7 +22,7 @@ public class Guest {
     @Column(name = "avatar_url")                         // Maps Java field avatarUrl to database column avatar_url
     private String avatarUrl;
 
-    @Column(name = "full_name")
+    @Column(name = "full_name", nullable = false)
     private String fullName;
     private LocalDate dob;
 
@@ -44,7 +44,7 @@ public class Guest {
     }
 
     // getters
-    public long getId() {
+    public Long getId() {
         return id;
     }
     public String getFullName() {
@@ -67,7 +67,7 @@ public class Guest {
     }
 
     // Setters
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public void setFullName(String fullName) {
@@ -89,7 +89,7 @@ public class Guest {
     // Method to add a room to guest's booking - Relationship helper
     public void addRoom(Room room) {
         rooms.add(room);
-        room.getGuests().add(this);   // sync bidirectionally
+        // room.getGuests().add(this);   // sync bidirectionally
     }
 
     // polymorphism method

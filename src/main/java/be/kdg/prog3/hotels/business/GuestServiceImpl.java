@@ -1,5 +1,6 @@
 package be.kdg.prog3.hotels.business;
 import be.kdg.prog3.hotels.data.GuestRepository;
+import be.kdg.prog3.hotels.data.RoomRepository;
 import be.kdg.prog3.hotels.domain.Guest;
 import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.VIPGuest;
@@ -30,9 +31,9 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
-    public List<Guest> getGuestsByRoom(int roomNumber) {
-        log.debug("Fetching guests for room {}", roomNumber);
-        return repo.findByRoom(roomNumber);
+    public List<Guest> getGuestsByRoom(Long roomId) {
+        log.debug("Fetching guests for room {}", roomId);
+        return repo.findByRoom(roomId);
     }
 
     @Override
@@ -42,26 +43,26 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
-    public Guest getGuestById(long id) {
+    public Guest getGuestById(Long id) {
         log.debug("Fetching guest by id {}", id);
         return repo.findById(id);
     }
 
     @Override
     @Transactional
-    public void deleteGuest(long id) {
+    public void deleteGuest(Long id) {
 
         // Find guest (no Optional in JDBC repository)
-        Guest g = repo.findById(id);
-        if (g == null) {
+        Guest guest = repo.findById(id);
+        if (guest == null) {
             throw new IllegalArgumentException("Guest not found");
         }
 
         // Unlink guest from all rooms (Many-to-Many)
-        for (Room room : g.getRooms()) {
-            room.getGuests().remove(g);
+        for (Room room : guest.getRooms()) {
+            room.getGuests().remove(guest);
         }
-        g.getRooms().clear();
+        guest.getRooms().clear();
 
         // Delete using ID, because GuestRepository.delete(long id)
         repo.delete(id);
@@ -70,8 +71,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public List<Guest> getVipGuests() {
         log.debug("Fetching VIP guests...");
-        return repo.findAll()
-                .stream()
+        return repo.findAll().stream()
                 .filter(g -> g instanceof VIPGuest || g.isVip())
                 .toList();
     }
@@ -79,8 +79,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public List<Guest> searchGuestsByName(String name) {
         log.debug("Searching guests by name: {}", name);
-        return repo.findAll()
-                .stream()
+        return repo.findAll().stream()
                 .filter(g -> g.getFullName().toLowerCase().contains(name.toLowerCase()))
                 .toList();
     }
@@ -90,31 +89,46 @@ public class GuestServiceImpl implements GuestService {
         log.debug("Fetching guests with at least {} rooms...", minRooms);
 
         // must NOT use g.getRooms() in JDBC — rooms list is empty until JPA loads relations.
-        return repo.findAll()
-                .stream()
+        return repo.findAll().stream()
                 .filter(g -> roomService.getRoomsByGuest(g.getId()).size() >= minRooms)
                 .toList();
     }
 
-    @Transactional
-    @Override
-    public Guest createGuestWithRoom(Guest guest, Integer roomNumber) {
+//    @Override
+//    @Transactional
+//    public Guest createGuestWithRoom(Guest guest, Long roomId) {
+//
+//        // 1️⃣ Save guest first (managed entity)
+//        guest = repo.save(guest);
+//
+//        if (roomId != null) {
+//            // 2️⃣ Load room INSIDE transaction
+//            Room room = roomService.getRoomById(roomId);
+//
+//            // 3️⃣ Maintain BOTH sides
+//            room.getGuests().add(guest);
+//            guest.getRooms().add(room);
+//
+//            // 4️⃣ Save OWNING SIDE
+//            roomService.save(room);
+//        }
+//
+//        return guest;
+//    }
 
-        // Save guest first
+    @Override
+    @Transactional
+    public Guest createGuestWithRoom(Guest guest, Long roomId) {
+
+        // 1️⃣ Save guest
         guest = repo.save(guest);
 
-        // If user typed a room number -  link it
-        if (roomNumber != null) {
-            Room room = roomService.getRoomByNumber(roomNumber);
-            if (room != null) {
+        if (roomId != null) {
+            // 2️⃣ Ensure room exists
+            roomService.getRoomById(roomId);
 
-                // Bidirectional sync
-                guest.addRoom(room);
-                room.getGuests().add(guest);
-
-                // Save again so join-table persists
-                repo.save(guest);
-            }
+            // 3️⃣ Delegate relation persistence
+            repo.addGuestToRoom(guest.getId(), roomId);
         }
 
         return guest;

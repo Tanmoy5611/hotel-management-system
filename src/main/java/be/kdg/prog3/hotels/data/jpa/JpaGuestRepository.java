@@ -1,6 +1,7 @@
 package be.kdg.prog3.hotels.data.jpa;
 import be.kdg.prog3.hotels.data.GuestRepository;
 import be.kdg.prog3.hotels.domain.Guest;
+import be.kdg.prog3.hotels.domain.Room;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -28,7 +29,7 @@ public class JpaGuestRepository implements GuestRepository {
     // If the guest already exists, update it using merge; otherwise insert it using persist
     @Override
     public Guest save(Guest guest) {
-        if (guest.getId() != 0) {
+        if (guest.getId() != null) {
             return em.merge(guest);        // update
         } else {
             em.persist(guest);             // insert
@@ -38,26 +39,43 @@ public class JpaGuestRepository implements GuestRepository {
 
     // finds a Guest by its primary key using EntityManager
     @Override
-    public Guest findById(long id) {
+    public Guest findById(Long id) {
         return em.find(Guest.class, id);
     }
 
     // Uses JPQL JOIN to navigate the many-to-many relationship between guests and rooms
     @Override
-    public List<Guest> findByRoom(int roomNumber) {
+    public List<Guest> findByRoom(Long roomId) {
         return em.createQuery("""
                         SELECT g FROM Guest g
                         JOIN g.rooms r
-                        WHERE r.number = :roomNum
+                        WHERE r.id = :roomId
                         """, Guest.class)
-                .setParameter("roomNum", roomNumber)
+                .setParameter("roomId", roomId)
                 .getResultList();
     }
 
     // Loads the entity first, then removes it using EntityManager
     @Override
-    public void delete(long id) {
+    public void delete(Long id) {
         Guest g = em.find(Guest.class, id);
         if (g != null) em.remove(g);
+    }
+
+    @Override
+    public void addGuestToRoom(Long guestId, Long roomId) {
+
+        Guest guest = em.find(Guest.class, guestId);
+        Room room = em.find(Room.class, roomId);
+
+        if (guest == null || room == null) {
+            throw new IllegalArgumentException("Guest or Room not found");
+        }
+
+        // OWNING SIDE
+        room.getGuests().add(guest);
+
+        // inverse side (optional but correct)
+        guest.getRooms().add(room);
     }
 }

@@ -6,7 +6,7 @@
     <title th:text="#{nav.addHotel}">Add Hotel</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
@@ -48,6 +48,20 @@
                                        class="form-control">
                             <div class="text-danger small mt-1"
                                  th:errors="*{name}"></div>
+                        </div>
+
+                        <!-- City -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" th:text="#{hotels.table.city}"></label>
+                            <input type="text" th:field="*{city}" class="form-control">
+                            <div class="text-danger small" th:errors="*{city}"></div>
+                        </div>
+
+                        <!-- Country -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" th:text="#{hotels.table.country}"></label>
+                            <input type="text" th:field="*{country}" class="form-control">
+                            <div class="text-danger small" th:errors="*{country}"></div>
                         </div>
 
                         <!-- Opened on -->
@@ -107,6 +121,34 @@
                                  th:errors="*{imageUrl}"></div>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Hotel Description
+                            </label>
+
+                            <textarea id="description"
+                                      name="description"
+                                      class="form-control"
+                                      rows="6"
+                                      maxlength="4000"
+                                      placeholder="Hotel history, story, atmosphere, or special features..."
+                                      th:field="*{description}">
+                            </textarea>
+
+                            <div class="d-flex justify-content-between mt-1">
+                                <small class="text-muted">
+                                    Max 4000 characters
+                                </small>
+                                <small id="charCounter" class="char-counter">
+                                    0 / 4000
+                                </small>
+                            </div>
+
+                            <div class="text-danger small mt-1" th:errors="*{description}"></div>
+                        </div>
+
+
                     </div>
 
                     <!-- Buttons -->
@@ -132,6 +174,8 @@
 
 <!-- Footer -->
 <div th:replace="~{fragments/footer :: body}"></div>
+
+<script th:src="@{/js/description-word.js}"></script>
 
 </body>
 </html>

@@ -3,6 +3,8 @@ import be.kdg.prog3.hotels.data.springdata.SpringDataHotelRepository;
 import be.kdg.prog3.hotels.domain.Hotel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -32,9 +34,18 @@ public class SpringDataHotelServiceImpl implements HotelService {
         return repo.findHotelsWithMinStars(minStars);
     }
 
+
     @Override
-    public Hotel createdHotel(Hotel hotel) {
-        // save() automatically does INSERT or UPDATE depending on entity state
+    public Hotel createHotel(Hotel hotel) {
+
+        if (hotel.getId() == null || hotel.getId().isBlank()) {
+            hotel.setId(
+                    hotel.getName()
+                            .toLowerCase()
+                            .replaceAll("[^a-z0-9]+", "-")
+            );
+        }
+
         return repo.save(hotel);
     }
 
@@ -73,5 +84,16 @@ public class SpringDataHotelServiceImpl implements HotelService {
     // Hotels with or without spa
     public List<Hotel> getHotelsWithSpa(boolean hasSpa) {
         return repo.findByHasSpa(hasSpa);
+    }
+
+    @Override
+    @Transactional
+    public void updateHotelDescription(String id, String description) {
+
+        Hotel hotel = repo.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Hotel not found"));
+
+        hotel.setDescription(description);
     }
 }

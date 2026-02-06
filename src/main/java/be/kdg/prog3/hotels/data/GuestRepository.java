@@ -8,10 +8,12 @@ public interface GuestRepository {
 
     Guest save(Guest guest);
 
-    Guest findById(long id);
+    Guest findById(Long id);
 
     // for many-to-many query
-    List<Guest> findByRoom(int roomNumber);
+    List<Guest> findByRoom(Long roomId);
 
-    void delete(long id);
+    void delete(Long id);
+
+    void addGuestToRoom(Long guestId, Long roomId);
 }

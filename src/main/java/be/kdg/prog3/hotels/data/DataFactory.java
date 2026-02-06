@@ -28,87 +28,177 @@ public class DataFactory {
         guests.clear();
 
         // Hotels with real attributes
-        var h1 = new Hotel("plaza-athenee-paris", "Hotel Plaza Athénée, Paris", LocalDate.of(1913, 4, 20), 5, true,
-                "/images/hotels/plaza_athene.jpg");
-        var h2 = new Hotel("langham-london", "The Langham, London", LocalDate.of(1865, 6, 10), 5, false,
-                "/images/hotels/langham.jpg");
-        var h3 = new Hotel("radisson-stockholm", "Radisson Blu Strand, Stockholm", LocalDate.of(1912, 2, 24), 4, false,
-                "/images/hotels/radisson_blu_strand.jpg");
-        var h4 = new Hotel("radisson-antwerp", "Radisson Blu Astrid Hotel, Antwerp",
+        var h1 = new Hotel("plaza-athenee-paris", "Hotel Plaza Athénée",
+                "Paris", "France",
+                LocalDate.of(1913, 4, 20), 5, true,
+                "/images/hotels/plaza_athene.jpg",
+                "Inaugurated in 1913, the Hôtel Plaza Athénée is a crown jewel of Parisian luxury located on the prestigious Avenue Montaigne. Famously known for its iconic red awnings and vibrant geraniums, the hotel holds the elite Palace status. It has a deep-rooted history with the fashion world, specifically as the second home to Christian Dior. The property blends French classical and Art Deco styles, featuring the Dior Institut spa and breathtaking views of the Eiffel Tower."
+        );
+
+        var h2 = new Hotel("langham-london", "The Langham",
+                "London", "United Kingdom",
+                LocalDate.of(1865, 6, 10), 5, false,
+                "/images/hotels/langham.jpg",
+                "Established in 1865 as Europe’s first 'Grand Hotel' The Langham, London has stood as a beacon of luxury for over 150 years. It was a pioneer of modern hospitality, being the first to offer hydraulic lifts and piped hot water. The hotel is famously the birthplace of the traditional Afternoon Tea and has strong literary ties, notably as a setting in Sherlock Holmes stories and a haunt for Oscar Wilde. Located at the prestigious top of Regent Street, it remains a Victorian masterpiece of elegance and history."
+        );
+
+        var h3 = new Hotel("radisson-stockholm", "Radisson Blu Strand",
+                "Stockholm", "Sweden",
+                LocalDate.of(1912, 2, 24), 4, false,
+                "/images/hotels/radisson_blu_strand.jpg",
+                "Built for the 1912 Olympic Games, the Radisson Blu Strand is a historic gem overlooking Stockholm’s Nybroviken bay. Designed by Ludwig Peterson, the hotel has a storied past as a cultural hub, famously hosting Hollywood legends like Greta Garbo and Ingrid Bergman. With its striking brick architecture and proximity to the Royal Dramatic Theatre, the Strand offers a unique blend of early 20th-century elegance and contemporary Nordic style. It remains one of Stockholm’s most iconic waterfront properties, deeply connected to the city’s cinematic and sporting history."
+        );
+
+        var h4 = new Hotel("radisson-antwerp", "Radisson Blu Astrid Hotel",
+                "Antwerp", "Belgium",
                 LocalDate.of(1998, 6, 15), 4, true,
-                "/images/hotels/radisson_blu_antwerp.jpg");
-        var h5 = new Hotel("amigo-brussels", "Hotel Amigo, Brussels",
+                "/images/hotels/radisson_blu_antwerp.jpg",
+                "Located in the heart of the Diamond District, the Radisson Blu Astrid is an architectural landmark designed by Michael Graves. It stands directly across from the breathtaking Antwerpen-Centraal station and just steps from the Antwerp Zoo. Opened in 1998, the hotel is named after Queen Astrid and is famous for its postmodern style and vibrant atmosphere. Featuring a comprehensive health club and spa, it offers guests a luxury experience with unparalleled access to Antwerp’s most famous historic and cultural sites."
+        );
+
+        var h5 = new Hotel("amigo-brussels", "Hotel Amigo",
+                "Brussels", "Belgium",
                 LocalDate.of(1957, 9, 1), 5, true,
-                "/images/hotels/amigo.jpg");
-        var h6 = new Hotel("hilton-old-town", "Hilton Old Town, Antwerp",
+                "/images/hotels/amigo.jpg",
+                "Located beside the Grand Place, Hotel Amigo is built on the site of a 16th-century prison. Its unique name stems from a Spanish translation error of the old Dutch word for jail. Opened in 1957 for the 1858 World Expo, it has hosted countless celebrities and royals. The hotel famously blends Renaissance history with Belgian pop culture, featuring authentic Flemish decor alongside Tintin-themed elements. As one of the most prestigious addresses in Brussels, it offers a sophisticated sanctuary in the heart of the European capital, complete with a luxury spa and world-class Italian-Belgian cuisine."
+        );
+
+        var h6 = new Hotel("hilton-old-town", "Hilton Old Town",
+                "Antwerp", "Belgium",
                 LocalDate.of(1993, 9, 1), 5, true,
-                "/images/hotels/hilton.jpg");
-        var h7 = new Hotel("c-hotels-slit", "C-Hotels Silt, Middelkerke",
+                "/images/hotels/hilton.jpg",
+                "Occupying the historic Grand Bazar building on Antwerp’s Groenplaats, the Hilton Old Town is a landmark of Beaux-Arts elegance. Opened in 1993 after a massive restoration of the Belle Époque facade, the hotel is famous for its grand marble lobby and its location adjacent to the Cathedral of Our Lady. It seamlessly combines the city’s rich commercial history with high-end modern luxury, featuring a signature brasserie and a rooftop terrace. As a cornerstone of Antwerp’s hospitality scene, it offers guests a timeless experience in the cultural and shopping heart of the city.");
+
+        var h7 = new Hotel("c-hotels-silt", "C-Hotels Silt",
+                "Middelkerke", "Belgium",
                 LocalDate.of(2024, 3, 22), 4, true,
-                "/images/hotels/silt.jpg");
-        var h8 = new Hotel("van-der-valk", "Van der Valk Hotel, Ghent",
+                "/images/hotels/silt.jpg",
+                "Opened in 2024, C-Hotels Silt is a groundbreaking architectural landmark on the Belgian coast. Its unique design, inspired by natural sand dunes, integrates a luxury hotel with a casino and event hall. The sustainable wooden structure is built to harmonize with the North Sea landscape while providing a high-end sanctuary for travelers. With its panoramic sea views and extensive spa facilities, it represents the future of modern coastal hospitality in Middelkerke."
+        );
+
+        var h8 = new Hotel("van-der-valk", "Van der Valk Hotel",
+                "Ghent", "Belgium",
                 LocalDate.of(2021, 4, 1), 4, true,
-                "/images/hotels/van_der.jpg");
-        var h9 = new Hotel("pan-pacific", "Pan Pacific, London",
+                "/images/hotels/van_der.jpg",
+                "Inaugurated in 2021, Van der Valk Hotel Ghent is a 4-star superior landmark located at the gateway to the city. Situated next to the Ghelamco Arena, the hotel is an architectural focal point known for its modern, sustainable design. Its crown jewel is the 10th-floor Skybar, offering 360-degree views of the Ghent skyline, complemented by a luxury Weleda City Spa and the elegant Restaurant Cocotte. Combining warm hospitality with high-tech amenities like climate-controlled rooms and smart integration, it provides an ideal base for both business and leisure travelers exploring the culture of East Flanders."
+        );
+
+        var h9 = new Hotel("pan-pacific", "Pan Pacific",
+                "London", "United Kingdom",
                 LocalDate.of(2021, 9, 1), 5, true,
-                "/images/hotels/pan_pacific.jpg");
+                "/images/hotels/pan_pacific.jpg",
+                "Inaugurated in 2021 at One Bishopsgate Plaza, Pan Pacific London is a fusion of South East Asian hospitality and British elegance. Designed by Yabu Pushelberg, the hotel is a modern architectural masterpiece in the City of London. It features a unique 1,000-square-meter dedicated well-being floor and an infinity pool with spectacular views of the London skyline. Known for its Straits Kitchen restaurant and high-tech minimalist design, it offers a tranquil, luxury sanctuary for both business travelers and design enthusiasts in the heart of the financial district."
+        );
 
 
         // Rooms
         var r101 = new Room(101, RoomType.SINGLE, 150.0, false,
-                "/images/rooms/plaza_athene_single.jpg");
+                "/images/rooms/plaza_athene_single.jpg",
+                "Cozy single room with elegant décor and modern amenities, ideal for solo travelers seeking comfort and convenience.");
+
         var r102 = new Room(102, RoomType.DOUBLE, 250.0, true,
-                "/images/rooms/plaza_athene_double.jpg");
+                "/images/rooms/plaza_athene_double.jpg",
+                "Spacious double room featuring refined furnishings, premium bedding, and a beautiful sea view—perfect for a relaxing stay for two.");
+
         var r201 = new Room(201, RoomType.SUITE, 500.0, true,
-                "/images/rooms/plaza_athene_suite.jpg");
+                "/images/rooms/plaza_athene_suite.jpg",
+                "Luxurious suite offering generous space, sophisticated décor, and stunning sea views, ideal for guests seeking an exceptional stay.");
+
         var r202 = new Room(202, RoomType.DOUBLE, 220.0, false,
-                "/images/rooms/langham_double.jpg");
+                "/images/rooms/langham_double.jpg",
+                "Elegant double room with classic design, comfortable bedding, and modern facilities, suitable for couples or business travelers.");
+
         var r301 = new Room(301, RoomType.SINGLE, 180.0, true,
-                "/images/rooms/langham_single.jpg");
+                "/images/rooms/langham_single.jpg",
+                "Bright single room with tasteful décor and a pleasant sea view, offering a comfortable retreat for solo guests.");
+
         var r302 = new Room(302, RoomType.SUITE, 550.0, false,
-                "/images/rooms/radisson_blu_strand_suite.jpg");
+                "/images/rooms/radisson_blu_strand_suite.jpg",
+                "Stylish suite with contemporary design and generous living space, perfect for guests who value comfort and privacy.");
+
         var r401 = new Room(401, RoomType.SUITE, 450.0, true,
-                "/images/rooms/langham_suite.jpg");
+                "/images/rooms/langham_suite.jpg",
+                "Spacious suite combining timeless elegance with modern comfort, featuring ample living space and a scenic sea view.");
+
         var r402 = new Room(402, RoomType.SINGLE, 140.0, false,
-                "/images/rooms/radisson_blu_strand_single.jpg");
+                "/images/rooms/radisson_blu_strand_single.jpg",
+                "Functional single room with modern amenities, ideal for short stays or business travelers.");
+
         var r403 = new Room(403, RoomType.DOUBLE, 350.0, false,
-                "/images/rooms/radisson_blu_strand_double.jpg");
+                "/images/rooms/radisson_blu_strand_double.jpg",
+                "Modern double room offering spacious comfort and elegant furnishings, suitable for a relaxed stay in the city.");
+
         var r501 = new Room(501, RoomType.DOUBLE, 210.0, true,
-                "/images/rooms/radisson_blu_antwerp_double.jpg");
+                "/images/rooms/radisson_blu_antwerp_double.jpg",
+                "Comfortable double room with contemporary décor and a pleasant sea view, ideal for couples.");
+
         var r502 = new Room(502, RoomType.SUITE, 480.0, false,
-                "/images/rooms/radisson_blu_antwerp_suite.jpg");
+                "/images/rooms/radisson_blu_antwerp_suite.jpg",
+                "Exclusive suite featuring ample space, refined interiors, and premium amenities for a luxurious stay.");
+
         var r503 = new Room(503, RoomType.SINGLE, 130.0, true,
-                "/images/rooms/radisson_blu_antwerp_single.jpg");
+                "/images/rooms/radisson_blu_antwerp_single.jpg",
+                "Compact single room with modern comforts and a refreshing sea view, perfect for solo travelers.");
+
         var r601 = new Room(601, RoomType.SINGLE, 160.0, false,
-                "/images/rooms/amigo_single.jpg");
+                "/images/rooms/amigo_single.jpg",
+                "Charming single room with warm décor and essential amenities, offering a quiet and comfortable stay.");
+
         var r602 = new Room(602, RoomType.DOUBLE, 240.0, true,
-                "/images/rooms/amigo_double.jpg");
+                "/images/rooms/amigo_double.jpg",
+                "Stylish double room with elegant furnishings and a scenic sea view, ideal for couples.");
+
         var r603 = new Room(603, RoomType.SUITE, 520.0, true,
-                "/images/rooms/amigo_suite.jpg");
+                "/images/rooms/amigo_suite.jpg",
+                "Premium suite with luxurious interiors, spacious layout, and beautiful sea views for an elevated experience.");
+
         var r450 = new Room(450, RoomType.SUITE, 540.0, false,
-                "/images/rooms/hilton_suite.jpg");
+                "/images/rooms/hilton_suite.jpg",
+                "Modern suite with spacious living areas and upscale amenities, designed for maximum comfort.");
+
         var r480 = new Room(480, RoomType.DOUBLE, 260.0, false,
-                "/images/rooms/hilton_double.jpg");
+                "/images/rooms/hilton_double.jpg",
+                "Well-appointed double room featuring contemporary design and comfortable bedding.");
+
         var r490 = new Room(490, RoomType.SINGLE, 180.0, false,
-                "/images/rooms/hilton_single.jpg");
+                "/images/rooms/hilton_single.jpg",
+                "Simple and comfortable single room, ideal for business or solo travelers.");
+
         var r533 = new Room(533, RoomType.SUITE, 590.0, true,
-                "/images/rooms/silt_suite.jpg");
+                "/images/rooms/silt_suite.jpg",
+                "Exclusive suite offering elegant design, generous space, and stunning sea views.");
+
         var r563 = new Room(563, RoomType.DOUBLE, 270.0, true,
-                "/images/rooms/silt_double.jpg");
+                "/images/rooms/silt_double.jpg",
+                "Modern double room with stylish décor and a relaxing sea view, perfect for couples.");
+
         var r579 = new Room(579, RoomType.SINGLE, 160.0, true,
-                "/images/rooms/silt_single.jpg");
+                "/images/rooms/silt_single.jpg",
+                "Bright single room with modern furnishings and a pleasant sea view.");
+
         var r703 = new Room(703, RoomType.SUITE, 420.0, true,
-                "/images/rooms/van_der_suite.jpg");
+                "/images/rooms/van_der_suite.jpg",
+                "Comfortable suite with ample space and sea views, ideal for a relaxing getaway.");
+
         var r705 = new Room(705, RoomType.DOUBLE, 200.0, true,
-                "/images/rooms/van_der_double.jpg");
+                "/images/rooms/van_der_double.jpg",
+                "Cozy double room featuring modern comforts and a refreshing sea view.");
+
         var r709 = new Room(709, RoomType.SINGLE, 110.0, true,
-                "/images/rooms/van_der_single.jpg");
+                "/images/rooms/van_der_single.jpg",
+                "Affordable single room with essential amenities and a sea view, perfect for short stays.");
+
         var r811 = new Room(811, RoomType.SUITE, 565.0, false,
-                "/images/rooms/pan_pacific_suite.jpg");
+                "/images/rooms/pan_pacific_suite.jpg",
+                "Elegant suite with contemporary design and spacious living areas for a premium stay.");
+
         var r839 = new Room(839, RoomType.DOUBLE, 300.0, false,
-                "/images/rooms/pan_pacific_double.jpg");
+                "/images/rooms/pan_pacific_double.jpg",
+                "Modern double room with refined décor and high-quality amenities.");
+
         var r857 = new Room(857, RoomType.SINGLE, 220.0, false,
-                "/images/rooms/pan_pacific_suite.jpg");
+                "/images/rooms/pan_pacific_single.jpg",
+                "Comfortable single room with modern facilities, ideal for solo travelers seeking quality.");
 
 
         // Attach rooms to hotels (many-to-one)

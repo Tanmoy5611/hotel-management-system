@@ -24,10 +24,10 @@ public class JpaRoomRepository implements RoomRepository {
                 .getResultList();
     }
 
-    // Finds a room by its primary key.
+    // Finds a room by its primary key and save or update
     @Override
     public Room save(Room room) {
-        if (em.find(Room.class, room.getNumber()) != null) {
+        if (room.getId() != null && em.find(Room.class, room.getId()) != null) {
             return em.merge(room);
         } else {
             em.persist(room);
@@ -35,9 +35,10 @@ public class JpaRoomRepository implements RoomRepository {
         }
     }
 
+    // Find by PRIMARY KEY (Room.id)
     @Override
-    public Room findById(int number) {
-        return em.find(Room.class, number);
+    public Room findById(Long id) {
+        return em.find(Room.class, id);
     }
 
     // Retrieves rooms belonging to a specific hotel (many-to-one)
@@ -53,7 +54,7 @@ public class JpaRoomRepository implements RoomRepository {
 
     // Retrieves rooms linked to a guest (many-to-many)
     @Override
-    public List<Room> findByGuest(long guestId) {
+    public List<Room> findByGuest(Long guestId) {
         return em.createQuery("""
                         SELECT r FROM Room r
                         JOIN r.guests g
@@ -65,8 +66,8 @@ public class JpaRoomRepository implements RoomRepository {
 
     // Removes the room entity if it exists.
     @Override
-    public void delete(int number) {
-        Room r = em.find(Room.class, number);
+    public void delete(Long id) {
+        Room r = em.find(Room.class, id);
         if (r != null) em.remove(r);
     }
 }

@@ -25,7 +25,7 @@ public class GuestForm {
     private String avatarUrl;
 
     // assign room during creation (optional)
-    private Integer roomNumber;
+    private Long roomId;
 
     // getters + setters Required for: Spring binding, Thymeleaf th:field, Validation
     public String getFullName() { return fullName; }
@@ -46,6 +46,6 @@ public class GuestForm {
     public String getAvatarUrl() { return avatarUrl; }
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 
-    public Integer getRoomNumber() { return roomNumber; }
-    public void setRoomNumber(Integer roomNumber) { this.roomNumber = roomNumber; }
+    public Long getRoomId() { return roomId; }
+    public void setRoomId(Long roomId) { this.roomId = roomId; }
 }

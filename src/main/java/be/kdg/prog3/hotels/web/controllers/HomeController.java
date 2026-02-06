@@ -64,7 +64,7 @@ public class HomeController {
         // Top picks: sorted by number of guests
         List<Room> topPickedRooms = roomService.getAllRooms().stream()
                 .sorted(Comparator.comparingInt(
-                        (Room r) -> guestService.getGuestsByRoom(r.getNumber()).size()
+                        (Room r) -> guestService.getGuestsByRoom(r.getId()).size()
                 ).reversed())
                 .limit(4)
                 .toList();

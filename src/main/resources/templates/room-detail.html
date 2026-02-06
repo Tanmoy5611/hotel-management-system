@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'Room Details - ' + ${room.number}">Room Details</title>
+
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
@@ -21,7 +22,9 @@
     <div class="card shadow-sm mb-4">
         <div class="row g-0">
             <div class="col-md-5">
-                <img th:src="@{${room.photoUrl}}" class="img-fluid rounded-start" alt="Room photo">
+                <img th:src="@{${room.photoUrl}}"
+                     class="img-fluid rounded-start room-detail-img"
+                     th:alt="'Room ' + ${room.number}">
             </div>
             <div class="col-md-7">
                 <div class="card-body">
@@ -39,8 +42,13 @@
                         <span th:text="${room.pricePerNight} + ' ' + #{room.pricePerNight}"></span>
                     </p>
 
-                    <p class="card-text mb-2">
-                        <i class="bi bi-water text-info"></i>
+                    <p class="card-text mb-2 d-flex align-items-center gap-2">
+
+                        <i class="bi"
+                           th:classappend="${room.seaView}
+                           ? 'bi-water text-info'
+                           : 'bi-x-circle text-muted'">
+                        </i>
                         <span th:text="${room.seaView} ? #{room.seaYes} : #{room.seaNo}"></span>
                     </p>
 
@@ -59,11 +67,64 @@
         </div>
     </div>
 
+    <div class="card mt-4">
+        <div class="card-body">
+
+            <!-- Title -->
+            <h4 class="card-title d-flex align-items-center gap-2">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                <span>About this room</span>
+            </h4>
+
+            <!-- Description -->
+            <div class="room-description">
+
+                <!-- Preview: FIRST sentence only -->
+                <p class="room-desc-preview"
+                   th:text="${#strings.substringBefore(room.description, '.')} + '.'">
+                </p>
+
+                <!-- Hidden: remaining text -->
+                <div id="room-desc-full" class="collapse">
+                    <p th:text="${#strings.substringAfter(room.description, '.')}"></p>
+                </div>
+
+                <!-- Toggle -->
+                <a th:if="${room.description != null and room.description.contains('.')}"
+                   class="btn btn-link p-0 mt-1"
+                   data-bs-toggle="collapse"
+                   href="#room-desc-full"
+                   role="button"
+                   aria-expanded="false"
+                   onclick="toggleText(this)">
+                    <i class="bi bi-chevron-down me-1"></i>
+                    Read more
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit description button -->
+    <a th:href="@{/rooms/{id}/edit-description(id=${room.id})}"
+       class="btn btn-sm btn-outline-primary mt-2">
+        <i class="bi bi-pencil-square me-1"></i>
+        Edit description
+    </a>
+
     <!-- Guests staying in this room -->
-    <h4 class="text-secondary mt-4 mb-3">
-        <i class="bi bi-people-fill"></i>
-        <span th:text="#{room.guestsTitle}"></span>
-    </h4>
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+        <h4 class="text-secondary mb-0">
+            <i class="bi bi-people-fill"></i>
+            <span th:text="#{room.guestsTitle}"></span>
+        </h4>
+
+        <a th:href="@{/guests/add(roomId=${room.id})}"
+           class="btn btn-success btn-sm">
+            <i class="bi bi-plus-circle"></i>
+            <span>Add Guest</span>
+        </a>
+    </div>
 
     <!-- If no guests -->
     <div th:if="${#lists.isEmpty(guests)}" class="text-muted mb-3">
@@ -101,7 +162,6 @@
                     <span class="badge"
                           th:classappend="${g.vip} ? 'bg-warning text-dark' : 'bg-secondary'"
                           th:text="${g.vip} ? #{room.vip} : #{room.regular}">
-
                     </span>
                 </td>
             </tr>
@@ -122,7 +182,7 @@
         <button type="button"
                 class="btn btn-danger"
                 data-bs-toggle="modal"
-                th:data-bs-target="${'#deleteRoomModal-' + room.number}">
+                th:data-bs-target="${'#deleteRoomModal-' + room.id}">
             <i class="bi bi-trash"></i>
             <span th:text="#{room.deleteButton}"></span>
         </button>
@@ -131,7 +191,7 @@
 
     <!-- Delete Modal -->
     <div class="modal fade"
-         th:id="${'deleteRoomModal-' + room.number}"
+         th:id="${'deleteRoomModal-' + room.id}"
          tabindex="-1">
 
         <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -159,7 +219,7 @@
                     </button>
 
                     <!-- Yes Delete -->
-                    <form th:action="@{|/rooms/${room.number}/delete|}" method="post">
+                    <form th:action="@{'/rooms/' + ${room.id} + '/delete'}" method="post">
                         <button type="submit"
                                 class="btn btn-danger btn-sm"
                                 th:text="#{button.delete}">
@@ -176,6 +236,8 @@
 
 <!-- Footer-->
 <div th:replace="~{fragments/footer :: body}"></div>
+
+<script th:src="@{/js/read-more.js}"></script>
 
 </body>
 </html>

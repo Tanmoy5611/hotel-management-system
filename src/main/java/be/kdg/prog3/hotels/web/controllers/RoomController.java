@@ -13,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Optional;
 
 // Controller for handling all requests related to Rooms
@@ -35,17 +37,26 @@ public class RoomController {
     /* This method handles GET requests to "/rooms"
     It can show all rooms, or filter them by type, sea view, or max price */
     @GetMapping
-    public String list(@RequestParam(name = "number", required = false) Integer number,
-                       @RequestParam(name = "type", required = false) String type,
-                       @RequestParam(name = "sea", required = false) Boolean sea,
-                       @RequestParam(name = "maxPrice", required = false) Double maxPrice,
-                       Model model) {
+    public String list(
+            @RequestParam(name = "number", required = false) Integer number,
+            @RequestParam(name = "type", required = false) String type,
+            @RequestParam(name = "sea", required = false) Boolean sea,
+            @RequestParam(name = "maxPrice", required = false) Double maxPrice,
+            Model model) {
 
         // If room number is provided : direct lookup
-        if (number != null) {
-            Room room = roomService.getRoomByNumber(number); // throws RoomNotFoundException
+        if (number != null && number > 0) {
+            log.debug("Filtering rooms by number {}", number);
 
-            return "redirect:/rooms/" + room.getNumber();
+            List<Room> rooms = roomService.getRoomsByNumber(number);
+
+            model.addAttribute("rooms", rooms);
+            model.addAttribute("types", RoomType.values());
+            model.addAttribute("selType", type);
+            model.addAttribute("selSea", sea);
+            model.addAttribute("selPrice", maxPrice);
+
+            return "rooms";
         }
 
         // Convert incoming query parameters to Optional values
@@ -57,7 +68,7 @@ public class RoomController {
         Optional<Double> p = Optional.ofNullable(maxPrice);
 
         // Debug log for filter inputs
-        log.debug("Listing rooms with filters number={}, type={}, sea={}, maxPrice={}", number, type, sea, maxPrice);
+        log.debug("Listing rooms with filters type={}, sea={}, maxPrice={}", type, sea, maxPrice);
 
         // Add filtered results and other attributes to Model (to display on HTML)
         model.addAttribute("rooms", roomService.findRooms(t, v, p));
@@ -65,7 +76,6 @@ public class RoomController {
         model.addAttribute("selType", type);
         model.addAttribute("selSea", sea);
         model.addAttribute("selPrice", maxPrice);
-        model.addAttribute("selNumber", number);
 
         return "rooms";   // Return Thymeleaf page (rooms.html)
     }
@@ -106,34 +116,37 @@ public class RoomController {
                 roomForm.getType(),
                 roomForm.getPricePerNight(),
                 roomForm.isSeaView(),
-                roomForm.getPhotoUrl()
+                roomForm.getPhotoUrl(),
+                roomForm.getDescription()
         );
 
         room.setHotel(hotel);
+        room.setDescription(roomForm.getDescription());
+
 
         // Log and save new room data using service layer
         log.debug("Creating new room: {}", room);
-        roomService.createdRoom(room);
+        roomService.createRoom(room);
 
         return "redirect:/rooms";   // Redirect back to list of rooms after successful submission
     }
 
-    // show details for one specific room by its room number
-    @GetMapping("/{number}")
-    public String showRoomDetails(@PathVariable int number, Model model) {
+    // show details for one specific room by its room id
+    @GetMapping("/{roomId}")
+    public String showRoomDetails(@PathVariable Long roomId, Model model) {
 
         // Find the room that matches the given room number
-        var room = roomService.getRoomByNumber(number);
+        Room room = roomService.getRoomById(roomId);
 
         // If no room found, redirect back to the rooms list
         if (room == null) {
-            log.error("Room {} not found!", number);
+            log.error("Room {} not found!", roomId);
 
             return "redirect:/rooms";
         }
 
         // Get the list of guests who booked this room (many-to-many relationship)
-        var guests = guestService.getGuestsByRoom(number);
+        var guests = guestService.getGuestsByRoom(roomId);
 
         // Add room and its related guests to the model so the view can display them
         model.addAttribute("room", room);
@@ -142,11 +155,11 @@ public class RoomController {
         return "room-detail";
     }
 
-    // delete a room
-    @PostMapping("/{number}/delete")
-    public String deleteRoom(@PathVariable int number) {
-        log.debug("Deleting room {}", number);
-        roomService.deleteRoom(number);
+    // delete a room by id
+    @PostMapping("/{roomId}/delete")
+    public String deleteRoom(@PathVariable Long roomId) {
+        log.debug("Deleting room {}", roomId);
+        roomService.deleteRoom(roomId);
         return "redirect:/rooms";
     }
 
@@ -159,5 +172,27 @@ public class RoomController {
         model.addAttribute("errorMessage", ex.getMessage());
 
         return "error/general-error";
+    }
+
+
+
+    /// Room description
+    @GetMapping("/{roomId}/edit-description")
+    public String editRoomDescriptionForm(@PathVariable Long roomId, Model model) {
+
+        Room room = roomService.getRoomById(roomId);
+
+        model.addAttribute("room", room);
+
+        return "edit-room-description"; // Thymeleaf page
+    }
+
+    @PostMapping("/{roomId}/edit-description")
+    public String updateRoomDescription(@PathVariable Long roomId,
+                                        @RequestParam String description) {
+
+        roomService.updateRoomDescription(roomId, description);
+
+        return "redirect:/rooms/" + roomId;
     }
 }

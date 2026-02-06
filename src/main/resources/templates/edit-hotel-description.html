@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Hotel Description</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-5">
+
+    <!-- Card -->
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-pencil-square me-2"></i>
+                Edit Hotel Description
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <form th:action="@{/hotels/{id}/edit-description(id=${hotel.id})}"
+                  method="post">
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Hotel Description
+                    </label>
+
+                    <textarea id="description"
+                              name="description"
+                              class="form-control"
+                              rows="8"
+                              maxlength="4000"
+                              placeholder="Write about the hotel's history, atmosphere, and special features..."
+                              th:text="${hotel.description}">
+                    </textarea>
+
+                    <!-- Counter -->
+                    <div class="d-flex justify-content-between mt-1">
+                        <small class="text-muted">
+                            Max 4000 characters
+                        </small>
+                        <small id="charCounter" class="char-counter">
+                            0 / 4000
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Save
+                    </button>
+
+                    <a th:href="@{/hotels/{id}(id=${hotel.id})}"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+<script th:src="@{/js/add-discount.js}"></script>
+
+<script th:src="@{/js/description-word.js}"></script>
+
+</body>
+</html>

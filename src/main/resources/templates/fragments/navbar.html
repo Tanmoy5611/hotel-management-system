@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
     <title>NavBar</title>
 </head>
@@ -69,7 +69,17 @@
 
             </ul>
 
-            <ul class="navbar-nav ms-auto">
+
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                <button id="themeToggle"
+                        class="btn btn-link nav-link px-2 me-2"
+                        type="button"
+                        title="Toggle dark mode"
+                        style="border: none; box-shadow: none;">
+                    <i class="bi bi-moon-fill fs-5 text-white"></i>
+                </button>
+                </li>
 
                 <li class="nav-item dropdown">
 
@@ -141,5 +151,9 @@
     </div>
 
 </nav>
+
+<script th:src="@{/js/theme-toggle.js}"></script>
+
 </body>
+
 </html>

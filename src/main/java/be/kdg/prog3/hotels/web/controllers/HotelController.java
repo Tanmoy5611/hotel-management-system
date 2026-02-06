@@ -72,7 +72,7 @@ public class HotelController {        // All URLs in this controller start with 
         }
 
         // Optional sorting in memory (Java)
-        if (sort != null) {
+        if (sort != null && !sort.isBlank()) {
             hotels = new ArrayList<>(hotels);    // make list mutable for sorting
 
             switch (sort) {
@@ -123,15 +123,18 @@ public class HotelController {        // All URLs in this controller start with 
         Hotel hotel = new Hotel(
                 null,   // ID auto-generated in service layer
                 hotelForm.getName(),
+                hotelForm.getCity(),
+                hotelForm.getCountry(),
                 hotelForm.getOpenedOn(),
                 hotelForm.getStars(),
                 hotelForm.isHasSpa(),
-                hotelForm.getImageUrl()
+                hotelForm.getImageUrl(),
+                hotelForm.getDescription()
         );
 
         // Log and save the new hotel through the service layer
         log.debug("Creating new hotel: {}", hotel);
-        hotelService.createdHotel(hotel);  // Save via business layer
+        hotelService.createHotel(hotel);  // Save via business layer
 
         // Redirect to /hotels after successfully adding a new hotel
         return "redirect:/hotels";
@@ -151,12 +154,15 @@ public class HotelController {        // All URLs in this controller start with 
         }
 
         // Load rooms for this hotel using RoomService (JDBC compatible) (Many-to-One)
-        var rooms = roomService.getRoomsByHotel(id);
+        List<Room> rooms = roomService.getRoomsByHotel(id);
 
+        // Map guests PER ROOM using ROOM ID
         // For each room, load guests (Many-to-Many room ↔ guest)
-        Map<Integer, List<Guest>> guestsPerRoom = new HashMap<>();
-        for (Room r : rooms) {
-            guestsPerRoom.put(r.getNumber(), guestService.getGuestsByRoom(r.getNumber()));
+        Map<Long, List<Guest>> guestsPerRoom = new HashMap<>();
+        for (Room room : rooms) {
+            guestsPerRoom.put(
+                    room.getId(),
+                    guestService.getGuestsByRoom(room.getId()));
         }
 
         // Calculate total number of guests staying in this hotel
@@ -180,4 +186,30 @@ public class HotelController {        // All URLs in this controller start with 
 
         return "redirect:/hotels";
     }
+
+
+    /// Hotel description
+    @GetMapping("/{id}/edit-description")
+    public String editHotelDescriptionForm(@PathVariable String id, Model model) {
+
+        Hotel hotel = hotelService.getHotelById(id);
+
+        if (hotel == null) {
+            return "redirect:/hotels";
+        }
+
+        model.addAttribute("hotel", hotel);
+
+        return "edit-hotel-description";
+    }
+
+    @PostMapping("/{id}/edit-description")
+    public String updateHotelDescription(
+            @PathVariable String id,
+            @RequestParam String description) {
+
+        hotelService.updateHotelDescription(id, description);
+        return "redirect:/hotels/" + id;
+    }
+
 }

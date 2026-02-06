@@ -12,11 +12,17 @@ import jakarta.persistence.*;
 public class Hotel {
 
     @Id
-    @Column(name = "id")
-    private String id;           //  used a String id because it's easier for URLs
+    @Column(name = "id", nullable = false)
+    private String id;           //  Business identifier (used in URLs, e.g. /hotels/hilton-antwerp)
 
     @Column(name = "name", nullable = false)
     private String name;         // hotel name (required)
+
+    @Column(nullable = false)
+    private String city;
+
+    @Column(nullable = false)
+    private String country;
 
     @Column(name = "opened_on")
     private LocalDate openedOn;   // opening date of the hotel
@@ -30,6 +36,9 @@ public class Hotel {
     @Column(name = "image_url")
     private String imageUrl;      // URL to the hotel's image
 
+    @Column(length = 4000)
+    private String description;
+
     // Create a list - Each hotel has many rooms- 1 hotel → many rooms (inverse side)
     @OneToMany(mappedBy = "hotel",           // the owning side is Room.hotel
             cascade = CascadeType.ALL,       // remove rooms when hotel is deleted
@@ -42,13 +51,16 @@ public class Hotel {
     }
 
     // Constructor
-    public Hotel(String id, String name, LocalDate openedOn, int stars, boolean hasSpa, String imageUrl) {
+    public Hotel(String id, String name, String city, String country, LocalDate openedOn, int stars, boolean hasSpa, String imageUrl, String description) {
         this.id = id;
         this.name = name;
+        this.city = city;
+        this.country = country;
         this.openedOn = openedOn;
         this.stars = stars;
         this.hasSpa = hasSpa;
         this.imageUrl = imageUrl;
+        this.description = description;
     }
 
     // Getters to access attributes
@@ -57,6 +69,12 @@ public class Hotel {
     }
     public String getName() {
         return name;
+    }
+    public String getCity() {
+        return city;
+    }
+    public String getCountry() {
+        return country;
     }
     public LocalDate getOpenedOn() {
         return openedOn;
@@ -70,6 +88,9 @@ public class Hotel {
     public String getImageUrl() {
         return imageUrl;
     }
+    public String getDescription() {
+        return description;
+    }
     public List<Room> getRooms() {
         return rooms;
     }
@@ -80,6 +101,12 @@ public class Hotel {
     }
     public void setName(String name) {
         this.name = name;
+    }
+    public void setCity(String city) {
+        this.city = city;
+    }
+    public void setCountry(String country) {
+        this.country = country;
     }
     public void setOpenedOn(LocalDate openedOn) {
         this.openedOn = openedOn;
@@ -92,6 +119,9 @@ public class Hotel {
     }
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 
@@ -117,6 +147,7 @@ public class Hotel {
     // Override toString method to print hotel details
     @Override
     public String toString() {
-        return name + " [" + id + "'" + stars + "★, spa=" + hasSpa + ", opened=" + openedOn + "]";
+        return name + " (" + city + ", " + country + ") "
+                + stars + "★ spa=" + hasSpa + "Description: " + description;
     }
 }

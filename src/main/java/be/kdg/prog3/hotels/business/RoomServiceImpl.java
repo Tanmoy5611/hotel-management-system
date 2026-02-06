@@ -2,12 +2,12 @@ package be.kdg.prog3.hotels.business;
 import be.kdg.prog3.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog3.hotels.data.HotelRepository;
 import be.kdg.prog3.hotels.data.RoomRepository;
-import be.kdg.prog3.hotels.domain.Guest;
-import be.kdg.prog3.hotels.domain.Room;
-import be.kdg.prog3.hotels.domain.RoomType;
+import be.kdg.prog3.hotels.domain.*;
+
 import java.util.List;
 import java.util.Optional;
-import be.kdg.prog3.hotels.domain.VIPGuest;
+
+import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -47,9 +47,9 @@ public class RoomServiceImpl implements RoomService {
                 .toList();
     }
 
-    // Adds room to repository and returns it
+     // Adds room to repository and returns it
     @Override
-    public Room createdRoom(Room room) {
+    public Room createRoom(Room room) {
        log.debug("Creating room: {}", room);
 
         // Load managed Hotel inside transaction
@@ -60,6 +60,7 @@ public class RoomServiceImpl implements RoomService {
         return repo.save(room);
     }
 
+
     //  get all rooms for a hotel (many-to-one)
     @Override
     public List<Room> getRoomsByHotel(String hotelId) {
@@ -67,28 +68,43 @@ public class RoomServiceImpl implements RoomService {
         return repo.findByHotel(hotelId);
     }
 
-    /// service throws RoomNotFoundException (represents Business error and handled at controller level)
+    // service throws RoomNotFoundException (represents Business error and handled at controller level)
     @Override
-    public Room getRoomByNumber(int number) {
-        log.debug("Get room by number {}", number);
+    public List<Room> getRoomsByNumber(int number) {
+        log.debug("Get rooms by number {}", number);
 
-        return Optional.ofNullable(repo.findById(number))
-                .orElseThrow(() -> {
-                    log.error("Room not found with number {}", number);
-                    return new RoomNotFoundException(number);
-                });
+        List<Room> rooms = repo.findAll().stream()
+                .filter(r -> r.getNumber() == number)
+                .toList();
+
+        if (rooms.isEmpty()) {
+            throw new RoomNotFoundException(number);
+        }
+
+        return rooms;
     }
 
     @Override
-    public List<Room> getRoomsByGuest(long guestId) {
+    public List<Room> getRoomsByGuest(Long guestId) {
         log.debug("Get rooms for guest {}", guestId);
         return repo.findByGuest(guestId);
     }
 
     @Override
-    public void deleteRoom(int number) {
-        log.debug("Deleting room {}", number);
-        repo.delete(number);
+    public Room getRoomById(Long roomId) {
+        log.debug("Get room by id {}", roomId);
+
+        Room room = repo.findById(roomId);
+        if (room == null) {
+            throw new RoomNotFoundException(-1); // or make a second exception for id
+        }
+        return room;
+    }
+
+    @Override
+    public void deleteRoom(Long roomId) {
+        log.debug("Deleting room {}", roomId);
+        repo.delete(roomId);
     }
 
     @Override
@@ -102,5 +118,21 @@ public class RoomServiceImpl implements RoomService {
         }
 
         return base; // regular guest - no discount
+    }
+
+    @Override
+    @Transactional
+    public Room save(Room room) {
+        return repo.save(room);
+    }
+
+
+    // room description
+    @Override
+    @Transactional
+    public void updateRoomDescription(Long roomId, String description) {
+
+        Room room = repo.findById(roomId);
+        room.setDescription(description);
     }
 }

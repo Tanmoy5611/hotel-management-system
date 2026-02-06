@@ -32,21 +32,29 @@ public class JdbcRoomRepository implements RoomRepository {
                 RoomType.valueOf(rs.getString("type").toUpperCase()),
                 rs.getDouble("price_per_night"),
                 rs.getBoolean("sea_view"),
-                rs.getString("photo_url")
+                rs.getString("photo_url"),
+                rs.getString("description")
         );
+
+        // set generated ID
+        room.setId(rs.getLong("id"));
 
         // Load hotel (Many-to-One) using HotelRepository
         String hotelId = rs.getString("hotel_id");
         Hotel hotel = hotelRepository.findHotelById(hotelId);
+        if (hotel == null) {
+            throw new IllegalStateException("Hotel not found for room " + room.getId());
+        }
         room.setHotel(hotel);
 
         // Load guests (Many-to-Many)
-        var guests = jdbcClient.sql("""
-                        SELECT g.* FROM guests g
-                        JOIN rooms_guests rg ON g.id = rg.guest_id
-                        WHERE rg.room_number = :num
-                        """)
-                .param("num", room.getNumber())
+        List<Guest> guests = jdbcClient.sql("""
+        SELECT g.* 
+        FROM guests g
+        JOIN rooms_guests rg ON g.id = rg.guest_id
+        WHERE rg.room_id = :roomId
+        """)
+                .param("roomId", room.getId())
                 .query((grs, grow) -> {
                     Guest g = new Guest(
                             grs.getString("full_name"),
@@ -60,7 +68,10 @@ public class JdbcRoomRepository implements RoomRepository {
                 })
                 .list();
 
-        guests.forEach(room::addGuest); // Attach guests to room
+        room.getGuests().addAll(guests);
+
+
+        // guests.forEach(room::addGuest); // Attach guests to room
 
         return room;
     }
@@ -73,11 +84,11 @@ public class JdbcRoomRepository implements RoomRepository {
                 .list();
     }
 
-    // Returns a single room by its number or null if not found
+    // Returns a single room by its id or null if not found
     @Override
-    public Room findById(int number) {
-        return jdbcClient.sql("SELECT * FROM rooms WHERE number = :num")
-                .param("num", number)
+    public Room findById(Long id) {
+        return jdbcClient.sql("SELECT * FROM rooms WHERE id = :id")
+                .param("id", id)
                 .query(this::mapRoom)
                 .list()
                 .stream()
@@ -96,11 +107,11 @@ public class JdbcRoomRepository implements RoomRepository {
 
     // Returns all rooms assigned to a given guest (many-to-many)
     @Override
-    public List<Room> findByGuest(long guestId) {
+    public List<Room> findByGuest(Long guestId) {
         return jdbcClient.sql("""
                         SELECT r.*
                         FROM rooms r
-                        JOIN rooms_guests rg ON r.number = rg.room_number
+                        JOIN rooms_guests rg ON r.id = rg.room_id
                         WHERE rg.guest_id = :gid
                         """)
                 .param("gid", guestId)
@@ -112,31 +123,39 @@ public class JdbcRoomRepository implements RoomRepository {
     @Override
     public Room save(Room room) {
         jdbcClient.sql("""
-                        INSERT INTO rooms (number, type, price_per_night, sea_view, photo_url, hotel_id)
-                        VALUES (:num, :type, :price, :sea, :photo, :hotel)
+                        INSERT INTO rooms (number, type, price_per_night, sea_view, photo_url, description, hotel_id)
+                        VALUES (:num, :type, :price, :sea, :photo, :description, :hotel)
                         """)
                 .param("num", room.getNumber())
                 .param("type", room.getType().name())
                 .param("price", room.getPricePerNight())
                 .param("sea", room.isSeaView())
                 .param("photo", room.getPhotoUrl())
-                .param("hotel", room.getHotel().getId())
+                .param("description", room.getDescription())
+                .param("hotel", room.getHotel() != null ? room.getHotel().getId() : null)
                 .update();
+
+        // fetch generated ID
+        Long id = jdbcClient.sql("SELECT MAX(id) FROM rooms")
+                .query(Long.class)
+                .single();
+
+        room.setId(id);
 
         return room;
     }
 
     // Deletes a room and its join-table entries
     @Override
-    public void delete(int number) {
+    public void delete(Long id) {
         // First delete many-to-many links
-        jdbcClient.sql("DELETE FROM rooms_guests WHERE room_number = :num")
-                .param("num", number)
+        jdbcClient.sql("DELETE FROM rooms_guests WHERE room_id = :id")
+                .param("id", id)
                 .update();
 
         // Then delete room
-        jdbcClient.sql("DELETE FROM rooms WHERE number = :num")
-                .param("num", number)
+        jdbcClient.sql("DELETE FROM rooms WHERE id = :id")
+                .param("id", id)
                 .update();
     }
 }

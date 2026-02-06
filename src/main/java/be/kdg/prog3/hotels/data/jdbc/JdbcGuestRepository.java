@@ -31,10 +31,10 @@ public class JdbcGuestRepository implements GuestRepository {
 
         boolean isVip = "VIP".equalsIgnoreCase(type) || vipFlag || discount > 0;
 
-        Guest g;
+        Guest guest;
 
         if (isVip) {
-            g = new VIPGuest(
+            guest = new VIPGuest(
                     rs.getString("full_name"),
                     rs.getDate("dob").toLocalDate(),
                     rs.getString("email"),
@@ -43,7 +43,7 @@ public class JdbcGuestRepository implements GuestRepository {
                     discount
             );
         } else {
-            g = new Guest(
+            guest = new Guest(
                     rs.getString("full_name"),
                     rs.getDate("dob").toLocalDate(),
                     rs.getString("email"),
@@ -52,8 +52,8 @@ public class JdbcGuestRepository implements GuestRepository {
             );
         }
 
-        g.setId(rs.getLong("id"));
-        return g;
+        guest.setId(rs.getLong("id"));
+        return guest;
     }
 
 
@@ -65,48 +65,37 @@ public class JdbcGuestRepository implements GuestRepository {
                 .list();
     }
 
-    // Add a new guest to DB
     @Override
     public Guest save(Guest guest) {
 
-        // Insert into guests table
         jdbcClient.sql("""
-                        INSERT INTO guests (full_name, dob, email, vip, avatar_url, guest_type, discount_percentage)
-                        VALUES (:fullName, :dob, :email, :vip, :avatarUrl, :guestType, :discount)
-                        """)
+        INSERT INTO guests (full_name, dob, email, vip, avatar_url, guest_type, discount_percentage)
+        VALUES (:fullName, :dob, :email, :vip, :avatarUrl, :guestType, :discount)
+        """)
                 .param("fullName", guest.getFullName())
                 .param("dob", guest.getDob())
                 .param("email", guest.getEmail())
                 .param("vip", guest.isVip())
                 .param("avatarUrl", guest.getAvatarUrl())
                 .param("guestType", guest instanceof VIPGuest ? "VIP" : "GUEST")
-                .param("discount", guest instanceof VIPGuest ? ((VIPGuest) guest).getDiscountPercentage() : 0)
+                .param("discount", guest instanceof VIPGuest
+                        ? ((VIPGuest) guest).getDiscountPercentage()
+                        : 0)
                 .update();
 
-        // Get generated id (simple way for H2)
         Long id = jdbcClient.sql("SELECT MAX(id) FROM guests")
                 .query(Long.class)
                 .single();
 
         guest.setId(id);
 
-        // Insert rooms for join-table: rooms_guests
-        for (Room room : guest.getRooms()) {
-            jdbcClient.sql("""
-                            INSERT INTO rooms_guests (guest_id, room_number)
-                            VALUES (:guestId, :roomNumber)
-                            """)
-                    .param("guestId", guest.getId())
-                    .param("roomNumber", room.getNumber())
-                    .update();
-        }
-
+        //  NO rooms_guests logic here
         return guest;
     }
 
-
+    // FIND BY ID (with rooms)
     @Override
-    public Guest findById(long id) {
+    public Guest findById(Long id) {
         // 1) Load guest
         Guest guest = jdbcClient.sql("SELECT * FROM guests WHERE id = :id")
                 .param("id", id)
@@ -122,22 +111,27 @@ public class JdbcGuestRepository implements GuestRepository {
 
         // Load associated rooms from rooms_guests
         List<Room> rooms = jdbcClient.sql("""
-                        SELECT r.number, r.type, r.price_per_night, r.sea_view, r.photo_url
-                        FROM rooms r
-                        JOIN rooms_guests rg ON r.number = rg.room_number
-                        WHERE rg.guest_id = :id
-                        """)
+        SELECT r.id, r.number, r.type, r.price_per_night, r.sea_view, r.photo_url
+        FROM rooms r
+        JOIN rooms_guests rg ON r.id = rg.room_id
+        WHERE rg.guest_id = :id
+        """)
                 .param("id", id)
-                .query((rs, rowNum) -> new Room(
-                        rs.getInt("number"),
-                        RoomType.valueOf(rs.getString("type")),
-                        rs.getDouble("price_per_night"),
-                        rs.getBoolean("sea_view"),
-                        rs.getString("photo_url")
-                ))
+                .query((rs, rowNum) -> {
+                    Room room = new Room(
+                            rs.getInt("number"),
+                            RoomType.valueOf(rs.getString("type")),
+                            rs.getDouble("price_per_night"),
+                            rs.getBoolean("sea_view"),
+                            rs.getString("photo_url"),
+                            rs.getString("description")
+                    );
+                    room.setId(rs.getLong("id"));
+                    return room;
+                })
                 .list();
 
-        rooms.forEach(guest::addRoom);
+        guest.getRooms().addAll(rooms);
 
         return guest;
     }
@@ -146,22 +140,21 @@ public class JdbcGuestRepository implements GuestRepository {
     // Find by room
     // Find all guests for a given room
     @Override
-    public List<Guest> findByRoom(int roomNumber) {
+    public List<Guest> findByRoom(Long roomId) {
         return jdbcClient.sql("""
-                        SELECT g.*
-                        FROM guests g
-                        JOIN rooms_guests rg ON g.id = rg.guest_id
-                        WHERE rg.room_number = :num
-                        """)
-                .param("num", roomNumber)
+                SELECT g.*
+                FROM guests g
+                JOIN rooms_guests rg ON g.id = rg.guest_id
+                WHERE rg.room_id = :roomId
+                """)
+                .param("roomId", roomId)
                 .query(this::mapGuest)
                 .list();
-
     }
 
     // DELETE (remove from join-table first, then remove guest)
     @Override
-    public void delete(long id) {
+    public void delete(Long id) {
 
         // Delete join-table rows first
         jdbcClient.sql("DELETE FROM rooms_guests WHERE guest_id = :id")
@@ -171,6 +164,17 @@ public class JdbcGuestRepository implements GuestRepository {
         // Delete guest
         jdbcClient.sql("DELETE FROM guests WHERE id = :id")
                 .param("id", id)
+                .update();
+    }
+
+    @Override
+    public void addGuestToRoom(Long guestId, Long roomId) {
+        jdbcClient.sql("""
+        INSERT INTO rooms_guests (guest_id, room_id)
+        VALUES (:guestId, :roomId)
+        """)
+                .param("guestId", guestId)
+                .param("roomId", roomId)
                 .update();
     }
 }

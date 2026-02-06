@@ -26,10 +26,13 @@ public class JdbcHotelRepository implements HotelRepository {
                 .query((rs, row) -> new Hotel(
                         rs.getString("id"),
                         rs.getString("name"),
+                        rs.getString("city"),
+                        rs.getString("country"),
                         rs.getDate("opened_on").toLocalDate(),
                         rs.getInt("stars"),
                         rs.getBoolean("has_spa"),
-                        rs.getString("image_url")
+                        rs.getString("image_url"),
+                        rs.getString("description")
                 )).list();   // convert to List<Hotel>
     }
 
@@ -37,16 +40,19 @@ public class JdbcHotelRepository implements HotelRepository {
     @Override
     public Hotel save(Hotel hotel) {
         jdbcClient.sql("""
-                        INSERT INTO hotels(id, name, opened_on, stars, has_spa, image_url)
-                        VALUES(:id, :name, :opened_on, :stars, :spa, :image)
+                        INSERT INTO hotels(id, name, city, country, opened_on, stars, has_spa, image_url)
+                        VALUES(:id, :name, :city, :country, :opened_on, :stars, :spa, :image)
                         """)
                 // Set the named parameters from the Hotel object
                 .param("id", hotel.getId())
                 .param("name", hotel.getName())
+                .param("city", hotel.getCity())
+                .param("country", hotel.getCountry())
                 .param("opened_on", hotel.getOpenedOn())
                 .param("stars", hotel.getStars())
                 .param("spa", hotel.isHasSpa())
                 .param("image", hotel.getImageUrl())
+                .param("description", hotel.getDescription())
                 .update();   // Execute the INSERT statement
 
         return hotel;   // return the same object (no generated id here)
@@ -60,10 +66,13 @@ public class JdbcHotelRepository implements HotelRepository {
                 .query((rs, row) -> new Hotel(
                         rs.getString("id"),
                         rs.getString("name"),
+                        rs.getString("city"),
+                        rs.getString("country"),
                         rs.getDate("opened_on").toLocalDate(),
                         rs.getInt("stars"),
                         rs.getBoolean("has_spa"),
-                        rs.getString("image_url")
+                        rs.getString("image_url"),
+                        rs.getString("description")
                 ))
                 .list()                     // get List<Hotel>
                 .stream()

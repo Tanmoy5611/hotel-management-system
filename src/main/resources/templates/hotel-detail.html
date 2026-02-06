@@ -6,7 +6,8 @@
     <title th:text="${hotel.name}">Hotel Detail</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/edit-description.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
@@ -18,45 +19,57 @@
 <div class="container my-4">
 
     <!-- Hotel header -->
-    <div class="row mb-4">
+    <div class="row mb-4 align-items-center">
         <div class="col-lg-6">
-            <img th:src="@{${hotel.imageUrl}}" class="img-fluid rounded shadow-sm" alt="Hotel image">
+            <img th:src="@{${hotel.imageUrl}}"
+                 class="img-fluid rounded shadow-sm hotel-main-img"
+                 th:alt="${hotel.name}">
         </div>
 
-        <div class="col-lg-6 d-flex flex-column justify-content-center">
-            <h2 class="fw-bold text-primary" th:text="${hotel.name}">Hotel Name</h2>
-            <p class="fs-5 text-muted">
-                <i class="bi bi-star-fill text-warning"></i>
-                <span th:text="${hotel.stars} + ' ★'"></span>
-            </p>
-            <p>
-                <i class="bi bi-calendar-event text-secondary"></i>
-                <strong th:text="#{hotel.openedOn} + ':'"></strong>
-                <span th:text="${hotel.openedOn}"></span>
-            </p>
-            <p>
-                <i class="bi bi-spa text-success"></i>
-                <strong th:text="#{hotel.spa} + ':'"></strong>
-                <span th:text="${hotel.hasSpa} ? #{hotel.spaYes} : #{hotel.spaNo}"></span>
+        <div class="col-lg-6 hotel-info-column">
+            <h2 class="fw-bold text-primary mb-1" th:text="${hotel.name}">Hotel Name</h2>
+
+            <p class="text-muted mb-3">
+                <i class="bi bi-geo-alt"></i>
+                <span th:text="${hotel.city} + ', ' + ${hotel.country}"></span>
             </p>
 
-            <!-- Back + Delete -->
-            <div class="mt-4 d-flex justify-content-between">
+            <div class="mb-3">
+                <p class="fs-5 mb-1">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <span th:text="${hotel.stars}"></span>
+                </p>
 
-                <a th:href="@{/hotels}" class="btn btn-outline-secondary mt-3">
+                <p class="mb-1">
+                    <i class="bi bi-calendar-event text-secondary"></i>
+                    <strong th:text="#{hotel.openedOn} + ':'"></strong>
+                    <span th:text="${#temporals.format(hotel.openedOn, 'dd MMM yyyy')}"></span>
+                </p>
+
+                <p class="mb-1 d-flex align-items-center gap-2">
+                    <i class="bi"
+                       th:classappend="${hotel.hasSpa}
+                       ? 'bi-heart-pulse text-success'
+                       : 'bi-x-circle text-muted'">
+                    </i>
+                    <strong th:text="#{hotel.spa} + ':'"></strong>
+                    <span th:text="${hotel.hasSpa} ? #{hotel.spaYes} : #{hotel.spaNo}"></span>
+                </p>
+            </div>
+
+            <div class="mt-auto d-flex gap-3">
+                <a th:href="@{/hotels}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i>
                     <span th:text="#{hotel.back}"></span>
                 </a>
 
-                <!-- DELETE BUTTON opens modal -->
                 <button type="button"
-                        class="btn btn-danger mt-3"
+                        class="btn btn-danger"
                         data-bs-toggle="modal"
                         th:data-bs-target="${'#deleteHotelModal-' + hotel.id}">
                     <i class="bi bi-trash"></i>
                     <span th:text="#{hotel.deleteButton}"></span>
                 </button>
-
             </div>
 
             <!-- Delete Modal -->
@@ -106,13 +119,65 @@
 
     </div>
 
+    <div class="card mt-4">
+        <div class="card-body">
+
+            <!-- Title -->
+            <h4 class="card-title d-flex align-items-center gap-2">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                <span th:text="#{hotel.about}">About this hotel</span>
+            </h4>
+
+            <!-- Description -->
+            <div class="hotel-description">
+
+                <!-- Preview: FIRST sentence only -->
+                <p class="hotel-desc-preview"
+                   th:text="${#strings.substringBefore(hotel.description, '.')} + '.'">
+                </p>
+
+                <!-- Hidden: remaining text -->
+                <div id="hotel-desc-full" class="collapse">
+                    <p th:text="${#strings.substringAfter(hotel.description, '.')}"></p>
+                </div>
+
+                <!-- Toggle -->
+                <a th:if="${hotel.description != null and hotel.description.contains('.')}"
+                   class="btn btn-link p-0 mt-1"
+                   data-bs-toggle="collapse"
+                   href="#hotel-desc-full"
+                   role="button"
+                   aria-expanded="false"
+                   onclick="toggleText(this)">
+                    <i class="bi bi-chevron-down me-1"></i>
+                    Read more
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <a th:href="@{/hotels/{id}/edit-description(id=${hotel.id})}"
+       class="btn btn-sm btn-outline-primary mt-2">
+        <i class="bi bi-pencil-square me-1"></i>
+        Edit description
+    </a>
+
     <hr class="my-4">
 
     <!-- Rooms Section -->
-    <h4 class="text-primary mb-3">
-        <i class="bi bi-door-open"></i>
-        <span th:text="#{hotel.availableRooms}"></span>
-    </h4>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-primary mb-0">
+            <i class="bi bi-door-open"></i>
+            <span th:text="#{hotel.availableRooms}"></span>
+        </h4>
+
+        <a th:href="@{/rooms/add(hotelId=${hotel.id})}"
+           class="btn btn-success">
+            <i class="bi bi-plus-circle"></i>
+            Add Room
+        </a>
+    </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <div class="col" th:each="r : ${rooms}">
@@ -137,12 +202,16 @@
                     <!-- Price -->
                     <p class="card-text mb-1">
                         <i class="bi bi-cash-coin text-success"></i>
-                        <span th:text="${r.pricePerNight} + ' € / night'"></span>
+                        <span th:text="${r.pricePerNight} + ' € / Night'"></span>
                     </p>
 
                     <!-- Sea View -->
-                    <p class="card-text">
-                        <i class="bi bi-water text-info"></i>
+                    <p class="card-text d-flex align-items-center gap-2">
+                        <i class="bi"
+                           th:classappend="${r.seaView}
+                           ? 'bi-water text-info'
+                           : 'bi-x-circle text-muted'">
+                        </i>
                         <span th:text="${r.seaView} ? #{room.seaYes} : #{room.seaNo}"></span>
                     </p>
 
@@ -156,7 +225,7 @@
                         <div class="d-flex mt-1">
 
                             <!-- Guest avatars -->
-                            <img th:each="g, iter : ${guestsPerRoom[r.number]}"
+                            <img th:each="g, iter : ${guestsPerRoom[r.id]}"
                                  th:if="${iter.index < 2}"
                                  th:src="@{${g.avatarUrl}}"
                                  class="rounded-circle me-2"
@@ -164,16 +233,17 @@
                                  alt="Guest">
 
                             <!-- +X more -->
-                            <span th:if="${#lists.size(guestsPerRoom[r.number]) > 2}" class="text-muted ms-1">
-                                 +<span th:text="${#lists.size(guestsPerRoom[r.number]) - 2}"></span>
+                            <span th:if="${#lists.size(guestsPerRoom[r.id]) > 2}" class="text-muted ms-1">
+                                 +<span th:text="${#lists.size(guestsPerRoom[r.id]) - 2}"></span>
                                  <span th:text="#{hotel.more}"></span>
                             </span>
 
                         </div>
+
                     </div>
 
                     <!-- View details button -->
-                    <a th:href="@{'/rooms/' + ${r.number}}"
+                    <a th:href="@{'/rooms/' + ${r.id}}"
                        class="btn btn-outline-primary w-100 mt-3">
                         <i class="bi bi-eye"></i>
                         <span th:text="#{hotel.viewDetails}"></span>
@@ -192,6 +262,8 @@
 
 <!-- Footer -->
 <div th:replace="~{fragments/footer :: body}"></div>
+
+<script th:src="@{/js/read-more.js}"></script>
 
 </body>
 </html>

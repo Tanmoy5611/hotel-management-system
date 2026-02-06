@@ -30,7 +30,7 @@ public interface SpringDataGuestRepository extends JpaRepository<Guest, Long> {
            SELECT g
            FROM Guest g
            JOIN g.rooms r
-           WHERE r.number = :roomNumber
+           WHERE r.id = :roomId
            """)
-    List<Guest> findByRoom(@Param("roomNumber") int roomNumber);
+    List<Guest> findByRoom(@Param("roomId") Long roomId);
 }

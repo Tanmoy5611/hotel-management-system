@@ -2,6 +2,7 @@ package be.kdg.prog3.hotels.business;
 import be.kdg.prog3.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog3.hotels.data.springdata.SpringDataRoomRepository;
 import be.kdg.prog3.hotels.domain.Guest;
+import be.kdg.prog3.hotels.domain.Hotel;
 import be.kdg.prog3.hotels.domain.Room;
 import be.kdg.prog3.hotels.domain.RoomType;
 import jakarta.transaction.Transactional;
@@ -42,43 +43,73 @@ public class SpringDataRoomServiceImpl implements RoomService {
 
     @Transactional
     @Override
-    public Room createdRoom(Room room) {
+    public Room createRoom(Room room) {
         return repo.save(room);
     }
 
     @Override
     public List<Room> getRoomsByHotel(String hotelId) {
-        List<Room> rooms = repo.findAll();
-
-        return rooms.stream()
-                .filter(r -> String.valueOf(r.getHotel().getId()).equals(hotelId))
-                .toList();
-    }
-
-    ///  throws exception
-    @Override
-    public Room getRoomByNumber(int number) {
-        return repo.findById(number)
-                .orElseThrow(() -> new RoomNotFoundException(number));
-    }
-
-    @Override
-    public List<Room> getRoomsByGuest(long guestId) {
         return repo.findAll().stream()
-                .filter(r -> r.getGuests().stream()
-                        .anyMatch(g -> g.getId() == guestId))
+                .filter(r -> r.getHotel() != null &&
+                        r.getHotel().getId().equals(hotelId))
                 .toList();
     }
 
+    //  throws exception
     @Override
-    public void deleteRoom(int number) {
-        repo.deleteById(number);
+    public List<Room> getRoomsByNumber(int number) {
+        List<Room> rooms = repo.findAll().stream()
+                .filter(r -> r.getNumber() == number)
+                .toList();
+
+        if (rooms.isEmpty()) {
+            throw new RoomNotFoundException(number);
+        }
+
+        return rooms;
+    }
+
+    @Override
+    public Room getRoomById(Long roomId) {
+        return repo.findById(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
+    }
+
+    @Override
+    public List<Room> getRoomsByGuest(Long guestId) {
+        //  no lazy loading, no streams, no session error
+        return repo.findRoomsByGuestId(guestId);
+    }
+
+
+    @Override
+    public void deleteRoom(Long roomId) {
+        repo.deleteById(roomId);
     }
 
     @Override
     public double calculateDiscountedPrice(Room room, Guest guest) {
         double price = room.getPricePerNight();
-        if (guest.isVip()) price *= 0.9;
+        if (guest.isVip()) {
+            price *= 0.9;
+        }
         return price;
+    }
+
+    @Override
+    @Transactional
+    public Room save(Room room) {
+        return repo.save(room);
+    }
+
+    // room description
+    @Override
+    @Transactional
+    public void updateRoomDescription(Long roomId, String description) {
+
+        Room room = repo.findById(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
+
+        room.setDescription(description);
     }
 }

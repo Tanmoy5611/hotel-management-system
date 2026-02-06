@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{guest.add.title}">Add Guest</title>
+
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
@@ -131,14 +132,14 @@
                                 Assign Room (optional)
                             </label>
 
-                            <select th:field="*{roomNumber}" class="form-select">
+                            <select th:field="*{roomId}" class="form-select">
                                 <option value="" th:text="#{guest.placeholder.room}">
                                     -- Select Room --
                                 </option>
 
                                 <option th:each="r : ${rooms}"
-                                        th:value="${r.number}"
-                                        th:text="'Room ' + ${r.number}">
+                                        th:value="${r.id}"
+                                        th:text="'Room ' + ${r.number} + ' (' + ${r.hotel.name} + ')'">
                                 </option>
                             </select>
                         </div>

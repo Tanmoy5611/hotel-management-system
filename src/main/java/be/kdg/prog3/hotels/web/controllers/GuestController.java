@@ -42,7 +42,7 @@ public class GuestController {
 
     // get guest details + list of rooms they stayed in (many-to-many)
     @GetMapping("/guests/{id}")
-    public String showGuestDetails(@PathVariable long id, Model model) {
+    public String showGuestDetails(@PathVariable Long id, Model model) {
 
         // Load guest by ID using JPA repository
         Guest guest = guestService.getGuestById(id);
@@ -77,13 +77,14 @@ public class GuestController {
     }
 
     @PostMapping("/guests/{id}/delete")
-    public String deleteGuest(@PathVariable long id) {
+    public String deleteGuest(@PathVariable Long id) {
         guestService.deleteGuest(id);
 
         return "redirect:/guests";
     }
 
     // Spring Data Queries
+    // Vip search
     @GetMapping("/guests/vip")
     public String showVipGuests(Model model) {
         model.addAttribute("guests", guestService.getVipGuests());
@@ -91,20 +92,40 @@ public class GuestController {
         return "guests";   // reuse guests.html
     }
 
+
+    // Guest Name Search
     @GetMapping("/guests/search")
-    public String searchGuests(@RequestParam("q") String query, Model model) {
+    public String searchGuests(
+            @RequestParam(name = "q", required = false) String query,
+            Model model
+    ) {
+        if (query == null || query.isBlank()) {
+            return "redirect:/guests";
+        }
+
         model.addAttribute("guests", guestService.searchGuestsByName(query));
         model.addAttribute("searchQuery", query);
 
-        return "guests";   // reuse guests.html
+        return "guests";
     }
 
     @GetMapping("/guests/manyRooms")
-    public String showGuestsWithManyRooms(@RequestParam("min") int minRooms, Model model) {
+    public String showGuestsWithManyRooms(
+            @RequestParam(name = "min", required = false) Integer minRooms,
+            Model model
+    ) {
+        // If empty or invalid -> just go back to normal guests list
+        if (minRooms == null || minRooms < 1) {
+            return "redirect:/guests";
+        }
+
         model.addAttribute("guests", guestService.getGuestsWithManyRooms(minRooms));
         model.addAttribute("minRooms", minRooms);
 
-        return "guests";   // reuse guests.html
+        // keep search bar stable (optional but nice)
+        model.addAttribute("searchQuery", "");
+
+        return "guests";
     }
 
     // show add guest form
@@ -153,7 +174,7 @@ public class GuestController {
         }
 
         // Room Assignment
-        guestService.createGuestWithRoom(guest, guestForm.getRoomNumber());
+        guestService.createGuestWithRoom(guest, guestForm.getRoomId());
 
         return "redirect:/guests";
     }

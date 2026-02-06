@@ -5,7 +5,7 @@
     <title th:text="#{home.page.title}">HotelApp - Find Your Perfect Stay</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
@@ -179,7 +179,7 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         <div class="col" th:each="r : ${bestValueRooms}">
             <div class="card hotel-card h-100">
-                <a th:href="@{'/rooms/' + ${r.number}}" class="text-decoration-none text-dark">
+                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
 
                     <img th:src="@{${r.photoUrl}}" class="card-img-top" alt="">
 
@@ -203,6 +203,12 @@
                             <i class="bi bi-people"></i>
                             <span th:text="#{home.comfort}">Comfort & Enjoyment Guaranteed</span>
                         </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-building"></i>
+                            <span th:text="${r.hotel.name}"></span>
+                        </p>
+
                     </div>
 
                 </a>
@@ -221,7 +227,7 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         <div class="col" th:each="r : ${premiumRooms}">
             <div class="card hotel-card h-100">
-                <a th:href="@{'/rooms/' + ${r.number}}" class="text-decoration-none text-dark">
+                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
 
                     <img th:src="@{${r.photoUrl}}" class="card-img-top" alt="">
 
@@ -249,6 +255,11 @@
                             </span>
                         </p>
 
+                        <p class="text-muted small">
+                            <i class="bi bi-building"></i>
+                            <span th:text="${r.hotel.name}"></span>
+                        </p>
+
                     </div>
                 </a>
             </div>
@@ -268,7 +279,7 @@
         <div class="col" th:each="r : ${topPickedRooms}">
             <div class="card hotel-card h-100">
 
-                <a th:href="@{'/rooms/' + ${r.number}}" class="text-decoration-none text-dark">
+                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
                     <img th:src="@{${r.photoUrl}}" class="card-img-top" alt="">
 
                     <div class="card-body">
@@ -291,6 +302,12 @@
                             <i class="bi bi-people"></i>
                             <span th:text="#{home.topPicks.text}">Popular Choice</span>
                         </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-building"></i>
+                            <span th:text="${r.hotel.name}"></span>
+                        </p>
+
                     </div>
 
                 </a>

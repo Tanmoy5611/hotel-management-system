@@ -13,7 +13,7 @@ public interface HotelService {
     List<Hotel> getHotelsByMinStarsAndDate(int minStars, String dateIn);
 
     // Creates a new hotel and saves it to the database
-    Hotel createdHotel(Hotel hotel);
+    Hotel createHotel(Hotel hotel);
 
     // find a single hotel by id (used in hotel-detail page)
     Hotel getHotelById(String id);
@@ -36,4 +36,6 @@ public interface HotelService {
 
     // get only hotels that have or don't have spa
     List<Hotel> getHotelsWithSpa(boolean hasSpa);
+
+    void updateHotelDescription(String hotelId, String description);
 }

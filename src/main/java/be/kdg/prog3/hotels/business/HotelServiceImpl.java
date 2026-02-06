@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service                                                  // it is a Spring service bean (business layer)
 @Profile({"inmemory", "jdbc", "jpa", "dev", "prod"})      // This service will be active in these profiles
@@ -57,15 +58,15 @@ public class HotelServiceImpl implements HotelService {
 
     // create a new hotel and save it (used in add-hotel form)
     @Override
-    public Hotel createdHotel(Hotel hotel) {
+    public Hotel createHotel(Hotel hotel) {
         log.debug("Creating hotel: {}", hotel);
 
         // generate URL-friendly ID based on the hotel name like: /hotels/plaza-athenee-paris
-        String id = hotel.getName()
+        String id = (hotel.getName() + "-" + hotel.getCity() + "-" + hotel.getCountry())
                 .toLowerCase()
-                .replace(" ", "-")    // spaces → dashes
-                .replace("'", "")    // remove '
-                .trim();
+                .strip()
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
 
         hotel.setId(id);
 
@@ -128,5 +129,13 @@ public class HotelServiceImpl implements HotelService {
         return repo.findAll().stream()
                 .filter(h -> h.isHasSpa() == hasSpa)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public void updateHotelDescription(String hotelId, String description) {
+
+        Hotel hotel = repo.findHotelById(hotelId);
+        hotel.setDescription(description);
     }
 }

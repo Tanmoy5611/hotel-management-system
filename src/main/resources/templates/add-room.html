@@ -6,7 +6,7 @@
     <title th:text="#{nav.addRoom}">Add Room</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
@@ -110,6 +110,31 @@
                                  th:errors="*{photoUrl}"></div>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Room Description
+                            </label>
+
+                            <textarea id="description"
+                                      name="description"
+                                      class="form-control"
+                                      rows="6"
+                                      maxlength="1000"
+                                      placeholder="Describe the room, comfort, size, atmosphere, or special features..."
+                                      th:field="*{description}">
+                            </textarea>
+
+                            <div class="d-flex justify-content-between mt-1">
+                                <small class="text-muted">
+                                    Max 1000 characters
+                                </small>
+                                <small id="charCounter" class="char-counter">
+                                    0 / 1000
+                                </small>
+                            </div>
+                        </div>
+
                         <!-- Hotel -->
                         <div class="col-12">
                             <label class="form-label fw-semibold"
@@ -152,6 +177,8 @@
 
 <!-- Footer -->
 <div th:replace="~{fragments/footer :: body}"></div>
+
+<script th:src="@{/js/description-word.js}"></script>
 
 </body>
 </html>

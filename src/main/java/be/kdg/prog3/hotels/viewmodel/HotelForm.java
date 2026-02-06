@@ -11,6 +11,12 @@ public class HotelForm {
     @NotBlank(message = "{hotel.name.required}")
     private String name;
 
+    @NotBlank(message = "{hotel.city.required}")
+    private String city;
+
+    @NotBlank(message = "{hotel.country.required}")
+    private String country;
+
     // Opening date must not be null
     @NotNull(message = "{hotel.opened.required}")
     private LocalDate openedOn;
@@ -26,6 +32,9 @@ public class HotelForm {
     @NotBlank(message = "{hotel.image.required}")
     private String imageUrl;
 
+    @Size(max = 4000)
+    private String description;
+
     // Getters and Setters to allow Thymeleaf to bind form fields to this object
     public String getName() {
         return name;
@@ -33,6 +42,22 @@ public class HotelForm {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public LocalDate getOpenedOn() {
@@ -65,6 +90,13 @@ public class HotelForm {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
 

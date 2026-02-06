@@ -13,15 +13,21 @@ public interface RoomService {
     List<Room> findRooms(Optional<RoomType> type, Optional<Boolean> seaView, Optional<Double> maxPrice);
 
     // Creates a new room and saves it to the database
-    Room createdRoom(Room room);
+    Room createRoom(Room room);
 
     List<Room> getRoomsByHotel(String hotelId);
 
-    Room getRoomByNumber(int number);
+    List<Room> getRoomsByNumber(int number);
 
-    List<Room> getRoomsByGuest(long guestId);
+    Room getRoomById(Long roomId);
 
-    void deleteRoom(int number);
+    List<Room> getRoomsByGuest(Long guestId);
+
+    void deleteRoom(Long roomId);
 
     double calculateDiscountedPrice(Room room, Guest guest);
+
+    Room save(Room room);
+
+    void updateRoomDescription(Long roomId, String description);
 }

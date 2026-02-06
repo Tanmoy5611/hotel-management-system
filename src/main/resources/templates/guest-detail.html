@@ -6,7 +6,7 @@
     <title th:text="'Guest - ' + ${guest.fullName}">Guest Detail</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
@@ -40,17 +40,30 @@
                         <span th:text="${guest.dob}">DOB</span>
                     </p>
 
-                    <!-- VIP/Regular badge -->
-                    <span class="badge me-2"
-                          th:classappend="${guest.vip} ? 'bg-warning text-dark' : 'bg-secondary'"
-                          th:text="${guest.vip} ? #{guest.vip} : #{guest.regular}">
-                    </span>
+<!--                    &lt;!&ndash; VIP/Regular badge &ndash;&gt;-->
+<!--                    <span class="badge me-2"-->
+<!--                          th:classappend="${guest.vip} ? 'bg-warning text-dark' : 'bg-secondary'"-->
+<!--                          th:text="${guest.vip} ? #{guest.vip} : #{guest.regular}">-->
+<!--                    </span>-->
 
-                    <!-- Discount badge (only for VIP) -->
+<!--                    &lt;!&ndash; Discount badge (only for VIP) &ndash;&gt;-->
+<!--                    <span class="badge bg-success text-white"-->
+<!--                          th:if="${guest.vip}"-->
+<!--                          th:text="${guest.getDiscountPercentage()} + '% off'">-->
+<!--                    </span>-->
+
+                    <!-- VIP / Regular badge -->
+                    <span class="badge me-2"
+                          th:classappend="${guest.discountPercentage > 0} ? 'bg-warning text-dark' : 'bg-secondary'"
+                          th:text="${guest.discountPercentage > 0} ? #{guest.vip} : #{guest.regular}">
+</span>
+
+                    <!-- Discount badge (only if VIP) -->
                     <span class="badge bg-success text-white"
-                          th:if="${guest.vip}"
-                          th:text="${guest.getDiscountPercentage()} + '% off'">
-                    </span>
+                          th:if="${guest.discountPercentage > 0}"
+                          th:text="${guest.discountPercentage} + '% off'">
+</span>
+
 
                 </div>
             </div>
@@ -85,7 +98,7 @@
 
             <tbody>
             <tr th:each="row : ${roomRows}"
-                th:onclick="'window.location.href=\'/rooms/' + ${row.room.number} + '\';'"
+                th:onclick="'window.location.href=\'/rooms/' + ${row.room.id} + '\';'"
                 style="cursor:pointer;">
 
                 <td th:text="${row.room.number}"></td>
@@ -105,7 +118,12 @@
                 <td th:text="${row.room.seaView} ? #{guest.seaYes} : #{guest.seaNo}"></td>
 
                 <!-- Hotel -->
-                <td th:text="${row.room.hotel.name}"></td>
+                <td>
+                    <a th:href="@{'/hotels/' + ${row.room.hotel.id}}"
+                       th:text="${row.room.hotel.name}">
+                    </a>
+                </td>
+
             </tr>
             </tbody>
 

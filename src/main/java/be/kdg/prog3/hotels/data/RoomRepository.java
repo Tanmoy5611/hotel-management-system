@@ -8,11 +8,11 @@ public interface RoomRepository {
 
     Room save(Room room);  // Saves new room to the database
 
-    Room findById(int number);
+    Room findById(Long id);
 
     List<Room> findByHotel(String hotelId);
 
-    List<Room> findByGuest(long guestId);
+    List<Room> findByGuest(Long guestId);
 
-    void delete(int number);
+    void delete(Long id);
 }

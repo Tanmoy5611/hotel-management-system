@@ -25,14 +25,31 @@ public class InMemoryRoomRepository implements RoomRepository {
     @Override
     public Room save(Room room) {
         log.debug("Saving room: {}", room);
+
+        // manual ID generation
+        if (room.getId() == null) {
+            long nextId = DataFactory.rooms.stream()
+                    .mapToLong(r -> r.getId() == null ? 0 : r.getId())
+                    .max()
+                    .orElse(0) + 1;
+            room.setId(nextId);
+        }
+
+        // Enforce uniqueness: same hotel + same room number
+        DataFactory.rooms.removeIf(r ->
+                r.getHotel().getId().equals(room.getHotel().getId())
+                        && r.getNumber() == room.getNumber()
+        );
+
         DataFactory.rooms.add(room);
         return room;
     }
 
+    // find by Room ID (primary key)
     @Override
-    public Room findById(int number) {
+    public Room findById(Long id) {
         return DataFactory.rooms.stream()
-                .filter(r -> r.getNumber() == number)
+                .filter(r -> r.getId().equals(id))
                 .findFirst()
                 .orElse(null);
     }
@@ -40,21 +57,21 @@ public class InMemoryRoomRepository implements RoomRepository {
     @Override
     public List<Room> findByHotel(String hotelId) {
         return DataFactory.rooms.stream()
+                .filter(r -> r.getHotel() != null)
                 .filter(r -> r.getHotel().getId().equals(hotelId))
                 .toList();
     }
 
     @Override
-    public List<Room> findByGuest(long guestId) {
-        return DataFactory.guests.stream()
-                .filter(g -> g.getId() == guestId)
-                .findFirst()
-                .map(g -> List.copyOf(g.getRooms()))
-                .orElse(List.of());
+    public List<Room> findByGuest(Long guestId) {
+        return DataFactory.rooms.stream()
+                .filter(r -> r.getGuests().stream()
+                        .anyMatch(g -> g.getId().equals(guestId)))
+                .toList();
     }
 
     @Override
-    public void delete(int number) {
-        DataFactory.rooms.removeIf(r -> r.getNumber() == number);
+    public void delete(Long id) {
+        DataFactory.rooms.removeIf(r -> r.getId().equals(id));
     }
 }

@@ -20,6 +20,9 @@ public class RoomForm {
     @NotBlank(message = "{room.photo.required}")
     private String photoUrl;
 
+    @Size(max = 1000)
+    private String description;
+
     @NotBlank
     private String hotelId;
 
@@ -62,6 +65,13 @@ public class RoomForm {
 
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getHotelId() {

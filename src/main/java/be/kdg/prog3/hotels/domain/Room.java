@@ -4,12 +4,20 @@ import java.util.Set;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "rooms")
+@Table(
+        name = "rooms",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"hotel_id", "number"}
+        )
+)
 // Attributes of Room class
 public class Room {
 
     @Id
-    @Column(name = "number")        // primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "number", nullable = false)
     private int number;
 
     @Enumerated(EnumType.STRING)    // stores enum values safely as readable strings
@@ -25,16 +33,22 @@ public class Room {
     @Column(name = "photo_url")
     private String photoUrl;
 
+    @Column(length = 1000)
+    private String description;
+
     //  Many rooms → one hotel
-    @ManyToOne                         // represents a foreign-key (rooms.hotel_id) relationship where many rooms belong to one hotel
+    @ManyToOne(optional = false)
+    // represents a foreign-key (rooms.hotel_id) relationship where many rooms belong to one hotel
     @JoinColumn(name = "hotel_id")     // specifies the foreign key column in the database.
-    private Hotel hotel;               /// many-to-one
+    private Hotel hotel;
+    /// many-to-one
 
     // Many-to-Many: rooms_guests
-    @ManyToMany(fetch = FetchType.EAGER)   // models many-to-many relationship using a join table (Avoids LazyInitializationException for EAGER)
+    @ManyToMany
+    //(fetch = FetchType.EAGER)   // models many-to-many relationship using a join table (Avoids LazyInitializationException for EAGER)
     @JoinTable(                            //  defines the join table and its foreign keys explicitly.
             name = "rooms_guests",
-            joinColumns = @JoinColumn(name = "room_number"),      // FK - Room
+            joinColumns = @JoinColumn(name = "room_id"),      // FK - Room
             inverseJoinColumns = @JoinColumn(name = "guest_id")   // FK - Guest
     )
 
@@ -45,15 +59,19 @@ public class Room {
     }
 
     // Constructor
-    public Room(int number, RoomType type, double pricePerNight, boolean seaView, String photoUrl) {
+    public Room(int number, RoomType type, double pricePerNight, boolean seaView, String photoUrl, String description) {
         this.number = number;
         this.type = type;
         this.pricePerNight = pricePerNight;
         this.seaView = seaView;
         this.photoUrl = photoUrl;
+        this.description = description;
     }
 
     // getters to access attributes
+    public Long getId() {
+        return id;
+    }
     public int getNumber() {
         return number;
     }
@@ -69,6 +87,9 @@ public class Room {
     public String getPhotoUrl() {
         return photoUrl;
     }
+    public String getDescription() {
+        return description;
+    }
     public Hotel getHotel() {
         return hotel;
     }
@@ -77,6 +98,10 @@ public class Room {
     }
 
     // Setters
+
+    public void setId(Long id) {
+        this.id = id;
+    }
     public void setNumber(int number) {
         this.number = number;
     }
@@ -92,6 +117,9 @@ public class Room {
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
     }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     // method to set the hotel of the room
     public void setHotel(Hotel hotel) {
@@ -100,7 +128,7 @@ public class Room {
 
     public void addGuest(Guest guest) {
         guests.add(guest);
-        guest.getRooms().add(this);    // ensure bidirectional sync
+        // guest.getRooms().add(this);    // ensure bidirectional sync
     }
 
     public void removeGuest(Guest guest) {
@@ -108,11 +136,10 @@ public class Room {
         guest.getRooms().remove(this);
     }
 
-    // Override toString method to print
-    @Override
     public String toString() {
-        String hotelName = (hotel != null ? hotel.getName() : "no-hotel");
-        return "#" + number + " " + type + " " + (seaView ? "(sea)" : "") +
-                " €" + pricePerNight + " @ " + hotelName;
+        return "#" + number + " " + type +
+                (seaView ? " (sea)" : "") +
+                " €" + pricePerNight +
+                " @ " + (hotel != null ? hotel.getName() : "no-hotel" + "Description:" + description);
     }
 }

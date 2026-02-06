@@ -5,13 +5,13 @@ import java.util.List;
 public interface GuestService {
     List<Guest> getAllGuests();
 
-    List<Guest> getGuestsByRoom(int roomNumber);
+    List<Guest> getGuestsByRoom(Long roomId);
 
     Guest createGuest(Guest guest);
 
-    Guest getGuestById(long id);
+    Guest getGuestById(Long id);
 
-    void deleteGuest(long id);
+    void deleteGuest(Long id);
 
     List<Guest> getVipGuests();
 
@@ -19,5 +19,5 @@ public interface GuestService {
 
     List<Guest> getGuestsWithManyRooms(int minRooms);
 
-    Guest createGuestWithRoom(Guest guest, Integer roomNumber);
+    Guest createGuestWithRoom(Guest guest, Long roomId);
 }

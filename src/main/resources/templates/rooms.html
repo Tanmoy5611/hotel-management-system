@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{rooms.title}">Rooms</title>
+
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
@@ -86,19 +87,30 @@
 
         <!-- Filter Button -->
         <div class="col-md-2">
-            <button type="submit"
-                    class="btn btn-primary w-100">
+            <button type="submit" class="btn btn-primary w-100">
                 <i class="bi bi-search"></i>
                 <span th:text="#{button.filter}">Filter</span>
             </button>
         </div>
 
-        <!-- Tip (right aligned, desktop only) -->
-        <div class="col-12 d-none d-lg-flex justify-content-end text-muted fst-italic mt-1">
-            <i class="bi bi-info-circle me-1"></i>
-            <span th:text="#{rooms.tip}">
-            Tip: Check out the sea-view suites!
-        </span>
+        <!-- Actions + tip row -->
+        <div class="row mt-2 align-items-center">
+
+            <!-- Reset -->
+            <div class="col-md-6">
+                <a th:href="@{/rooms}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    <span th:text="#{filter.reset}">Reset Filters</span>
+                </a>
+            </div>
+
+            <!-- Tip (large screens only) -->
+            <div class="col-md-6 text-end text-muted fst-italic d-none d-lg-block">
+                <i class="bi bi-info-circle"></i>
+                <span th:text="#{rooms.tip}">
+                    Tip: Check out the sea-view suites!
+                </span>
+            </div>
         </div>
 
     </form>
@@ -110,7 +122,7 @@
             <div class="card h-100 shadow-sm hover-card">
 
                 <!-- Clickable area -->
-                <a th:href="@{'/rooms/' + ${r.number}}" class="text-decoration-none text-dark">
+                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
                     <!-- Photo -->
                     <img th:src="@{${r.photoUrl}}" class="card-img-top room-img" alt="Room photo">
 
@@ -130,10 +142,20 @@
                             <span th:text="${r.pricePerNight} + ' ' + #{rooms.perNight}"></span>
                         </p>
 
-                        <p class="card-text">
-                            <i class="bi bi-water text-info"></i>
+                        <p class="card-text d-flex align-items-center gap-2">
+                            <i class="bi"
+                               th:classappend="${r.seaView}
+                               ? 'bi bi-water text-info'
+                               : 'bi-x-circle text-muted'">
+                            </i>
                             <span th:text="${r.seaView} ? #{rooms.seaYes} : #{rooms.seaNo}"></span>
                         </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-building"></i>
+                            <span th:text="${r.hotel.name}"></span>
+                        </p>
+
                     </div>
                 </a>
 
@@ -147,7 +169,7 @@
                     <button type="button"
                             class="btn btn-sm btn-outline-danger"
                             data-bs-toggle="modal"
-                            th:data-bs-target="${'#deleteRoomModal-' + r.number}">
+                            th:data-bs-target="${'#deleteRoomModal-' + r.id}">
                         <i class="bi bi-trash"></i>
                     </button>
                 </div>
@@ -155,7 +177,7 @@
             </div>
 
             <!-- Delete modal -->
-            <div class="modal fade" th:id="${'deleteRoomModal-' + r.number}" tabindex="-1">
+            <div class="modal fade" th:id="${'deleteRoomModal-' + r.id}" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content">
 
@@ -176,7 +198,7 @@
                                     th:text="#{button.cancel}">
                             </button>
 
-                            <form th:action="@{'/rooms/' + ${r.number} + '/delete'}"
+                            <form th:action="@{'/rooms/' + ${r.id} + '/delete'}"
                                   method="post">
                                 <button type="submit"
                                         class="btn btn-danger btn-sm"
