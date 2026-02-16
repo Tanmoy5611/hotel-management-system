@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${hotel.name}">Hotel Detail</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/edit-description.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <!-- Hotel header -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-lg-6">
+            <img th:src="@{${hotel.imageUrl}}"
+                 class="img-fluid rounded shadow-sm hotel-main-img"
+                 th:alt="${hotel.name}">
+        </div>
+
+        <div class="col-lg-6 hotel-info-column">
+            <h2 class="fw-bold text-primary mb-1" th:text="${hotel.name}">Hotel Name</h2>
+
+            <p class="text-muted mb-3">
+                <i class="bi bi-geo-alt"></i>
+                <span th:text="${hotel.city} + ', ' + ${hotel.country}"></span>
+            </p>
+
+            <div class="mb-3">
+                <p class="fs-5 mb-1">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <span th:text="${hotel.stars}"></span>
+                </p>
+
+                <p class="mb-1">
+                    <i class="bi bi-calendar-event text-secondary"></i>
+                    <strong th:text="#{hotel.openedOn} + ':'"></strong>
+                    <span th:text="${#temporals.format(hotel.openedOn, 'dd MMM yyyy')}"></span>
+                </p>
+
+                <p class="mb-1 d-flex align-items-center gap-2">
+                    <i class="bi"
+                       th:classappend="${hotel.hasSpa}
+                       ? 'bi-heart-pulse text-success'
+                       : 'bi-x-circle text-muted'">
+                    </i>
+                    <strong th:text="#{hotel.spa} + ':'"></strong>
+                    <span th:text="${hotel.hasSpa} ? #{hotel.spaYes} : #{hotel.spaNo}"></span>
+                </p>
+            </div>
+
+            <div class="mt-auto d-flex gap-3">
+                <a th:href="@{/hotels}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    <span th:text="#{hotel.back}"></span>
+                </a>
+
+                <button type="button"
+                        class="btn btn-danger"
+                        data-bs-toggle="modal"
+                        th:data-bs-target="${'#deleteHotelModal-' + hotel.hotelId}">
+                    <i class="bi bi-trash"></i>
+                    <span th:text="#{hotel.deleteButton}"></span>
+                </button>
+            </div>
+
+            <!-- Delete Modal -->
+            <div class="modal fade"
+                 th:id="${'deleteHotelModal-' + hotel.hotelId}"
+                 tabindex="-1">
+
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-danger text-white py-2">
+                            <h6 class="modal-title" th:text="#{modal.delete.title}"></h6>
+                            <button type="button"
+                                    class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body text-center">
+                            <p class="mb-2" th:text="#{modal.delete.hotelQuestion}"></p>
+                            <strong th:text="${hotel.name}"></strong>
+                        </div>
+
+                        <div class="modal-footer justify-content-between">
+
+                            <!-- Cancel -->
+                            <button type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-bs-dismiss="modal"
+                                    th:text="#{button.cancel}">
+                            </button>
+
+                            <!-- Yes Delete-->
+                            <form th:action="@{|/hotels/${hotel.hotelId}/delete|}" method="post">
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        th:text="#{button.delete}">
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card mt-4 shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title d-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                <span th:text="#{hotel.about}">About this hotel</span>
+            </h4>
+
+            <div class="hotel-description">
+
+                <p th:if="${#strings.isEmpty(hotel.description)}" class="text-muted fst-italic">
+                    No description available for this hotel.
+                </p>
+
+                <p th:if="${not #strings.isEmpty(hotel.description) and !hotel.description.contains('.')}"
+                   th:text="${hotel.description}">
+                </p>
+
+                <th:block th:if="${not #strings.isEmpty(hotel.description) and hotel.description.contains('.')}">
+                    <p class="mb-0">
+                        <span th:text="${#strings.substringBefore(hotel.description, '.')} + '.'"></span>
+                        <span id="hotel-desc-full" class="collapse">
+                        <span th:text="${#strings.substringAfter(hotel.description, '.')}"></span>
+                    </span>
+                    </p>
+
+                    <button class="btn btn-link p-0 mt-1 text-decoration-none d-flex align-items-center"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#hotel-desc-full"
+                            aria-expanded="false"
+                            aria-controls="hotel-desc-full"
+                            onclick="toggleText(this)">
+                        <i class="bi bi-chevron-down me-1"></i>
+                        <span>Read more</span>
+                    </button>
+                </th:block>
+            </div>
+        </div>
+    </div>
+
+    <a th:href="@{/hotels/{hotelId}/edit-description(hotelId=${hotel.hotelId})}"
+       class="btn btn-sm btn-outline-primary mt-2">
+        <i class="bi bi-pencil-square me-1"></i>
+        Edit description
+    </a>
+
+    <hr class="my-4">
+
+    <!-- Rooms Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-primary mb-0">
+            <i class="bi bi-door-open"></i>
+            <span th:text="#{hotel.availableRooms}"></span>
+        </h4>
+
+        <a th:href="@{/rooms/add(hotelId=${hotel.hotelId})}"
+           class="btn btn-success">
+            <i class="bi bi-plus-circle"></i>
+            Add Room
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" th:each="r : ${rooms}">
+
+            <div class="card h-100 shadow-sm hover-card">
+
+                <!-- Room photo -->
+                <img th:src="@{${r.photoUrl}}" class="card-img-top room-img" alt="Room image">
+
+                <div class="card-body">
+
+                    <!-- Room title -->
+                    <h5 class="card-title text-center fw-bold mb-2"
+                        th:text="#{room.label} + ' ' + ${r.number}"></h5>
+
+                    <!-- Room type -->
+                    <p class="card-text mb-1">
+                        <i class="bi bi-person-badge"></i>
+                        <span th:text="${r.type}"></span>
+                    </p>
+
+                    <!-- Price -->
+                    <p class="card-text mb-1">
+                        <i class="bi bi-cash-coin text-success"></i>
+                        <span th:text="${#numbers.formatDecimal(r.pricePerNight,1,2)} + ' € / Night'"></span>
+                    </p>
+
+                    <!-- Sea View -->
+                    <p class="card-text d-flex align-items-center gap-2">
+                        <i class="bi"
+                           th:classappend="${r.seaView}
+                           ? 'bi-water text-info'
+                           : 'bi-x-circle text-muted'">
+                        </i>
+                        <span th:text="${r.seaView} ? #{room.seaYes} : #{room.seaNo}"></span>
+                    </p>
+
+                    <!-- Guests in the room -->
+                    <div class="mt-3">
+                        <strong>
+                            <i class="bi bi-people-fill"></i>
+                            <span th:text="#{hotel.guests}"></span>
+                        </strong>
+
+                        <div class="d-flex mt-1">
+
+                            <!-- Guest avatars -->
+                            <img th:each="g, iter : ${guestsPerRoom[r.id]}"
+                                 th:if="${iter.index < 2}"
+                                 th:src="@{${g.avatarUrl}}"
+                                 class="rounded-circle me-2"
+                                 style="width:35px; height:35px; object-fit:cover;"
+                                 alt="Guest">
+
+                            <!-- +X more -->
+                            <span th:if="${#lists.size(guestsPerRoom[r.id]) > 2}" class="text-muted ms-1">
+                                 +<span th:text="${#lists.size(guestsPerRoom[r.id]) - 2}"></span>
+                                 <span th:text="#{hotel.more}"></span>
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <!-- View details button -->
+                    <a th:href="@{'/rooms/' + ${r.id}}"
+                       class="btn btn-outline-primary w-100 mt-3">
+                        <i class="bi bi-eye"></i>
+                        <span th:text="#{hotel.viewDetails}"></span>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="mt-4 text-muted">
+        <i class="bi bi-collection"></i>
+        <span th:text="${totalGuests} + ' ' + #{hotel.totalGuests}"></span>
+    </p>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+<script th:src="@{/js/read-more.js}"></script>
+
+</body>
+</html>

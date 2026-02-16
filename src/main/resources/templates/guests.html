@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{guests.title}">Guests</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <!-- Page Title -->
+    <h2 class="text-primary mb-3">
+        <i class="bi bi-people-fill"></i>
+        <span th:text="#{guests.title}">All Guests</span>
+    </h2>
+
+    <!-- Filters + Search -->
+    <div class="row g-2 mb-4 align-items-end">
+
+        <!-- VIP Filter -->
+        <div class="col-md-3">
+            <a th:href="@{/guests/vip}"
+               class="btn btn-warning fw-semibold w-100">
+                <i class="bi bi-star-fill me-1"></i>
+                <span th:text="#{guests.vipButton}">Show VIP Guests</span>
+            </a>
+        </div>
+
+        <!-- Min Rooms Filter -->
+        <div class="col-md-3">
+            <form th:action="@{/guests/manyRooms}" method="get" class="d-flex gap-2">
+                <input type="number"
+                       name="min"
+                       class="form-control"
+                       th:placeholder="#{guests.filter.minRooms}"
+                       min="1"
+                       required>
+
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-people"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Name Search -->
+        <div class="col-md-4">
+            <form th:action="@{/guests/search}" method="get" class="d-flex">
+                <input type="text"
+                       name="q"
+                       class="form-control"
+                       th:placeholder="#{guests.filter.search}"
+                       th:value="${searchQuery}">
+
+                <button type="submit" class="btn btn-primary ms-2">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Reset Filters -->
+        <div class="col-md-2">
+            <a th:href="@{/guests}"
+               class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                <span th:text="#{filter.reset}">Reset Filters</span>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Guest Cards -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+
+        <div class="col" th:each="g : ${guests}">
+            <div class="card h-100 shadow-sm hover-card">
+
+                <a th:href="@{'/guests/' + ${g.id}}" class="text-decoration-none text-dark">
+
+                    <!-- Avatar -->
+                    <img th:src="@{${g.avatarUrl}}"
+                         class="card-img-top guest-img"
+                         alt="Guest photo">
+
+                    <div class="card-body">
+
+                        <h5 class="card-title text-center fw-bold mb-2"
+                            th:text="${g.fullName}">
+                            Guest Name
+                        </h5>
+
+                        <!-- VIP / Regular (derived, no boolean) -->
+                        <p class="text-center">
+                            <span th:if="${g.discountPercentage != null and g.discountPercentage.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                                  class="badge bg-warning text-dark">
+                                <i class="bi bi-star-fill"></i>
+                                <span th:text="#{guests.vip}">VIP</span>
+                            </span>
+
+                            <span th:unless="${g.discountPercentage != null and g.discountPercentage.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                                  class="badge bg-secondary">
+                                <span th:text="#{guests.regular}">Regular</span>
+                            </span>
+                        </p>
+
+                        <!-- VIP Discount -->
+                        <div th:if="${g.discountPercentage != null and g.discountPercentage.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                             class="text-center text-danger fw-semibold mb-2">
+                            <i class="bi bi-gift"></i>
+                            <span th:text="#{guests.discount}">Discount:</span>
+                            <span th:text="${g.discountPercentage}"></span>%
+                        </div>
+
+                        <!-- Email -->
+                        <p class="mb-1">
+                            <i class="bi bi-envelope"></i>
+                            <strong th:text="#{guests.email}">Email</strong>:
+                            <span th:text="${g.email}"></span>
+                        </p>
+
+                        <!-- DOB -->
+                        <p>
+                            <i class="bi bi-calendar-event"></i>
+                            <strong th:text="#{guests.dob}">Date of birth</strong>:
+                            <span th:text="${g.dob}"></span>
+                        </p>
+
+                    </div>
+                </a>
+
+                <!-- Footer -->
+                <div class="card-footer small d-flex justify-content-between align-items-center">
+
+                    <span class="text-muted" th:text="#{guests.profile}">
+                        Profile Overview
+                    </span>
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            th:data-bs-target="${'#deleteGuest-' + g.id}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- Delete Modal -->
+            <div class="modal fade"
+                 th:id="${'deleteGuest-' + g.id}"
+                 tabindex="-1">
+
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-danger text-white py-2">
+                            <h6 class="modal-title" th:text="#{modal.delete.title}">Confirm Delete</h6>
+                            <button type="button"
+                                    class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body text-center">
+                            <p class="mb-2" th:text="#{modal.delete.guestQuestion}">
+                                Delete this guest?
+                            </p>
+                            <strong th:text="${g.fullName}"></strong>
+                        </div>
+
+                        <div class="modal-footer justify-content-between">
+                            <button type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-bs-dismiss="modal"
+                                    th:text="#{button.cancel}">
+                                Cancel
+                            </button>
+
+                            <form th:action="@{|/guests/${g.id}/delete|}" method="post">
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        th:text="#{button.delete}">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Total Count -->
+    <p class="mt-4 text-muted">
+        <i class="bi bi-collection"></i>
+        <span th:text="#{guests.total(${#lists.size(guests)})}">
+            0 guests total
+        </span>
+    </p>
+
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

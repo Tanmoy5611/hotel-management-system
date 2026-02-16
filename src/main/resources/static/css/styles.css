@@ -1,0 +1,434 @@
+/* Global theme */
+:root {
+    --blue-dark: #003b95;
+    --blue-mid: #0062e3;
+    --blue-light: #3da9fc;
+    --yellow: #f9c700;
+    --gray-light: #f5f7fa;
+    --text-dark: #002244;
+}
+
+/* Base */
+body {
+    background-color: var(--gray-light);
+    font-family: 'Inter', Arial, sans-serif;
+    color: var(--text-dark);
+}
+
+h1, h2, h3 {
+    font-weight: 700;
+}
+
+/* full-height page for sticky footer */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+footer {
+    margin-top: auto;
+    width: 100%;
+}
+
+/* NavBar */
+.navbar {
+    background: linear-gradient(90deg, var(--blue-dark), var(--blue-mid));
+}
+
+.navbar-brand {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.navbar-nav .nav-link {
+    color: #e9f3ff !important;
+    transition: 0.2s;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--yellow) !important;
+    transform: scale(1.05);
+}
+
+.navbar-nav .nav-link.active {
+    color: #fff !important;
+    border-bottom: 2px solid #fff;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, #003b95, #0062e3);
+    padding: 60px 30px;
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    margin-bottom: 50px;
+}
+
+.hero h1 {
+    font-weight: 800;
+    font-size: 2.4rem;
+}
+
+.hero p {
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+/* Booking search container */
+.booking-search {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: nowrap;
+    background: #fff;
+    padding: 14px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.15);
+}
+
+/* Shared input style */
+.booking-input {
+    height: 56px;
+    font-size: 16px;
+    border-radius: 12px;
+    transition: .2s ease;
+}
+
+/* Destination */
+.booking-destination {
+    flex: 1;
+    min-width: 380px;
+}
+
+/* Dates */
+.booking-date {
+    flex: 0 0 170px;
+}
+
+.booking-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6c757d;
+    margin: 0 0 6px 2px;
+}
+
+/* Button */
+.booking-btn {
+    height: 56px;
+    padding: 0 26px;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #2f6db5;
+    color: #fff;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: .25s ease;
+}
+
+.booking-btn:hover {
+    background: #245a96;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0,0,0,.2);
+}
+
+/* Input hover/focus */
+.booking-search input:hover,
+.booking-search input:focus {
+    background: #f8f9fa;
+    box-shadow: 0 0 0 2px rgba(13,110,253,.15);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .booking-search { flex-wrap: wrap; }
+    .booking-destination { min-width: 100%; }
+    .booking-date { flex: 1 1 220px; }
+    .booking-btn { width: 100%; justify-content: center; }
+}
+
+/* Section Titles*/
+.section-title {
+    font-weight: bold;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    margin-top: -5px;
+    margin-bottom: 20px;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.section-title i {
+    font-size: 1.7rem;
+    color: var(--blue-dark);
+}
+
+/* Card system ( For All Pages) */
+.card {
+    border: none;
+    border-radius: 16px;
+    background: #fff;
+    transition: 0.25s ease-in-out;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+    overflow: hidden;
+    animation: fadeUp 0.6s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+}
+
+/* All images zoom on hover and sizing */
+.card img,
+.hotel-img,
+.hotel-image,
+.room-image,
+.guest-img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 16px 16px 0 0;
+    transition: transform 0.35s ease-in-out;
+}
+
+/* Universally zoom on hover */
+.card:hover img,
+.card:hover .hotel-image,
+.card:hover .room-image,
+.card:hover .hotel-img,
+.card:hover .guest-img {
+    transform: scale(1.08);
+}
+
+/* Flex layout card with footers (Hotels & Guests):keeps "Profile Overview" / card footer at the bottom */
+.card.h-100 {
+    display: flex;
+    flex-direction: column;
+}
+
+/* anchor that wraps image + body */
+.card.h-100 > a {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+/* card body grows to fill space */
+.card-body {
+    flex: 1 1 auto;
+}
+
+/* footer pushed to bottom */
+.card-footer {
+    margin-top: auto;
+}
+
+/* Trust badges */
+.badge-box {
+    margin-top: 20px;
+    display: flex;
+    gap: 25px;
+}
+
+.badge-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.badge-item i {
+    font-size: 1.8rem;
+}
+
+/* Footer */
+footer {
+    padding: 20px;
+    background: var(--blue-dark);
+    color: white;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Animations */
+@keyframes fadeUp {
+    from {
+        transform: translateY(12px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Utility */
+.fw-semibold {
+    font-weight: 600 !important;
+}
+
+.text-success {
+    color: #198754 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    /* stack search fields*/
+    .booking-search {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .booking-search input,
+    .booking-search button {
+        width: 100%;
+    }
+
+    .guest-img {
+        height: 380px !important;
+        width: 180%;
+        object-fit: cover !important;
+        object-position: top center !important;
+    }
+}
+
+/* Room detail page image (no hover zoom) */
+.room-detail-img {
+    height: 100%;
+    max-height: 340px;
+    object-fit: cover;
+    transition: none !important;
+}
+
+.card:hover .room-detail-img {
+    transform: none !important;
+}
+
+/* Fixed sizing for the main hotel detail image */
+.hotel-main-img {
+    width: 100%;
+    height: 400px; /* Adjust this height to your preference */
+    object-fit: cover;
+    object-position: center;
+    border-radius: 12px;
+}
+
+/* Ensure the text column doesn't jump around */
+.hotel-info-column {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hotel-desc-preview {
+    line-height: 1.6;
+    color: #444;
+    margin-bottom: 0;
+}
+
+/* Custom variables for Dark Mode */
+[data-bs-theme="dark"] {
+    --gray-light: #121212;
+    --text-dark: #f8f9fa;
+    --blue-dark: #001f4d;
+    --blue-mid: #003b95;
+
+    background-color: #121212 !important;
+}
+
+[data-bs-theme="dark"] body {
+    background-color: #121212 !important;
+    color: #f8f9fa !important;
+}
+
+/* Headings & Section Titles */
+[data-bs-theme="dark"] h1,
+[data-bs-theme="dark"] h2,
+[data-bs-theme="dark"] h3,
+[data-bs-theme="dark"] h4,
+[data-bs-theme="dark"] .section-title,
+[data-bs-theme="dark"] .section-title i {
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .text-primary {
+    color: #60a5fa !important;
+}
+
+/* Card Improvements */
+[data-bs-theme="dark"] .card {
+    background-color: #1e1e1e !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-bs-theme="dark"] .card-body {
+    color: #cbd5e1 !important;
+}
+
+[data-bs-theme="dark"] .card-title {
+    color: #ffffff !important;
+}
+
+/* Input & Filter Section */
+[data-bs-theme="dark"] .booking-search,
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #2b2b2b !important;
+    border-color: #444 !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] label,
+[data-bs-theme="dark"] .form-label {
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .btn-link {
+    color: #60a5fa !important;
+    text-decoration: none;
+}
+
+[data-bs-theme="dark"] .btn-link:hover {
+    color: #3da9fc !important;
+    text-decoration: underline;
+}
+
+[data-bs-theme="dark"] .hotel-desc-preview {
+    color: #cbd5e1 !important; /* Light grayish-blue for readability */
+}
+
+#themeToggle:hover i {
+    color: var(--yellow) !important;
+    transform: rotate(-15deg);
+    transition: 0.3s ease;
+}
+
+/* Ensure the button doesn't look like a standard button in the nav */
+#themeToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

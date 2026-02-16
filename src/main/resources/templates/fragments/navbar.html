@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+    <title>NavBar</title>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+
+        <!--  Home -->
+        <a class="navbar-brand d-flex align-items-center fw-bold" th:href="@{/home}">
+            <i class="bi bi-building-fill me-2 fs-4"></i>
+            HotelApp
+        </a>
+        <!-- Toggler for mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navMenu"
+                aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Menu items -->
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/home}" th:text="#{nav.home}">
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/hotels}" th:text="#{nav.hotels}">All Hotels</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/rooms}" th:text="#{nav.rooms}">All Rooms</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/guests}" th:text="#{nav.guests}">All Guests</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/hotels/add}" th:text="#{nav.addHotel}">Add Hotel</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/rooms/add}" th:text="#{nav.addRoom}">Add Room</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/guests/add}" th:text="#{nav.addGuest}">Add Guest</a>
+                </li>
+
+            </ul>
+
+
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                <button id="themeToggle"
+                        class="btn btn-link nav-link px-2 me-2"
+                        type="button"
+                        title="Toggle dark mode"
+                        style="border: none; box-shadow: none;">
+                    <i class="bi bi-moon-fill fs-5 text-white"></i>
+                </button>
+                </li>
+
+                <li class="nav-item dropdown">
+
+                    <!-- Current language show -->
+                    <a class="nav-link dropdown-toggle d-flex align-items-center"
+                       href="#"
+                       id="languageDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+
+                        <i class="bi bi-translate me-1"></i>
+
+                        <span th:switch="${#locale.language}">
+                            <span th:case="'en'">🇬🇧 English</span>
+                            <span th:case="'nl'">🇳🇱 Nederlands</span>
+                            <span th:case="'bn'">🇧🇩 বাংলা</span>
+                            <span th:case="'fr'">🇫🇷 Français</span>
+                            <span th:case="'de'">🇩🇪 Deutsch</span>
+                            <span th:case="*">Language</span>
+                        </span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm"
+                        aria-labelledby="languageDropdown">
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='en')}">
+                                🇬🇧 English
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='nl')}">
+                                🇳🇱 Nederlands
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='bn')}">
+                                🇧🇩 বাংলা
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='fr')}">
+                                🇫🇷 Français
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               th:href="@{/(lang='de')}">
+                                🇩🇪 Deutsch
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </li>
+
+            </ul>
+
+        </div>
+    </div>
+
+</nav>
+
+<script th:src="@{/js/theme-toggle.js}"></script>
+
+</body>
+
+</html>

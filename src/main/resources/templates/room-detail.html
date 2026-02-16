@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Room Details - ' + ${room.number}">Room Details</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/room-detail.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <!-- Room Header -->
+    <div class="card shadow-sm mb-4">
+        <div class="row g-0">
+            <div class="col-md-5">
+                <img th:src="@{${room.photoUrl}}"
+                     class="img-fluid rounded-start room-detail-img"
+                     th:alt="'Room ' + ${room.number}">
+            </div>
+            <div class="col-md-7">
+                <div class="card-body">
+                    <h3 class="fw-bold text-primary mb-3">
+                        <span th:text="#{room.title}">Room</span>
+                        <span th:text="${room.number}">101</span>
+                    </h3>
+
+                    <p class="card-text mb-2">
+                        <i class="bi bi-door-open text-secondary"></i>
+                        <strong th:text="${room.type}">Type</strong>
+                    </p>
+
+                    <p class="card-text mb-2">
+                        <i class="bi bi-cash-coin text-success"></i>
+                        <span th:text="${#numbers.formatDecimal(room.pricePerNight, 1, 2)} + ' €'"></span>
+                    </p>
+
+                    <p class="card-text mb-2 d-flex align-items-center gap-2">
+
+                        <i class="bi"
+                           th:classappend="${room.seaView}
+                           ? 'bi-water text-info'
+                           : 'bi-x-circle text-muted'">
+                        </i>
+                        <span th:text="${room.seaView}
+                         ? #{room.seaYes}
+                         : #{room.seaNo}">
+                        </span>
+                    </p>
+
+                    <!-- Hotel link -->
+                    <p class="card-text">
+                        <i class="bi bi-building text-warning"></i>
+                        <span th:text="#{room.hotel} + ': ' + ${room.hotel.name}"></span>
+                        <a th:href="@{'/hotels/' + ${room.hotel.hotelId}}" class="btn btn-outline-primary btn-sm ms-2">
+                            <i class="bi bi-arrow-right"></i>
+                            <span th:text="#{room.viewHotel}"></span>
+                        </a>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4 shadow-sm">
+        <div class="card-body">
+
+            <h4 class="card-title d-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                <span th:text="#{room.about}">About this room</span>
+            </h4>
+
+            <div class="room-description">
+                <p th:if="${#strings.isEmpty(room.description)}"
+                   class="text-muted fst-italic"
+                   th:text="#{room.noDescription}">
+                </p>
+
+                <p th:if="${not #strings.isEmpty(room.description) and !room.description.contains('.')}"
+                   th:text="${room.description}">
+                </p>
+
+                <th:block th:if="${not #strings.isEmpty(room.description) and room.description.contains('.')}">
+                    <p class="mb-0">
+                        <span th:text="${#strings.substringBefore(room.description, '.')} + '.'"></span>
+
+                        <span id="room-desc-full" class="collapse">
+                        <span th:text="${#strings.substringAfter(room.description, '.')}"></span>
+                    </span>
+                    </p>
+
+                    <button class="btn btn-link p-0 mt-1 text-decoration-none d-flex align-items-center"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#room-desc-full"
+                            aria-expanded="false"
+                            aria-controls="room-desc-full"
+                            onclick="toggleText(this)">
+                        <i class="bi bi-chevron-down me-1"></i>
+                        <span>Read more</span>
+                    </button>
+                </th:block>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit description button -->
+    <a th:href="@{/rooms/{id}/edit-description(id=${room.id})}"
+       class="btn btn-sm btn-outline-primary mt-2">
+        <i class="bi bi-pencil-square me-1"></i>
+        Edit description
+    </a>
+
+    <!-- Guests staying in this room -->
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+        <h4 class="text-secondary mb-0">
+            <i class="bi bi-people-fill"></i>
+            <span th:text="#{room.guestsTitle}"></span>
+        </h4>
+
+        <a th:href="@{/guests/add(roomId=${room.id})}"
+           class="btn btn-success btn-sm">
+            <i class="bi bi-plus-circle"></i>
+            <span>Add Guest</span>
+        </a>
+    </div>
+
+    <!-- If no guests -->
+    <div th:if="${#lists.isEmpty(guests)}" class="text-muted mb-3">
+        <i th:text="#{room.noGuests}"></i>
+    </div>
+
+    <!-- Guests table -->
+    <div th:if="${!#lists.isEmpty(guests)}" class="table-responsive">
+
+        <table class="table custom-dark-table align-middle">
+
+            <thead>
+            <tr>
+                <th th:text="#{room.table.avatar}"></th>
+                <th th:text="#{room.table.name}"></th>
+                <th th:text="#{room.table.email}"></th>
+                <th th:text="#{room.table.check-in}"></th>
+                <th th:text="#{room.table.check-out}"></th>
+                <th th:text="#{room.table.stayHistory}"></th>
+                <th th:text="#{room.table.vip}"></th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="stay : ${guests}"
+                th:onclick="'window.location.href=\'/guests/' + ${stay.guest.id} + '\';'"
+                th:classappend="
+                ${today.isAfter(stay.checkOutDate)} ? ' status-past-row' :
+                (${today.isBefore(stay.checkInDate)} ? ' status-future-row' :
+                ' status-current-row')
+            "
+                class="custom-table-row"
+                style="cursor:pointer;">
+
+                <!-- Avatar -->
+                <td>
+                    <img th:src="@{${stay.guest.avatarUrl}}"
+                         class="rounded-circle"
+                         style="width:38px; height:38px; object-fit:cover;">
+                </td>
+
+                <!-- Name -->
+                <td class="fw-semibold"
+                    th:text="${stay.guest.fullName}">
+                </td>
+
+                <!-- Email -->
+                <td class="text-muted"
+                    th:text="${stay.guest.email}">
+                </td>
+
+                <!-- Check-in -->
+                <td th:text="${stay.checkInDate}"></td>
+
+                <!-- Check-out -->
+                <td th:text="${stay.checkOutDate}"></td>
+
+                <!-- Stay History -->
+                <td>
+                <span class="status-badge"
+                      th:classappend="
+                        ${today.isAfter(stay.checkOutDate)} ? ' status-past' :
+                        (${today.isBefore(stay.checkInDate)} ? ' status-future' :
+                        ' status-current')
+                      "
+                      th:text="
+                        ${today.isAfter(stay.checkOutDate)} ? #{booking.past} :
+                        (${today.isBefore(stay.checkInDate)} ? #{booking.future} :
+                        #{booking.current})
+                      ">
+                </span>
+                </td>
+
+                <!-- VIP -->
+                <td>
+                <span class="vip-badge"
+                      th:classappend="
+ ${stay.guest.discountPercentage != null
+              and stay.guest.discountPercentage.compareTo(T(java.math.BigDecimal).ZERO) > 0}                          ? ' vip-active'
+                          : ' vip-regular'"
+                      th:text="
+ ${stay.guest.discountPercentage != null
+              and stay.guest.discountPercentage.compareTo(T(java.math.BigDecimal).ZERO) > 0}                          ? #{room.vip}
+                          : #{room.regular}">
+                </span>
+                </td>
+
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+    <!-- Book Room Button -->
+    <div class="text-center mb-4">
+
+        <a th:href="@{/rooms/{id}/book(id=${room.id})}"
+           class="btn btn-primary btn-lg px-5">
+            <i class="bi bi-calendar-check me-2"></i>
+            <span th:text="#{room.bookButton}">Book this Room</span>
+        </a>
+
+    </div>
+
+    <!--  booking success message -->
+    <div class="my-3">
+
+        <div th:if="${errorCode}"
+             class="alert alert-danger alert-dismissible fade show mb-3"
+             role="alert">
+            <strong th:text="#{${errorCode}}"></strong>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+
+        <div th:if="${successMessage}"
+             class="alert alert-success alert-dismissible fade show position-relative text-center"
+             role="alert">
+
+            <strong th:text="#{${successMessage}}"></strong>
+
+            <button type="button"
+                    class="btn-close position-absolute top-50 end-0 translate-middle-y me-3"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Back + Delete -->
+    <div class="mt-4 d-flex justify-content-between">
+
+        <a href="/rooms" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            <span th:text="#{room.back}"></span>
+        </a>
+
+        <!-- DELETE BUTTON opens modal -->
+        <button type="button"
+                class="btn btn-danger"
+                data-bs-toggle="modal"
+                th:data-bs-target="${'#deleteRoomModal-' + room.id}">
+            <i class="bi bi-trash"></i>
+            <span th:text="#{room.deleteButton}"></span>
+        </button>
+
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade"
+         th:id="${'deleteRoomModal-' + room.id}"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+
+                <div class="modal-header bg-danger text-white py-2">
+                    <h6 class="modal-title" th:text="#{modal.delete.title}"></h6>
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body text-center">
+                    <p class="mb-2" th:text="#{modal.delete.roomQuestion}"></p>
+                    <strong th:text="'Room ' + ${room.number}"></strong>
+                </div>
+
+                <div class="modal-footer justify-content-between">
+
+                    <!-- Cancel -->
+                    <button type="button"
+                            class="btn btn-secondary btn-sm"
+                            data-bs-dismiss="modal"
+                            th:text="#{button.cancel}">
+                    </button>
+
+                    <!-- Yes Delete -->
+                    <form th:action="@{'/rooms/' + ${room.id} + '/delete'}" method="post">
+                        <button type="submit"
+                                class="btn btn-danger btn-sm"
+                                th:text="#{button.delete}">
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+<script th:src="@{/js/read-more.js}"></script>
+
+</body>
+</html>

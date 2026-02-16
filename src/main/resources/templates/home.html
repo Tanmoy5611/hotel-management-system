@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{home.page.title}">HotelApp - Find Your Perfect Stay</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <!-- Hero & search -->
+    <div class="hero">
+        <h1 th:text="#{home.hero.title}">Find Your Next Stay</h1>
+        <p th:text="#{home.hero.subtitle}">
+            Search deals on hotels, rooms, and more all around the world!
+        </p>
+
+        <form th:action="@{/hotels}" method="get" class="booking-search mt-3">
+
+            <div class="col-lg-6 col-md-9 col-md-12">
+                <div class="input-group">
+                    <span class="input-group-text">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    </span>
+                <input type="text"
+                       name="name"
+                       class="form-control search-input"
+                       th:placeholder="#{home.search.placeholder}">
+                </div>
+            </div>
+
+            <div class="form-floating">
+                <input type="date" name="from" class="form-control" id="checkin">
+                <label for="checkin">
+                    <i class=" bi bi-calendar-check me-1"></i>
+                    <span th:text="#{home.search.checkin}">Check-in</span>
+                </label>
+            </div>
+
+            <div class="form-floating">
+                <input type="date" name="to" class="form-control" id="checkout">
+                <label for="checkout">
+                    <i class="bi bi-calendar-x me-1"></i>
+                    <span th:text="#{home.search.checkout}">Check-out</span>
+                </label>
+            </div>
+
+            <div class="form-floating">
+                <select name="guests" class="form-select" id="guests">
+                    <option value="1" th:text="#{home.search.guests.one}">1 person</option>
+                    <option value="2" th:text="#{home.search.guests.two}">2 persons</option>
+                    <option value="3" th:text="#{home.search.guests.more}">3+ persons</option>
+                </select>
+                <label for="guests">
+                    <i class="bi bi-person"></i>
+                    <span th:text="#{home.search.guests}">Guests</span>
+                </label>
+            </div>
+
+            <div class="booking-action ms-auto">
+                <button class="booking-btn">
+                    <i class="bi bi-search"></i>
+                    <span th:text="#{home.search.button}">Search</span>
+                </button>
+            </div>
+
+        </form>
+
+        <div class="badge-box mt-4">
+            <div class="badge-item">
+                <i class="bi bi-award"></i>
+                <span th:text="#{home.badge.bestPrice}">Best Price Guarantee</span>
+            </div>
+            <div class="badge-item">
+                <i class="bi bi-shield-check"></i>
+                <span th:text="#{home.badge.secure}">Secure Bookings</span>
+            </div>
+            <div class="badge-item">
+                <i class="bi bi-people"></i>
+                <span th:text="#{home.badge.trusted}">Trusted by Millions</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Featured Hotels -->
+    <h3 class="section-title"><i class="bi bi-fire"></i>
+        <span th:text="#{home.featured.title}">Featured Hotels</span>
+    </h3>
+    <p class="section-subtitle" th:text="#{home.featured.subtitle}">
+        Our top picks chosen for quality, comfort, and guest satisfaction.
+    </p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="col" th:each="h : ${featuredHotels}">
+            <div class="card hotel-card h-100">
+                <a th:href="@{'/hotels/' + ${h.hotelId}}">
+                    <img th:src="@{${h.imageUrl}}" class="card-img-top" alt="Featured Hotels">
+                    <div class="card-body">
+                        <h5 class="fw-bold" th:text="${h.name}"></h5>
+                        <p>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <span th:text="${h.stars}"></span> Stars
+                        </p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Beach & Spa -->
+    <h3 class="section-title"><i class="bi bi-water"></i>
+        <span th:text="#{home.beach.title}">Beach & Spa</span>
+    </h3>
+    <p class="section-subtitle" th:text="#{home.beach.subtitle}">
+        Relax, recharge, and enjoy premium spa and beachfront stays.
+    </p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="col" th:each="h : ${beachSpaHotels}">
+            <div class="card hotel-card h-100">
+                <a th:href="@{'/hotels/' + ${h.hotelId}}">
+                    <img th:src="@{${h.imageUrl}}" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="fw-bold" th:text="${h.name}"></h5>
+                        <p class="text-success">
+                            <i class="bi bi-water"></i>
+                            <span th:text="#{home.beach.badge}">Beachfront</span> •
+                            <i class="bi bi-flower3"></i>
+                            <span th:text="#{home.spa.badge}">Spa Included</span>
+                        </p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Cities -->
+    <h3 class="section-title"><i class="bi bi-geo-alt"></i>
+        <span th:text="#{home.city.title}">Popular Cities</span>
+    </h3>
+    <p class="section-subtitle" th:text="#{home.city.subtitle}">
+        Discover the most loved destinations around the world.
+    </p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="col" th:each="h : ${cityHotels}">
+            <div class="card hotel-card h-100">
+                <a th:href="@{'/hotels/' + ${h.hotelId}}">
+                    <img th:src="@{${h.imageUrl}}" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="fw-bold" th:text="${h.name}"></h5>
+                        <p class="text-muted small">
+                            <i class="bi bi-buildings-fill me-2"></i>
+                            <span th:text="#{home.city.badge}">City Stay</span>
+                        </p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Value Rooms -->
+    <h3 class="section-title"><i class="bi bi-cash-coin"></i>
+        <span th:text="#{home.bestValue.title}">Best Value Rooms</span>
+    </h3>
+    <p class="section-subtitle" th:text="#{home.bestValue.subtitle}">
+        High comfort rooms with the best nightly prices.
+    </p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="col" th:each="r : ${bestValueRooms}">
+            <div class="card hotel-card h-100">
+                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
+
+                    <img th:src="@{${r.photoUrl}}" class="card-img-top" alt="">
+
+                    <div class="card-body">
+                        <h5 class="fw-bold">
+                            Room <span th:text="${r.number}"></span> – <span th:text="${r.type}"></span>
+                        </h5>
+
+                        <span class="badge bg-success mb-2">
+                            <i class="bi bi-award"></i>
+                            <span th:text="#{home.badge.bestValue}">Best Value</span>
+                        </span>
+
+                        <p class="price-discount mt-2">
+                            <i class="bi bi-tag"></i>
+                            <span th:text="${#numbers.formatDecimal(r.pricePerNight, 1, 2)}"></span>
+                            <span th:text="#{rooms.perNight}">/ Night</span>
+                        </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-people"></i>
+                            <span th:text="#{home.comfort}">Comfort & Enjoyment Guaranteed</span>
+                        </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-building"></i>
+                            <span th:text="${r.hotel.name}"></span>
+                        </p>
+
+                    </div>
+
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Rooms -->
+    <h3 class="section-title"><i class="bi bi-gem"></i>
+        <span th:text="#{home.premium.title}">Premium Rooms</span>
+    </h3>
+    <p class="section-subtitle" th:text="#{home.premium.subtitle}">
+        Experience the finest luxury stays with top-tier comfort.
+    </p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="col" th:each="r : ${premiumRooms}">
+            <div class="card hotel-card h-100">
+                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
+
+                    <img th:src="@{${r.photoUrl}}" class="card-img-top" alt="">
+
+                    <div class="card-body">
+
+                        <h5 class="fw-bold">
+                            Room <span th:text="${r.number}"></span> – <span th:text="${r.type}"></span>
+                        </h5>
+
+                        <span class="badge bg-primary mb-2">
+                            <i class="bi bi-gem"></i>
+                        <span th:text="#{home.premium.badge}">Premium</span>
+                        </span>
+
+                        <p class="price-discount mt-2">
+                            <i class="bi bi-tag-fill"></i>
+                            <span th:text="${#numbers.formatDecimal(r.pricePerNight, 1, 2)}"></span>
+                            <span th:text="#{rooms.perNight}">/ Night</span>
+                        </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-stars"></i>
+                            <span th:text="#{home.premium.text}">
+                            Luxury & Exceptional Comfort
+                            </span>
+                        </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-building"></i>
+                            <span th:text="${r.hotel.name}"></span>
+                        </p>
+
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top picks (Most Booked rooms) -->
+    <h3 class="section-title mt-5"><i class="bi bi-trophy"></i>
+        <span th:text="#{home.topPicks.title}">Top Picks</span>
+    </h3>
+
+    <p class="section-subtitle" th:text="#{home.topPicks.subtitle}">
+        Rooms most frequently selected by guests.
+    </p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="col" th:each="r : ${topPickedRooms}">
+            <div class="card hotel-card h-100">
+
+                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
+                    <img th:src="@{${r.photoUrl}}" class="card-img-top" alt="">
+
+                    <div class="card-body">
+                        <h5 class="fw-bold">
+                            Room <span th:text="${r.number}"></span> – <span th:text="${r.type}"></span>
+                        </h5>
+
+                        <span class="badge bg-warning text-dark mb-2">
+                        <i class="bi bi-people-fill"></i>
+                        <span th:text="#{home.topPicks.badge}">Most Booked</span>
+                        </span>
+
+                        <p class="price-discount mt-2">
+                            <i class="bi bi-tag-fill"></i>
+                            <span th:text="${#numbers.formatDecimal(r.pricePerNight, 1, 2)}"></span>
+                            <span th:text="#{rooms.perNight}">/ Night</span>
+                        </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-people"></i>
+                            <span th:text="#{home.topPicks.text}">Popular Choice</span>
+                        </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-building"></i>
+                            <span th:text="${r.hotel.name}"></span>
+                        </p>
+
+                    </div>
+
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

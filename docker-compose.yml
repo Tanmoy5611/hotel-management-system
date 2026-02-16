@@ -1,0 +1,16 @@
+services:
+  postgres_hotels_db:
+    container_name: postgres-hotels
+    image: postgres:18.1-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: hotels
+      POSTGRES_USER: spring
+      POSTGRES_PASSWORD: spring
+    ports:
+      - "5050:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:

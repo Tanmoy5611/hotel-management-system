@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{hotels.title}">Hotels</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- navigation bar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+    <h2 class="text-primary mb-3" th:text="#{hotels.title}">All Hotels</h2>
+
+    <form th:action="@{/hotels}" method="get" class="mb-4">
+
+        <!-- Filters row -->
+        <div class="row g-3 align-items-end">
+
+            <!-- Search by name -->
+            <div class="col-lg-4 col-md-6">
+                <label for="name" class="form-label fw-semibold"
+                       th:text="#{hotels.filter.search}">Search hotel</label>
+
+                <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                </span>
+                    <input id="name"
+                           type="text"
+                           name="name"
+                           class="form-control"
+                           th:placeholder="#{hotels.filter.search.placeholder}"
+                           th:value="${selectedName}">
+                </div>
+            </div>
+
+            <!-- Min stars -->
+            <div class="col-lg-2 col-md-3">
+                <label for="minStars" class="form-label fw-semibold"
+                       th:text="#{hotels.filter.minStars}">Min stars</label>
+
+                <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-star-fill text-warning"></i>
+                </span>
+                    <input id="minStars"
+                           type="number"
+                           name="minStars"
+                           min="1" max="5"
+                           class="form-control"
+                           th:value="${selectedMinStars}">
+                </div>
+            </div>
+
+            <!-- Opened after -->
+            <div class="col-lg-3 col-md-3">
+                <label for="opened" class="form-label fw-semibold"
+                       th:text="#{hotels.filter.openedAfter}">Opened after</label>
+
+                <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-calendar-event"></i>
+                </span>
+                    <input id="opened"
+                           type="date"
+                           name="opened"
+                           class="form-control"
+                           th:value="${selectedOpened}">
+                </div>
+            </div>
+
+            <!-- Sort -->
+            <div class="col-lg-2 col-md-3">
+                <label class="form-label fw-semibold"
+                       th:text="#{hotels.filter.sort}">Sort</label>
+                <select name="sort" class="form-select">
+                    <option value=""
+                            th:selected="${selectedSort == null}"
+                            th:text="#{hotels.filter.none}">
+                        None
+                    </option>
+                    <option value="name"
+                            th:selected="${selectedSort == 'name'}"
+                            th:text="#{hotels.filter.nameAsc}">
+                        Name (A → Z)
+                    </option>
+                    <option value="stars"
+                            th:selected="${selectedSort == 'stars'}"
+                            th:text="#{hotels.filter.starsDesc}">
+                        Stars (High → Low)
+                    </option>
+                </select>
+
+            </div>
+
+            <!-- Go button -->
+            <div class="col-lg-1 col-md-2">
+                <button type="submit"
+                        class="btn btn-primary w-100"
+                        th:text="#{hotels.filter.go}">
+                    Go
+                </button>
+            </div>
+        </div>
+
+        <!-- Actions + tip row -->
+        <div class="row mt-2 align-items-center">
+
+            <!-- Reset -->
+            <div class="col-md-6">
+                <a th:href="@{/hotels}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    <span th:text="#{filter.reset}">Reset Filters</span>
+                </a>
+            </div>
+
+            <!-- Tip (large screens only) -->
+            <div class="col-md-6 text-end text-muted fst-italic d-none d-lg-block">
+                <i class="bi bi-info-circle"></i>
+                <span th:text="#{hotels.tip}">
+                    Tip: Use filters to quickly find hotels by name, star rating, or opening date.
+                </span>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- Responsive Card Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+
+        <div class="col" th:each="h : ${hotels}">
+            <div class="card h-100 shadow-sm hover-card">
+                <a th:href="@{'/hotels/' + ${h.hotelId}}"
+                   class="text-decoration-none text-dark">
+
+                    <!-- Hotel Image -->
+                    <img th:src="@{${h.imageUrl}}"
+                         class="card-img-top hotel-img"
+                         th:alt="${h.name}">
+
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <h5 class="card-title text-center fw-bold mb-3"
+                            th:text="${h.name}">
+                            Hotel Name
+                        </h5>
+
+                        <p class="card-text mb-2">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <span th:text="${h.stars} + ' Stars'"></span>
+                        </p>
+
+                        <p class="card-text mb-2">
+                            <i class="bi bi-calendar-event text-secondary"></i>
+                            <span th:text="${#temporals.format(h.openedOn, 'dd MMM yyyy')}"></span>
+                        </p>
+
+                        <p class="card-text">
+                            <i class="bi"
+                               th:classappend="${h.hasSpa} ? 'bi-heart-pulse text-success' : 'bi-x-circle text-muted'">
+                            </i>
+                            <span th:text="${h.hasSpa} ? #{hotels.spaYes} : #{hotels.spaNo}"></span>
+                        </p>
+                    </div>
+                </a>
+
+                <!-- Footer -->
+                <div class="card-footer small d-flex justify-content-between align-items-center">
+                    <span class="text-muted" th:text="#{hotels.footer.text}">
+                        Explore more...
+                    </span>
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            th:data-bs-target="${'#deleteModal-' + h.hotelId}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+
+            </div>
+
+
+            <!-- Delete Modal -->
+            <div class="modal fade" th:id="${'deleteModal-' + h.hotelId}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white py-2">
+                            <h6 class="modal-title" th:text="#{modal.delete.title}">
+                                Delete Hotel
+                            </h6>
+                            <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body text-center">
+                            <p class="mb-2" th:text="#{modal.delete.hotelQuestion}"></p>
+                            <strong th:text="${h.name}"></strong>
+                        </div>
+
+                        <div class="modal-footer justify-content-between">
+                            <button type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-bs-dismiss="modal"
+                                    th:text="#{button.cancel}">
+                            </button>
+
+                            <form th:action="@{'/hotels/' + ${h.hotelId} + '/delete'}" method="post">
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        th:text="#{button.delete}">
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Count hotels below -->
+    <p class="mt-4 text-muted">
+        <i class="bi bi-collection"></i>
+        <span th:text="${#lists.size(hotels)} + ' ' + #{hotels.total}">Total hotels: 0</span>
+    </p>
+</div>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Guest - ' + ${guest.fullName}">Guest Detail</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <!-- Guest Header -->
+    <div class="card mb-4 shadow-sm">
+        <div class="row g-0">
+            <div class="col-md-4 text-center p-3">
+                <img th:src="@{${guest.avatarUrl}}" alt="Avatar"
+                     class="rounded-circle"
+                     style="width:150px; height:150px; object-fit:cover;">
+            </div>
+
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h3 class="card-title fw-bold" th:text="${guest.fullName}">Guest Name</h3>
+
+                    <p class="card-text mb-2">
+                        <i class="bi bi-envelope"></i>
+                        <span th:text="${guest.email}">email@example.com</span>
+                    </p>
+
+                    <p class="card-text mb-2">
+                        <i class="bi bi-calendar"></i>
+                        <span th:text="${guest.dob}">DOB</span>
+                    </p>
+
+                    <!-- VIP / Regular badge -->
+                    <span class="badge me-2"
+                          th:classappend="${guest.discountPercentage != null and guest.discountPercentage.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'bg-warning text-dark' : 'bg-secondary'"
+                          th:text="${guest.discountPercentage != null and guest.discountPercentage.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? #{guest.vip} : #{guest.regular}">
+                    </span>
+
+                    <!-- Discount badge (only if VIP) -->
+                    <span class="badge bg-success text-white"
+                          th:if="${guest.discountPercentage != null and guest.discountPercentage.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                          th:text="${#numbers.formatDecimal(guest.discountPercentage, 1, 0)} + '%'">
+                    </span>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rooms table title -->
+    <h4 class="text-primary mb-3">
+        <i class="bi bi-door-open"></i>
+        <span th:text="#{guest.roomsTitle}"></span>
+    </h4>
+
+    <!-- No rooms -->
+    <div th:if="${#lists.isEmpty(roomRows)}" class="text-muted mb-3">
+        <i th:text="#{guest.noRooms}"></i>
+    </div>
+
+    <!-- Rooms Table -->
+    <div th:if="${!#lists.isEmpty(roomRows)}" class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th th:text="#{guest.table.room}"></th>
+                <th th:text="#{guest.table.type}"></th>
+                <th th:text="#{booking.checkin}">Check-in</th>
+                <th th:text="#{booking.checkout}">Check-out</th>
+                <th th:text="#{guest.table.price}"></th>
+                <th th:text="#{guest.table.discount}"></th>
+                <th th:text="#{guest.table.finalPrice}"></th>
+                <th th:text="#{guest.table.sea}"></th>
+                <th th:text="#{guest.table.hotel}"></th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="row : ${roomRows}"
+                th:onclick="'window.location.href=\'/rooms/' + ${row.room.id} + '\';'"
+                style="cursor:pointer;">
+
+                <td th:text="${row.room.number}"></td>
+                <td th:text="${row.room.type}"></td>
+
+                <td th:text="${#temporals.format(row.checkIn, 'dd/MM/yyyy')}"></td>
+                <td th:text="${#temporals.format(row.checkOut, 'dd/MM/yyyy')}"></td>
+                <!-- Price -->
+                <td th:text="${#numbers.formatDecimal(row.totalPrice, 1, 2)} + ' €'"></td>
+
+                <!-- Discount -->
+                <td th:text="${#numbers.formatDecimal(row.discount,1,0)} + '%'"></td>
+
+                <!-- Final Price (green) -->
+                <td class="text-success fw-semibold"
+                    th:text="${#numbers.formatDecimal(row.finalPrice, 1, 2)} + ' €'"></td>
+
+                <!-- Sea View -->
+                <td th:text="${row.room.seaView} ? #{guest.seaYes} : #{guest.seaNo}"></td>
+
+                <!-- Hotel -->
+                <td>
+                    <a th:href="@{'/hotels/' + ${row.room.hotel.hotelId}}"
+                       th:text="${row.room.hotel.name}">
+                    </a>
+                </td>
+
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+    <!-- Back + Delete -->
+    <div class="mt-4 d-flex justify-content-between">
+
+        <a th:href="@{/guests}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            <span th:text="#{guest.back}"></span>
+        </a>
+
+        <!-- Delete button opens modal -->
+        <button type="button"
+                class="btn btn-danger"
+                data-bs-toggle="modal"
+                th:data-bs-target="${'#deleteGuestModal-' + guest.id}">
+            <i class="bi bi-trash"></i>
+            <span th:text="#{guest.deleteButton}"></span>
+        </button>
+
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade"
+         th:id="${'deleteGuestModal-' + guest.id}"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+
+                <div class="modal-header bg-danger text-white py-2">
+                    <h6 class="modal-title" th:text="#{modal.delete.title}"></h6>
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body text-center">
+                    <p class="mb-2" th:text="#{modal.delete.guestQuestion}"></p>
+                    <strong th:text="${guest.fullName}"></strong>
+                </div>
+
+                <div class="modal-footer justify-content-between">
+
+                    <!-- Cancel -->
+                    <button type="button"
+                            class="btn btn-secondary btn-sm"
+                            data-bs-dismiss="modal"
+                            th:text="#{button.cancel}">
+                    </button>
+
+                    <!-- Yes Delete -->
+                    <form th:action="@{|/guests/${guest.id}/delete|}" method="post">
+                        <button type="submit"
+                                class="btn btn-danger btn-sm"
+                                th:text="#{button.delete}">
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

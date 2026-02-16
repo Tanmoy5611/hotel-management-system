@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{rooms.title}">Rooms</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- include the navigation bar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+    <h2 class="text-primary mb-3" th:text="#{rooms.title}">All Rooms</h2>
+
+    <!-- Filter form for rooms -->
+    <form th:action="@{/rooms}" method="get"
+          class="row g-3 mb-4 align-items-end">
+
+        <!-- Room Number -->
+        <div class="col-md-3">
+            <label class="form-label fw-semibold"
+                   th:text="#{rooms.filter.number}">
+                Room number
+            </label>
+            <input type="number"
+                   name="number"
+                   class="form-control"
+                   th:placeholder="#{rooms.filter.number.placeholder}">
+        </div>
+
+        <!-- Type -->
+        <div class="col-md-3">
+            <label for="type"
+                   class="form-label fw-semibold"
+                   th:text="#{rooms.filter.type}">
+                Type
+            </label>
+            <select id="type" name="type" class="form-select">
+                <option value="" th:text="#{rooms.selectType}"></option>
+                <option th:each="t : ${types}"
+                        th:value="${t}"
+                        th:text="${t}"
+                        th:selected="${t.toString() == selType}">
+                </option>
+            </select>
+        </div>
+
+        <!-- Sea View -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold d-block"
+                   th:text="#{rooms.filter.sea}">
+                Sea View
+            </label>
+            <div class="form-check mt-2">
+                <input id="sea"
+                       type="checkbox"
+                       name="sea"
+                       th:checked="${selSea}"
+                       class="form-check-input">
+                <label for="sea" class="form-check-label">
+                    ✓
+                </label>
+            </div>
+        </div>
+
+        <!-- Max Price -->
+        <div class="col-md-2">
+            <label for="maxPrice"
+                   class="form-label fw-semibold"
+                   th:text="#{rooms.filter.max}">
+                Max price
+            </label>
+            <input id="maxPrice"
+                   type="number"
+                   step="0.01"
+                   name="maxPrice"
+                   th:value="${selPrice}"
+                   class="form-control">
+        </div>
+
+        <!-- Filter Button -->
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search"></i>
+                <span th:text="#{button.filter}">Filter</span>
+            </button>
+        </div>
+
+        <!-- Actions + tip row -->
+        <div class="row mt-2 align-items-center">
+
+            <!-- Reset -->
+            <div class="col-md-6">
+                <a th:href="@{/rooms}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    <span th:text="#{filter.reset}">Reset Filters</span>
+                </a>
+            </div>
+
+            <!-- Tip (large screens only) -->
+            <div class="col-md-6 text-end text-muted fst-italic d-none d-lg-block">
+                <i class="bi bi-info-circle"></i>
+                <span th:text="#{rooms.tip}">
+                    Tip: Check out the sea-view suites!
+                </span>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- Room cards -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+
+        <div class="col" th:each="r : ${rooms}">
+            <div class="card h-100 shadow-sm hover-card">
+
+                <!-- Clickable area -->
+                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
+                    <!-- Photo -->
+                    <img th:src="@{${r.photoUrl}}" class="card-img-top room-img" alt="Room photo">
+
+                    <div class="card-body">
+                        <h5 class="card-title text-center fw-bold mb-3"
+                            th:text="'Room ' + ${r.number}">
+                            Room
+                        </h5>
+
+                        <p class="card-text mb-2">
+                            <i class="bi bi-door-open"></i>
+                            <span th:text="${r.type}">Type</span>
+                        </p>
+
+                        <p class="card-text mb-2">
+                            <i class="bi bi-cash-coin text-success"></i>
+                            <span th:text="${#numbers.formatDecimal(r.pricePerNight,1,2)} + ' € ' + #{rooms.perNight}"></span>
+                        </p>
+
+                        <p class="card-text d-flex align-items-center gap-2">
+                            <i class="bi"
+                               th:classappend="${r.seaView}
+                               ? 'bi bi-water text-info'
+                               : 'bi-x-circle text-muted'">
+                            </i>
+                            <span th:text="${r.seaView} ? #{rooms.seaYes} : #{rooms.seaNo}"></span>
+                        </p>
+
+                        <p class="text-muted small">
+                            <i class="bi bi-building"></i>
+                            <span th:text="${r.hotel.name}"></span>
+                        </p>
+
+                    </div>
+                </a>
+
+                <!-- Footer (Delete button) -->
+                <div class="card-footer small d-flex justify-content-between align-items-center">
+                    <span class="text-muted" th:text="#{rooms.footer.text}">
+                    Comfortable & Cozy
+                   </span>
+
+                    <!-- Delete button opens modal -->
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            th:data-bs-target="${'#deleteRoomModal-' + r.id}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Delete modal -->
+            <div class="modal fade" th:id="${'deleteRoomModal-' + r.id}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-danger text-white py-2">
+                            <h6 class="modal-title" th:text="#{modal.delete.title}"></h6>
+                            <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body text-center">
+                            <p class="mb-2" th:text="#{modal.delete.question}"></p>
+                            <strong th:text="'Room ' + ${r.number}"></strong>
+                        </div>
+
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                    data-bs-dismiss="modal"
+                                    th:text="#{button.cancel}">
+                            </button>
+
+                            <form th:action="@{'/rooms/' + ${r.id} + '/delete'}"
+                                  method="post">
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        th:text="#{button.delete}">
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Room count -->
+    <p class="mt-4 text-muted">
+        <i class="bi bi-collection"></i>
+        <span th:text="${#lists.size(rooms)} + ' ' + #{rooms.total}"></span>
+    </p>
+</div>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

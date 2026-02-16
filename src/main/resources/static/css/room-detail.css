@@ -1,0 +1,121 @@
+/* Table row hover */
+
+.custom-table-row {
+    transition: all 0.25s ease;
+}
+
+.custom-table-row:hover {
+    transform: scale(1.01);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    z-index: 2;
+    position: relative;
+}
+
+/* Light theme hover */
+body.bg-light .custom-table-row:hover {
+    background-color: rgba(0, 123, 255, 0.06);
+}
+
+/* Dark theme hover */
+body:not(.bg-light) .custom-table-row:hover {
+    background-color: rgba(255,255,255,0.06);
+}
+
+/* Stay status badges */
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+body.bg-light .status-past {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+body.bg-light .status-current {
+    background-color: #d1f7e4;
+    color: #0f5132;
+}
+
+body.bg-light .status-future {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+body:not(.bg-light) .status-past {
+    background-color: #2c2f36;
+    color: #adb5bd;
+}
+
+body:not(.bg-light) .status-current {
+    background-color: rgba(25, 135, 84, 0.2);
+    color: #20c997;
+}
+
+body:not(.bg-light) .status-future {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+/* VIP status badges */
+
+.vip-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+body.bg-light .vip-active {
+    background-color: #ffe8a1;
+    color: #664d03;
+}
+
+body.bg-light .vip-regular {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+body:not(.bg-light) .vip-active {
+    background-color: rgba(255, 193, 7, 0.25);
+    color: #ffc107;
+}
+
+body:not(.bg-light) .vip-regular {
+    background-color: #2c2f36;
+    color: #adb5bd;
+}
+
+body.bg-light .status-past-row {
+    background-color: #f8f9fa;
+}
+
+body.bg-light .status-current-row {
+    background-color: #f3fff8;
+}
+
+body.bg-light .status-future-row {
+    background-color: #fffaf0;
+}
+
+/* Dark theme */
+body:not(.bg-light) .status-past-row {
+    background-color: #1f232a;
+}
+
+body:not(.bg-light) .status-current-row {
+    background-color: rgba(25,135,84,0.08);
+}
+
+body:not(.bg-light) .status-future-row {
+    background-color: rgba(255,193,7,0.08);
+}
+
+.alert-success {
+    border-radius: 12px;
+    font-weight: 500;
+}

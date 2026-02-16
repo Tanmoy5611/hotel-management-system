@@ -1,0 +1,20 @@
+.char-counter {
+    font-size: 0.85rem;
+    transition: color 0.3s ease;
+}
+
+.char-counter.warning {
+    color: #ffc107;
+}
+
+.char-counter.danger {
+    color: #dc3545;
+}
+
+textarea {
+    transition: box-shadow 0.3s ease;
+}
+
+textarea:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+}
