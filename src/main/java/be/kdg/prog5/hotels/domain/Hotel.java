@@ -19,7 +19,7 @@ public class Hotel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Technical primary key
+    private Long id; // Technical primary key for database
 
     @Column(name = "hotel_id", nullable = false, unique = true, updatable = false)
     private String hotelId;           //  Business identifier (used in URLs,like /hotels/hilton-antwerp)

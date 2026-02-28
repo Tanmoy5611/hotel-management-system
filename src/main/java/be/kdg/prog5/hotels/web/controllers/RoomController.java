@@ -139,7 +139,8 @@ public class RoomController {
 
         // Log and save new room data using the service layer
         log.debug("Creating new room: {}", room);
-        roomService.createRoom(room);
+        roomService.createRoom(room, roomForm.getHotelId());
+
 
         return "redirect:/rooms";   // Redirect back to list of rooms after successful submission
     }

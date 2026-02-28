@@ -23,7 +23,7 @@ public interface RoomService {
                          Optional<BigDecimal> maxPrice);
 
     // Create new room (belongs to a hotel)
-    Room createRoom(Room room);
+    Room createRoom(Room room, String hotelId);
 
     // Search rooms by room number
     List<Room> getRoomsByNumber(int roomNumber);

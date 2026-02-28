@@ -2,6 +2,7 @@ package be.kdg.prog5.hotels.business;
 
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
+import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.domain.*;
 import org.slf4j.Logger;
@@ -22,12 +23,15 @@ public class RoomServiceImpl implements RoomService {
             LoggerFactory.getLogger(RoomServiceImpl.class);
 
     private final SpringDataRoomRepository roomRepo;
+    private final SpringDataHotelRepository hotelRepo;
     private final SpringDataGuestRepository guestRepo;
 
 
     public RoomServiceImpl(SpringDataRoomRepository roomRepo,
+                           SpringDataHotelRepository hotelRepo,
                            SpringDataGuestRepository guestRepo) {
         this.roomRepo = roomRepo;
+        this.hotelRepo = hotelRepo;
         this.guestRepo = guestRepo;
     }
 
@@ -58,13 +62,17 @@ public class RoomServiceImpl implements RoomService {
 
     // Create room - (Aggregate Root operation)
     @Override
-    public Room createRoom(Room room) {
-        log.debug("Creating room: {}", room);
+    public Room createRoom(Room room, String hotelId) {
+        log.debug("Creating room for hotel business id: {}", room + hotelId);
 
         // Room must always belong to a hotel
-        if (room.getHotel() == null) {
-            throw new IllegalArgumentException("Room must belong to a hotel");
-        }
+        // Fetch hotel using BUSINESS ID
+        Hotel hotel = hotelRepo.findByHotelId(hotelId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Hotel not found"));
+
+        // Assign aggregate relation
+        room.setHotel(hotel);
 
         return roomRepo.save(room);
     }
