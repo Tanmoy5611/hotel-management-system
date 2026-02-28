@@ -21,3 +21,27 @@ Accept: application/json
 ### DELETE one room - Not Found
 DELETE http://localhost:8080/api/rooms/99999
 Accept: application/json
+
+
+### POST create room - Created
+POST http://localhost:8080/api/rooms
+Content-Type: application/json
+Accept: application/json
+
+{
+  "number": 501,
+  "pricePerNight": 199.99,
+  "hotelId": "hilton-old-town"
+}
+
+
+### POST create room - Bad Request
+POST http://localhost:8080/api/rooms
+Content-Type: application/json
+Accept: application/json
+
+{
+  "number": -5,
+  "pricePerNight": -100,
+  "hotelId": null
+}
