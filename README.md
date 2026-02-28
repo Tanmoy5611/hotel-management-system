@@ -232,6 +232,211 @@ http://localhost:8080
 
 ---
 
+# Week 2 - REST API (Room)
+
+## Overview
+In Week 2, a robust **REST API** was implemented for the **Room** entity. The implementation strictly adheres to REST architectural principles to ensure a clean, scalable interface between the client and server.
+
+### Key API Principles
+* **Base Path:** `/api/rooms`
+* **Methods:** Proper use of HTTP verbs (`GET`, `DELETE`).
+* **Status Codes:** Implementation of specific response codes:
+    * `200 OK`: Successful retrieval.
+    * `204 No Content`: Successful deletion.
+    * `404 Not Found`: Resource not found.
+* **Data Format:** Standard **JSON** responses.
+* **Architecture:**
+    * **DTO Usage:** Implementation of `RoomDto` for decoupled data transfer.
+    * **Global Exception Handling:** Managed via `@RestControllerAdvice` for consistent error structures.
+* **Integration:** * Tested and verified via `rooms-api.http`.
+    * Fully integrated with **JavaScript (AJAX)** to enable dynamic, asynchronous deletion without page refreshes.
+
+---
+
+## Controller Implementation
+
+The API logic is encapsulated within the `RoomApiController`.
+
+### Configuration
+* **Controller Class:** `RoomApiController`
+* **Base Mapping:** `@RequestMapping("/api/rooms")`
+
+### Endpoints Implemented
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| **GET** | `/api/rooms` | Retrieve a list of all rooms. |
+| **GET** | `/api/rooms/{id}` | Retrieve details for a specific room by ID. |
+| **DELETE** | `/api/rooms/{id}` | Permanently delete a room record. |
+
+---
+
+### 1. GET – Retrieve All Rooms (200 OK)
+
+This endpoint fetches the complete list of available rooms from the database, transformed into DTOs for client-side consumption.
+
+#### HTTP Request
+* **URL:** `http://localhost:8080/api/rooms`
+* **Method:** `GET`
+* **Accept:** `application/json`
+
+#### Response
+* **Status:** `200 OK`
+* **Body:** `List<RoomDto>`
+
+**Example Response Body:**
+```json
+{
+    "id": 1,
+    "number": 101,
+    "pricePerNight": 120.00,
+    "hotelName": "Hilton"
+}
+```
+
+### Internal Implementation Flow
+1. **Service Layer:** The controller invokes roomService.getAllRooms().
+2. **Data Mapping:** Room entities are converted to RoomDto using the RoomMapper component to prevent exposing internal entity structures.
+3. **Response Wrapper:** Results are wrapped in a ResponseEntity.ok(...) to ensure the correct HTTP status is sent to the client.
+
+### 2. GET - Retrieve Single Room (200 OK)
+
+This endpoint fetches the details of a specific room based on its unique identifier.
+
+#### HTTP Request
+* **URL:** `GET http://localhost:8080/api/rooms/1`
+* **Method:** `GET`
+* **Accept:** `application/json`
+
+#### Response
+* **Status:** `200 OK`
+* **Body:** `RoomDto`
+
+**Example Response Body:**
+```json
+{
+  "id": 1,
+  "number": 101,
+  "pricePerNight": 120.00,
+  "hotelName": "Hilton"
+}
+```
+### Internal Implementation Flow
+1. **Service Layer:** Invokes roomService.getRoomById(id) to locate the record.
+2. **Data Mapping:** Uses the RoomMapper to transform the entity into a RoomDto.
+3. **Response Wrapper:** Returns the mapped object via ResponseEntity.ok(...).
+
+### 3. GET - Room Not Found (404)
+
+This scenario occurs when a client requests a resource using an identifier that does not exist in the database.
+
+#### HTTP Request
+* **URL:** `GET http://localhost:8080/api/rooms/99999`
+* **Method:** `GET`
+* **Accept:** `application/json`
+
+#### Response
+* **Status:** `404 Not Found`
+* **Body:** `ApiError`
+
+**Example Response Body:**
+```json
+{
+  "timestamp": "2026-02-28T12:30:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Room with id 99999 not found",
+  "path": "/api/rooms/99999"
+}
+```
+### Internal Implementation Flow
+1. **Exception Trigger:** When the service layer cannot find the record, it throws a custom RoomNotFoundException.
+2. **Global Catch:** The request is intercepted by the Global Exception Handler.
+3. **Class:** ApiExceptionHandler
+4. **Annotation:** @RestControllerAdvice
+5. **Response Wrapper:** The handler maps the exception details into a standardized ApiError object and returns it with a 404 status code.
+
+### 4. DELETE - Delete Room (204 No Content)
+
+This endpoint allows for the permanent removal of a room record from the system.
+
+#### HTTP Request
+* **URL:** `DELETE http://localhost:8080/api/rooms/1`
+* **Method:** `DELETE`
+* **Accept:** `application/json`
+
+#### Response
+* **Status:** `204 No Content`
+* **Body:** *None (The response body is empty by design).*
+
+#### Internal Implementation Flow
+1. **Service Layer:** The controller calls the deletion logic, ensuring the room is removed from the database.
+2. **Response Wrapper:** Instead of returning data, the controller returns `ResponseEntity.noContent().build()`.
+3. **Frontend Impact:** The client receives a success confirmation (204) and can then update the UI (e.g., removing the row from a table via AJAX).
+
+---
+
+### 5. DELETE - Room Not Found (404)
+
+Attempts to delete a non-existent resource are handled gracefully to inform the client of the invalid request.
+
+#### HTTP Request
+* **URL:** `DELETE http://localhost:8080/api/rooms/99999`
+* **Method:** `DELETE`
+* **Accept:** `application/json`
+
+#### Response
+* **Status:** `404 Not Found`
+* **Body:** `ApiError` (Standardized JSON error structure).
+
+---
+
+## DTO & Mapping
+
+To maintain a clean separation between the database layer and the API layer, the application utilizes the **Data Transfer Object (DTO)** pattern.
+
+* **DTO Class:** `RoomDto`
+* **Fields:** `id`, `number`, `pricePerNight`, `hotelName`
+* **Mapping Framework:** MapStruct (`@Mapper(componentModel = "spring")`)
+* **Custom Logic:** `@Mapping(source = "hotel.name", target = "hotelName")`
+
+> **Note:** This approach prevents the internal `Room` entity from being exposed directly, keeping the API responses clean and specifically tailored for the frontend.
+
+---
+
+## Exception Handling
+
+Centralized error management is implemented using a **Global Exception Handler** to ensure consistent API responses across the entire application.
+
+* **Annotation:** `@RestControllerAdvice`
+* **Target Class:** `ApiExceptionHandler`
+* **Handled Exceptions:** `RoomNotFoundException`
+* **Result:** Returns a structured JSON object (`ApiError`) containing a timestamp, status code, and descriptive message.
+
+---
+
+## HTTP Test File
+
+The API was rigorously tested using the `rooms-api.http` file included in the project. This allows for rapid verification of the following scenarios:
+
+1. **GET all rooms** - Returns `200 OK`.
+2. **GET one room** - Returns `200 OK`.
+3. **GET one room (Invalid ID)** - Returns `404 Not Found`.
+4. **DELETE room** - Returns `204 No Content`.
+5. **DELETE room (Invalid ID)** - Returns `404 Not Found`.
+
+---
+
+## AJAX Integration
+
+The `DELETE` functionality is fully integrated with the frontend using the JavaScript **Fetch API**. This fulfills the requirement for dynamic UI updates without page reloads.
+* **Success (204):** The room is removed from the DOM immediately.
+* **Failure (404):** An error message is displayed to the user via a notification or alert.
+
+---
+
+
+
 > <h2 align="center"> Author: <span style="color:#9d0dfd;"><em>Tanmoy Das</em></span> </h2>
 <p align="center">
   <i>Bachelor of Applied Computer Science</i><br>
