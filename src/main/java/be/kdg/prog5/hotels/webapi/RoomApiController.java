@@ -2,8 +2,11 @@ package be.kdg.prog5.hotels.webapi;
 
 import be.kdg.prog5.hotels.business.RoomService;
 import be.kdg.prog5.hotels.domain.Room;
+import be.kdg.prog5.hotels.webapi.dto.NewRoomDto;
 import be.kdg.prog5.hotels.webapi.dto.RoomDto;
 import be.kdg.prog5.hotels.webapi.mapper.RoomMapper;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,5 +47,22 @@ public class RoomApiController {
     public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
         roomService.deleteRoom(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping
+    public ResponseEntity<RoomDto> createRoom(
+            @RequestBody @Valid NewRoomDto newRoomDto) {
+
+        // DTO - Entity
+        Room room = roomMapper.toEntity(newRoomDto);
+
+        // Service handles aggregate
+        Room savedRoom =
+                roomService.createRoom(room, newRoomDto.getHotelId());
+
+        return new ResponseEntity<>(
+                roomMapper.toDto(savedRoom),
+                HttpStatus.CREATED
+        );
     }
 }

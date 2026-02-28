@@ -19,34 +19,28 @@ public class RoomDto {
         this.hotelName = hotelName;
     }
 
+    // getters and setters
     public Long getId() {
         return id;
     }
-
     public int getNumber() {
         return number;
     }
-
     public BigDecimal getPricePerNight() {
         return pricePerNight;
     }
-
     public String getHotelName() {
         return hotelName;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public void setNumber(int number) {
         this.number = number;
     }
-
     public void setPricePerNight(BigDecimal pricePerNight) {
         this.pricePerNight = pricePerNight;
     }
-
     public void setHotelName(String hotelName) {
         this.hotelName = hotelName;
     }
