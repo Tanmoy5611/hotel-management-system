@@ -134,4 +134,29 @@ public class HotelServiceImpl implements HotelService {
         hotel.setDescription(description);
         // JPA dirty checking persists automatically
     }
+
+    /// Home Page
+    @Override
+    @Transactional(readOnly = true)
+    public List<Hotel> getFeaturedHotels() {
+        log.debug("Getting top 4 featured hotels by stars");
+
+        return hotelRepo.findTop4ByOrderByStarsDesc();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Hotel> getBeachSpaHotels() {
+        log.debug("Getting top 4 hotels with spa");
+
+        return hotelRepo.findTop4ByHasSpaTrue();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Hotel> getCityHotels(LocalDate openedAfter) {
+        log.debug("Getting top 4 city hotels opened after {}", openedAfter);
+
+        return hotelRepo.findTop4ByOpenedOnAfterOrderByOpenedOnDesc(openedAfter);
+    }
 }

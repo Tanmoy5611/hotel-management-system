@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDate;
 
 @Repository       // this interface as a Spring-managed repository bean
 public interface SpringDataHotelRepository extends JpaRepository<Hotel, Long> {
@@ -38,4 +39,14 @@ public interface SpringDataHotelRepository extends JpaRepository<Hotel, Long> {
 
     // to check if there is already a hotel
     boolean existsByHotelId(String hotelId);
+
+    /// For Home Page
+    // For Featured Hotels (Top 4 by Stars)
+    List<Hotel> findTop4ByOrderByStarsDesc();
+
+    // For Beach/Spa Hotels (Top 4 with Spa)
+    List<Hotel> findTop4ByHasSpaTrue();
+
+    // For City Hotels (Top 4 opened after a certain openedAfter)
+    List<Hotel> findTop4ByOpenedOnAfterOrderByOpenedOnDesc(LocalDate openedAfter);
 }

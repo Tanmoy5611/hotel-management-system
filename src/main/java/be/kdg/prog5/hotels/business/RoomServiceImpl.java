@@ -25,7 +25,8 @@ public class RoomServiceImpl implements RoomService {
     private final SpringDataGuestRepository guestRepo;
 
 
-    public RoomServiceImpl(SpringDataRoomRepository roomRepo, SpringDataGuestRepository guestRepo) {
+    public RoomServiceImpl(SpringDataRoomRepository roomRepo,
+                           SpringDataGuestRepository guestRepo) {
         this.roomRepo = roomRepo;
         this.guestRepo = guestRepo;
     }
@@ -121,7 +122,6 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
-
     // Proper Aggregate Operation (For UI have a “Book Room” feature)
     @Override
     public void bookRoom(Long roomId, Long guestId,
@@ -141,5 +141,35 @@ public class RoomServiceImpl implements RoomService {
 
         // CascadeType.ALL handles the saving of the new Stay record
         roomRepo.save(room);
+    }
+
+
+    /// Home page
+    @Override
+    @Transactional(readOnly = true)
+    public List<Room> getBestValueRooms() {
+        log.debug("Fetching top 4 best value rooms");
+
+        return roomRepo.findTop4ByOrderByPricePerNightAsc();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Room> getPremiumRooms() {
+        log.debug("Fetching top 4 premium rooms");
+
+        return roomRepo.findTop4ByOrderByPricePerNightDesc();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Room> getTopPickedRooms() {
+        log.debug("Fetching top picked rooms via aggregate count query");
+
+        // The query handles the JOIN and COUNT (No N+1)
+        // limit to 4 here to satisfy the UI requirement
+        return roomRepo.findTopPickedRooms().stream()
+                .limit(4)
+                .toList();
     }
 }

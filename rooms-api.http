@@ -1,0 +1,23 @@
+### GET all rooms - OK
+GET http://localhost:8080/api/rooms
+Accept: application/json
+
+
+### GET one room - OK
+GET http://localhost:8080/api/rooms/1
+Accept: application/json
+
+
+### GET one room - Not Found
+GET http://localhost:8080/api/rooms/99999
+Accept: application/json
+
+
+### DELETE one room - No Content
+DELETE http://localhost:8080/api/rooms/1
+Accept: application/json
+
+
+### DELETE one room - Not Found
+DELETE http://localhost:8080/api/rooms/99999
+Accept: application/json

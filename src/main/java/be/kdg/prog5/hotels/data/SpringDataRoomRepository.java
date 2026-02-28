@@ -77,4 +77,23 @@ public interface SpringDataRoomRepository extends JpaRepository<Room, Long> {
     """)
     Optional<Room> findByIdWithHotelAndGuests(@Param("roomId") Long roomId);
 
+    /// For Home page
+    // Cheapest room with JOIN FETCH and explicit Query
+    @Query("SELECT r FROM Room r JOIN FETCH r.hotel ORDER BY r.pricePerNight ASC LIMIT 4")
+    List<Room> findTop4ByOrderByPricePerNightAsc();
+
+    // Most expensive rooms with JOIN FETCH and explicit Query
+    @Query("SELECT r FROM Room r JOIN FETCH r.hotel ORDER BY r.pricePerNight DESC LIMIT 4")
+
+    List<Room> findTop4ByOrderByPricePerNightDesc();
+    // Tp prevent N+1: Rooms with most bookings
+    @Query("""
+        SELECT r FROM Room r 
+        JOIN FETCH r.hotel h
+        LEFT JOIN r.stays s 
+        GROUP BY r.id, h.id 
+        ORDER BY COUNT(s) DESC
+    """)
+    List<Room> findTopPickedRooms();
+
 }

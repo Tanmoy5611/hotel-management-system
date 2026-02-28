@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="#{home.page.title}">HotelApp - Find Your Perfect Stay</title>
+
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -30,10 +31,10 @@
                     <span class="input-group-text">
                     <i class="bi bi-geo-alt-fill"></i>
                     </span>
-                <input type="text"
-                       name="name"
-                       class="form-control search-input"
-                       th:placeholder="#{home.search.placeholder}">
+                    <input type="text"
+                           name="name"
+                           class="form-control search-input"
+                           th:placeholder="#{home.search.placeholder}">
                 </div>
             </div>
 
@@ -206,9 +207,8 @@
 
                         <p class="text-muted small">
                             <i class="bi bi-building"></i>
-                            <span th:text="${r.hotel.name}"></span>
+                            <span th:text="${r.hotel != null ? r.hotel.name : 'Unknown Hotel'}"></span>
                         </p>
-
                     </div>
 
                 </a>
@@ -257,7 +257,7 @@
 
                         <p class="text-muted small">
                             <i class="bi bi-building"></i>
-                            <span th:text="${r.hotel.name}"></span>
+                            <span th:text="${r.hotel != null ? r.hotel.name : 'Unknown Hotel'}"></span>
                         </p>
 
                     </div>
@@ -305,7 +305,7 @@
 
                         <p class="text-muted small">
                             <i class="bi bi-building"></i>
-                            <span th:text="${r.hotel.name}"></span>
+                            <span th:text="${r.hotel != null ? r.hotel.name : 'Unknown Hotel'}"></span>
                         </p>
 
                     </div>

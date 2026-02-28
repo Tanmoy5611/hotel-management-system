@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SpringDataStayRepository extends JpaRepository<Stay, Long> {
-
     void deleteByGuest_Id(Long guestId);
 }

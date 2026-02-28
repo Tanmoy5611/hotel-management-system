@@ -33,4 +33,9 @@ public interface HotelService {
     // Update only the description of a hotel
     void updateHotelDescription(String hotelId, String description);
 
+    /// Home page
+    List<Hotel> getFeaturedHotels();
+    List<Hotel> getBeachSpaHotels();
+    List<Hotel> getCityHotels(LocalDate openedAfter);
+
 }

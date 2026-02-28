@@ -39,4 +39,8 @@ public interface RoomService {
 
     void bookRoom(Long roomId, Long guestId, LocalDate checkIn, LocalDate checkOut);   // aggregate operation
 
+    /// For Homepage
+    List<Room> getBestValueRooms();
+    List<Room> getPremiumRooms();
+    List<Room> getTopPickedRooms();
 }
