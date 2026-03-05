@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
 
-                // SUCCESS → 204 No Content
+                // SUCCESS - 204 No Content
                 if (response.status === 204) {
 
                     // 1. Rooms list page (card exists)

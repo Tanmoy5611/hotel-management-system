@@ -1,29 +1,29 @@
-### GET all rooms - OK
+### GET all rooms - 200 OK
 GET http://localhost:8080/api/rooms
 Accept: application/json
 
 
-### GET one room - OK
+### GET one room - 200 OK
 GET http://localhost:8080/api/rooms/1
 Accept: application/json
 
 
-### GET one room - Not Found
+### GET one room - 404 Not Found
 GET http://localhost:8080/api/rooms/99999
 Accept: application/json
 
 
-### DELETE one room - No Content
+### DELETE one room - 204 No Content
 DELETE http://localhost:8080/api/rooms/1
 Accept: application/json
 
 
-### DELETE one room - Not Found
+### DELETE one room - 404 Not Found
 DELETE http://localhost:8080/api/rooms/99999
 Accept: application/json
 
 
-### POST create room - Created
+### POST create room - 201 Created
 POST http://localhost:8080/api/rooms
 Content-Type: application/json
 Accept: application/json
@@ -35,7 +35,7 @@ Accept: application/json
 }
 
 
-### POST create room - Bad Request
+### POST create room - 400 Bad Request (Validation Error)
 POST http://localhost:8080/api/rooms
 Content-Type: application/json
 Accept: application/json
@@ -44,4 +44,44 @@ Accept: application/json
   "number": -5,
   "pricePerNight": -100,
   "hotelId": null
+}
+
+
+### PATCH update room description – 204 No Content
+PATCH http://localhost:8080/api/rooms/1/description
+Content-Type: application/json
+Accept: application/json
+
+{
+  "description": "Updated modern deluxe room"
+}
+
+### PATCH update room description – 400 Bad Request
+PATCH http://localhost:8080/api/rooms/1/description
+Content-Type: application/json
+Accept: application/json
+
+{
+  "description": ""
+}
+
+
+### PATCH update room description – 404 Not Found
+PATCH http://localhost:8080/api/rooms/99999/description
+Content-Type: application/json
+Accept: application/json
+
+{
+  "description": "This room does not exist"
+}
+
+### POST create duplicate room – 409 Conflict
+POST http://localhost:8080/api/rooms
+Content-Type: application/json
+Accept: application/json
+
+{
+  "number": 101,
+  "pricePerNight": 150,
+  "hotelId": "hilton-old-town"
 }

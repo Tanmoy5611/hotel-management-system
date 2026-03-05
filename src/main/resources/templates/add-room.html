@@ -25,13 +25,24 @@
             <span th:text="#{nav.addRoom}">Add Room</span>
         </h2>
 
+        <div id="formError"
+             class="alert alert-danger alert-dismissible fade show d-none"
+             role="alert">
+
+            <span id="formErrorMessage"></span>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+
         <!-- Wide centered form -->
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
 
-                <form th:action="@{/rooms/add}"
+                <form id="add-room-form"
                       th:object="${roomForm}"
-                      method="post"
                       class="card p-4 shadow-sm needs-validation"
                       novalidate>
 
@@ -177,6 +188,8 @@
 <div th:replace="~{fragments/footer :: body}"></div>
 
 <script th:src="@{/js/description-word-counter.js}"></script>
+
+<script th:src="@{/js/add-room-api.js}"></script>
 
 </body>
 </html>
