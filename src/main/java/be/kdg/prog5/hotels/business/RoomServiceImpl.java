@@ -1,5 +1,6 @@
 package be.kdg.prog5.hotels.business;
 
+import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
@@ -70,6 +71,11 @@ public class RoomServiceImpl implements RoomService {
         Hotel hotel = hotelRepo.findByHotelId(hotelId)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Hotel not found"));
+
+        // duplicate room number check
+        if (roomRepo.existsByHotelAndNumber(hotel, room.getNumber())) {
+            throw new RoomAlreadyExistsException(room.getNumber(), hotelId);
+        }
 
         // Assign aggregate relation
         room.setHotel(hotel);

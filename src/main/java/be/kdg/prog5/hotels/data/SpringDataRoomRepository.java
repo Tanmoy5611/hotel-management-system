@@ -1,5 +1,6 @@
 package be.kdg.prog5.hotels.data;
 
+import be.kdg.prog5.hotels.domain.Hotel;
 import be.kdg.prog5.hotels.domain.Room;
 import be.kdg.prog5.hotels.domain.RoomType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -95,5 +96,7 @@ public interface SpringDataRoomRepository extends JpaRepository<Room, Long> {
         ORDER BY COUNT(s) DESC
     """)
     List<Room> findTopPickedRooms();
+
+    boolean existsByHotelAndNumber(Hotel hotel, int number);
 
 }
