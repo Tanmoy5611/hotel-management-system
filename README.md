@@ -435,6 +435,111 @@ The `DELETE` functionality is fully integrated with the frontend using the JavaS
 
 ---
 
+# Week 3
+
+During week 3, two additional REST operations were implemented for the Room API. The new endpoints allow creating a room (**POST**) and updating the room description (**PATCH**).
+
+All endpoints were tested using the `rooms-api.http` file included in the project.
+
+---
+
+### Creating a room - Created (201)
+
+#### Request
+```http
+POST http://localhost:8080/api/rooms
+Content-Type: application/json
+Accept: application/json
+
+{
+  "number": 501,
+  "pricePerNight": 199.99,
+  "hotelId": "hilton-old-town"
+}
+```
+
+### Response
+- 201 Created
+
+### Creating a room - Bad Request (400)
+
+#### Request
+```http
+POST http://localhost:8080/api/rooms
+Content-Type: application/json
+Accept: application/json
+
+{
+  "number": -5,
+  "pricePerNight": -100,
+  "hotelId": null
+}
+```
+### Response
+- 400 Bad Request
+
+### Creating a room - Conflict (409)
+
+#### Request
+```http
+POST http://localhost:8080/api/rooms
+Content-Type: application/json
+Accept: application/json
+
+{
+  "number": 101,
+  "pricePerNight": 150,
+  "hotelId": "hilton-old-town"
+}
+```
+### Response
+- 409 Conflict
+
+### Updating room description - No Content (204)
+
+#### Request
+```http
+PATCH http://localhost:8080/api/rooms/1/description
+Content-Type: application/json
+Accept: application/json
+
+{
+  "description": "Updated modern deluxe room"
+}
+```
+### Response
+- 204 No Content
+
+
+### Updating room description - Bad Request (400)
+
+#### Request
+```http
+PATCH http://localhost:8080/api/rooms/1/description
+Content-Type: application/json
+Accept: application/json
+
+{
+  "description": ""
+}
+```
+### Response
+- 400 Bad Request
+
+### Updating room description - Not Found (404)
+
+#### Request
+```http
+PATCH http://localhost:8080/api/rooms/99999/description
+Content-Type: application/json
+Accept: application/json
+
+{
+  "description": "This room does not exist"
+}
+```
+### Response
+- 404 Not Found
 
 
 > <h2 align="center"> Author: <span style="color:#9d0dfd;"><em>Tanmoy Das</em></span> </h2>
