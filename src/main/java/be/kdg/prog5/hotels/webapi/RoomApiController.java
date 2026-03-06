@@ -4,12 +4,13 @@ import be.kdg.prog5.hotels.business.RoomService;
 import be.kdg.prog5.hotels.domain.Room;
 import be.kdg.prog5.hotels.webapi.dto.NewRoomDto;
 import be.kdg.prog5.hotels.webapi.dto.RoomDto;
+import be.kdg.prog5.hotels.webapi.dto.UpdateRoomDescriptionDto;
 import be.kdg.prog5.hotels.webapi.mapper.RoomMapper;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -27,12 +28,16 @@ public class RoomApiController {
     // GET all rooms
     @GetMapping
     public ResponseEntity<List<RoomDto>> getAllRooms() {
-        List<Room> rooms = roomService.getAllRooms();
-        return ResponseEntity.ok(
-                rooms.stream()
-                        .map(roomMapper::toDto)
-                        .toList()
-        );
+        List<RoomDto> rooms = roomService.getAllRooms()
+                .stream()
+                .map(roomMapper::toDto)
+                .toList();
+
+        if (rooms.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(rooms);
     }
 
     // GET one room
@@ -49,20 +54,33 @@ public class RoomApiController {
         return ResponseEntity.noContent().build();
     }
 
+    // Create a new room
     @PostMapping
     public ResponseEntity<RoomDto> createRoom(
             @RequestBody @Valid NewRoomDto newRoomDto) {
 
-        // DTO - Entity
+        // DTO to Entity
         Room room = roomMapper.toEntity(newRoomDto);
 
         // Service handles aggregate
-        Room savedRoom =
-                roomService.createRoom(room, newRoomDto.getHotelId());
+        Room savedRoom = roomService.createRoom(room, newRoomDto.getHotelId());
 
-        return new ResponseEntity<>(
-                roomMapper.toDto(savedRoom),
-                HttpStatus.CREATED
-        );
+        // Entity to DTO
+        RoomDto dto = roomMapper.toDto(savedRoom);
+
+        return ResponseEntity
+                .created(URI.create("/api/rooms/" + dto.getId()))
+                .body(dto);
+    }
+
+    // Update room description
+    @PatchMapping("/{id}/description")
+    public ResponseEntity<Void> updateRoomDescription(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateRoomDescriptionDto dto) {
+
+        roomService.updateRoomDescription(id, dto.getDescription());
+
+        return ResponseEntity.noContent().build();
     }
 }

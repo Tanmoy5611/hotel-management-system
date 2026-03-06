@@ -74,52 +74,103 @@
 
     <div class="card mt-4 shadow-sm">
         <div class="card-body">
-
             <h4 class="card-title d-flex align-items-center gap-2 mb-3">
                 <i class="bi bi-info-circle-fill text-primary"></i>
                 <span th:text="#{room.about}">About this room</span>
             </h4>
 
             <div class="room-description">
-                <p th:if="${#strings.isEmpty(room.description)}"
-                   class="text-muted fst-italic"
-                   th:text="#{room.noDescription}">
-                </p>
 
-                <p th:if="${not #strings.isEmpty(room.description) and !room.description.contains('.')}"
-                   th:text="${room.description}">
-                </p>
+                <!-- Display Mode -->
+                <div id="display-section">
 
-                <th:block th:if="${not #strings.isEmpty(room.description) and room.description.contains('.')}">
-                    <p class="mb-0">
-                        <span th:text="${#strings.substringBefore(room.description, '.')} + '.'"></span>
-
-                        <span id="room-desc-full" class="collapse">
-                        <span th:text="${#strings.substringAfter(room.description, '.')}"></span>
-                    </span>
+                    <!-- No description -->
+                    <p th:if="${#strings.isEmpty(room.description)}"
+                       class="text-muted fst-italic"
+                       th:text="#{room.noDescription}">
                     </p>
 
-                    <button class="btn btn-link p-0 mt-1 text-decoration-none d-flex align-items-center"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#room-desc-full"
-                            aria-expanded="false"
-                            aria-controls="room-desc-full"
-                            onclick="toggleText(this)">
-                        <i class="bi bi-chevron-down me-1"></i>
-                        <span>Read more</span>
+                    <!-- Description exists -->
+                    <th:block th:if="${not #strings.isEmpty(room.description)}">
+
+                        <p class="mb-0">
+
+                            <!-- First part (not collapsed) -->
+                            <span id="desc-first"
+                                  th:text="${#strings.substringBefore(room.description,'.')} + '.'">
+                        </span>
+
+                            <!-- Second part (collapsed) -->
+                            <span id="room-desc-full"
+                                  class="collapse">
+
+                            <span th:text="${#strings.substringAfter(room.description,'.')}">
+                            </span>
+
+                        </span>
+
+                        </p>
+
+                        <button id="read-more-btn"
+                                class="btn btn-link p-0 mt-1 text-decoration-none d-flex align-items-center"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#room-desc-full"
+                                aria-expanded="false"
+                                onclick="toggleText(this)">
+
+                            <i class="bi bi-chevron-down me-1"></i>
+                            <span>Read more</span>
+
+                        </button>
+
+                    </th:block>
+
+                    <!-- EDIT BUTTON -->
+                    <button id="edit-btn"
+                            class="btn btn-sm btn-outline-primary mt-2">
+                        <i class="bi bi-pencil-square"></i>
+                        Edit
                     </button>
-                </th:block>
+
+                </div>
+
+
+                <!-- Edit Mode --> -->
+                <div id="edit-section"
+                     class="d-none mt-3">
+
+                <textarea id="description-input"
+                          class="form-control"
+                          rows="4"
+                          maxlength="1000"
+                          th:text="${room.description}">
+                </textarea>
+
+                    <div class="text-end small text-muted mt-1">
+                        <span id="charCounter">0 / 1000</span>
+                    </div>
+
+                    <div class="mt-2">
+
+                        <button id="save-btn"
+                                class="btn btn-sm btn-success"
+                                th:attr="data-room-id=${room.id}">
+                            Save
+                        </button>
+
+                        <button id="cancel-btn"
+                                class="btn btn-sm btn-secondary">
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </div>
-
-    <!-- Edit description button -->
-    <a th:href="@{/rooms/{id}/edit-description(id=${room.id})}"
-       class="btn btn-sm btn-outline-primary mt-2">
-        <i class="bi bi-pencil-square me-1"></i>
-        Edit description
-    </a>
 
     <!-- Guests staying in this room -->
     <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
@@ -238,6 +289,30 @@
 
     </div>
 
+    <div class="position-fixed top-0 start-50 translate-middle-x p-3"
+         style="z-index:1080;">
+
+        <div id="createdToast"
+             class="toast align-items-center text-bg-success border-0"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true"
+             th:if="${showCreatedToast}">
+
+            <div class="d-flex">
+                <div class="toast-body">
+                    Room successfully created!
+                </div>
+                <button type="button"
+                        class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast">
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
     <!--  booking success message -->
     <div class="my-3">
 
@@ -329,14 +404,41 @@
         </div>
     </div>
 
+    <div class="position-fixed top-0 start-50 translate-middle-x p-3"
+         style="z-index:1080;">
+
+        <div id="updateToast"
+             class="toast align-items-center text-bg-success border-0"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
+
+            <div class="d-flex">
+                <div class="toast-body">
+                    Room description updated!
+                </div>
+
+                <button type="button"
+                        class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast">
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 <!-- Footer-->
 <div th:replace="~{fragments/footer :: body}"></div>
 
-<script th:src="@{/js/read-more.js}"></script>
-
 <script th:src="@{/js/rooms-api.js}" defer></script>
+<script th:src="@{/js/room-create-toast.js}" defer></script>
+<script th:src="@{/js/read-more.js}" defer></script>
+<script th:src="@{/js/room-description-api.js}" defer></script>
+<script th:src="@{/js/description-word-counter.js}" defer></script>
+
 
 </body>
 </html>

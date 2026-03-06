@@ -46,6 +46,17 @@ Accept: application/json
   "hotelId": null
 }
 
+### POST create duplicate room – 409 Conflict
+POST http://localhost:8080/api/rooms
+Content-Type: application/json
+Accept: application/json
+
+{
+  "number": 101,
+  "pricePerNight": 150,
+  "hotelId": "hilton-old-town"
+}
+
 
 ### PATCH update room description – 204 No Content
 PATCH http://localhost:8080/api/rooms/1/description
@@ -73,15 +84,4 @@ Accept: application/json
 
 {
   "description": "This room does not exist"
-}
-
-### POST create duplicate room – 409 Conflict
-POST http://localhost:8080/api/rooms
-Content-Type: application/json
-Accept: application/json
-
-{
-  "number": 101,
-  "pricePerNight": 150,
-  "hotelId": "hilton-old-town"
 }

@@ -135,8 +135,6 @@ public class RoomController {
 
         room.setHotel(hotel);
 
-        // room.setDescription(roomForm.getDescription());
-
         // Log and save new room data using the service layer
         log.debug("Creating new room: {}", room);
         roomService.createRoom(room, roomForm.getHotelId());
@@ -147,7 +145,9 @@ public class RoomController {
 
     // show Room details for one specific room by its room id
     @GetMapping("/{roomId}")
-    public String showRoomDetails(@PathVariable Long roomId, Model model) {
+    public String showRoomDetails(@PathVariable Long roomId,
+                                  @RequestParam(required = false) Boolean created,
+                                  Model model) {
         log.debug("Loading room details for room {}", roomId);
 
         // Find the room that matches the given room number
@@ -156,12 +156,17 @@ public class RoomController {
 
         // Add a room and its related guests to the model so the view can display them
         model.addAttribute("room", room);
+
         var sortedStays = room.getStays().stream()
                 .sorted((s1, s2) -> s1.getCheckInDate().compareTo(s2.getCheckInDate()))
                 .toList();
 
         model.addAttribute("guests", sortedStays);
         model.addAttribute("today", LocalDate.now());
+
+        if (Boolean.TRUE.equals(created)) {
+            model.addAttribute("showCreatedToast", true);
+        }
 
         return "room-detail";
     }
