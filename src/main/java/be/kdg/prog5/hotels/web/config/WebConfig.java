@@ -1,4 +1,4 @@
-package be.kdg.prog5.hotels;
+package be.kdg.prog5.hotels.web.config;
 
 import be.kdg.prog5.hotels.web.converters.StringToLocalDateConverter;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +36,7 @@ public class WebConfig implements WebMvcConfigurer {
         CookieLocaleResolver resolver = new CookieLocaleResolver();
         resolver.setDefaultLocale(Locale.ENGLISH);  // Default to English
         resolver.setCookieName("lang");   // Remember user choice in cookie
+        resolver.setCookieMaxAge(60 * 60 * 24 * 30); // remember language for 30 days
         return resolver;
     }
 
