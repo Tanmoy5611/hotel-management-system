@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+
+        <div class="col-md-6 col-lg-4">
+
+            <!-- Login card -->
+            <div class="card shadow border-0">
+                <div class="card-body p-4">
+
+                    <h3 class="text-center mb-4">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        Login
+                    </h3>
+
+                    <!-- Login form -->
+                    <form th:action="@{/login}" method="post">
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email</label>
+                            <input type="email"
+                                   name="username"
+                                   class="form-control"
+                                   placeholder="Enter your email"
+                                   required>
+                        </div>
+
+                        <!-- Password with toggle -->
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold">Password</label>
+
+                            <div class="input-group">
+
+                                <input type="password"
+                                       id="passwordField"
+                                       name="password"
+                                       class="form-control"
+                                       placeholder="Enter your password"
+                                       required>
+
+                                <button class="btn btn-outline-secondary"
+                                        type="button"
+                                        onclick="togglePassword()">
+                                    <i id="eyeIcon" class="bi bi-eye"></i>
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Login button -->
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary">
+                                Login
+                            </button>
+                        </div>
+
+                    </form>
+
+                    <!-- Login error -->
+                    <div th:if="${param.error}" class="alert alert-danger mt-3 text-center">
+                        Invalid email or password
+                    </div>
+
+                    <!-- Logout message -->
+                    <div th:if="${param.logout}" class="alert alert-success mt-3 text-center">
+                        You have been logged out successfully
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Test credentials -->
+            <div class="card mt-3 border-0 shadow-sm">
+                <div class="card-body">
+
+                    <h6 class="mb-3">
+                        <i class="bi bi-person-check"></i>
+                        Test Users
+                    </h6>
+
+                    <small class="text-muted">
+
+                        <strong>Admin</strong><br>
+                        admin@hotelapp.com / password
+
+                        <hr>
+
+                        <strong>User</strong><br>
+                        user@hotelapp.com / password
+
+                    </small>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+<script defer th:src="@{/js/password-toggle.js}"></script>
+
+</body>
+</html>
