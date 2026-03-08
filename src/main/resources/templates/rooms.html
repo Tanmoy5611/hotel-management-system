@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -141,19 +143,22 @@
                           th:text="#{rooms.footer.text}">
                     </span>
 
-                    <!-- Delete Button -->
-                    <button type="button"
-                            class="btn btn-sm btn-outline-danger"
-                            data-bs-toggle="modal"
-                            th:data-bs-target="${'#deleteRoomModal-' + r.id}">
-                        <i class="bi bi-trash"></i>
-                    </button>
+                    <!-- Admin only delete button -->
+                    <div sec:authorize="hasRole('ADMIN')">
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal"
+                                th:data-bs-target="${'#deleteRoomModal-' + r.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
                 </div>
 
             </div>
 
-            <!-- DELETE MODAL -->
-            <div class="modal fade"
+            <!-- Delete modalL -->
+            <div sec:authorize="hasRole('ADMIN')" class="modal fade"
                  th:id="${'deleteRoomModal-' + r.id}"
                  tabindex="-1">
 

@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -177,19 +179,26 @@
                         Explore more...
                     </span>
 
-                    <button type="button"
-                            class="btn btn-sm btn-outline-danger"
-                            data-bs-toggle="modal"
-                            th:data-bs-target="${'#deleteModal-' + h.hotelId}">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
+                    <!-- Admin only delete button -->
+                    <div sec:authorize="hasRole('ADMIN')">
 
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal"
+                                th:data-bs-target="${'#deleteModal-' + h.hotelId}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+
+                    </div>
+                </div>
             </div>
 
 
             <!-- Delete Modal -->
-            <div class="modal fade" th:id="${'deleteModal-' + h.hotelId}" tabindex="-1">
+            <div class="modal fade" sec:authorize="hasRole('ADMIN')"
+                 th:id="${'deleteModal-' + h.hotelId}"
+                 tabindex="-1">
+
                 <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content">
                         <div class="modal-header bg-danger text-white py-2">
@@ -197,11 +206,14 @@
                                 Delete Hotel
                             </h6>
                             <button type="button" class="btn-close btn-close-white"
-                                    data-bs-dismiss="modal"></button>
+                                    data-bs-dismiss="modal">
+                            </button>
                         </div>
 
                         <div class="modal-body text-center">
-                            <p class="mb-2" th:text="#{modal.delete.hotelQuestion}"></p>
+                            <p class="mb-2"
+                               th:text="#{modal.delete.hotelQuestion}">
+                            </p>
                             <strong th:text="${h.name}"></strong>
                         </div>
 
