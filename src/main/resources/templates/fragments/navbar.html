@@ -49,20 +49,31 @@
                 </li>
 
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/hotels/add}" th:text="#{nav.addHotel}">Add Hotel</a>
+                    <a class="nav-link" th:href="@{/hotels/add}" th:title="#{nav.addHotel}">
+                        <i class="bi bi-plus-circle-fill me-1"></i>
+                        <span>Hotel</span>
+                    </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/rooms/add}" th:text="#{nav.addRoom}">Add Room</a>
+                    <a class="nav-link" th:href="@{/rooms/add}" th:title="#{nav.addRoom}">
+                        <i class="bi bi-plus-square-fill me-1"></i>
+                        <span>Room</span>
+                    </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','USER')">
-                    <a class="nav-link" th:href="@{/guests/add}" th:text="#{nav.addGuest}">Add Guest</a>
+                    <a class="nav-link" th:href="@{/guests/add}" th:title="#{nav.addGuest}">
+                        <i class="bi bi-person-plus-fill me-1"></i>
+                        <span>Guest</span>
+                    </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin/users}">
-                        Users
+                    <a class="nav-link" th:href="@{/admin/users}" title="User Management">
+                        <i class="bi bi-shield-lock-fill me-1"></i>
+                        <span>Users</span>
+
                     </a>
                 </li>
 
@@ -73,32 +84,29 @@
 
                 <!-- LOGIN button (only if NOT logged in) -->
                 <li class="nav-item" sec:authorize="isAnonymous()">
-                    <a class="btn btn-outline-light me-2"
-                       th:href="@{/login}">
-                        Login
+                    <a class="btn btn-outline-light d-flex align-items-center px-3" th:href="@{/login}">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        <span>Login</span>
                     </a>
                 </li>
 
-                <!-- Logged user email -->
-                <li class="nav-item text-white me-2"
-                    sec:authorize="isAuthenticated()">
-
-                    Logged in as:
-                    <strong sec:authentication="name"></strong>
-
+                <li class="nav-item d-flex align-items-center me-3" sec:authorize="isAuthenticated()">
+                    <div class="bg-white bg-opacity-10 rounded-pill px-3 py-1 border border-white border-opacity-25 d-flex align-items-center">
+                        <i class="bi bi-person-circle text-white me-2"></i>
+                        <span class="text-white small">
+                            <span>Logged in as:</span>
+                            <strong class="ms-1" sec:authentication="name">User</strong>
+                        </span>
+                    </div>
                 </li>
 
-                <!-- Logout button -->
-                <li class="nav-item"
-                    sec:authorize="isAuthenticated()">
-
-                    <form th:action="@{/logout}" method="post">
-                        <button type="submit"
-                                class="btn btn-outline-light me-2">
-                            Logout
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-sm btn-light d-flex align-items-center px-3">
+                            <i class="bi bi-power me-2 text-danger"></i>
+                            <span class="fw-semibold">Logout</span>
                         </button>
                     </form>
-
                 </li>
 
                 <li class="nav-item">

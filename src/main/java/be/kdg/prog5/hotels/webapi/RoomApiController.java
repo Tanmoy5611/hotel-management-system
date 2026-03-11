@@ -8,6 +8,7 @@ import be.kdg.prog5.hotels.webapi.dto.UpdateRoomDescriptionDto;
 import be.kdg.prog5.hotels.webapi.mapper.RoomMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -47,14 +48,16 @@ public class RoomApiController {
         return ResponseEntity.ok(roomMapper.toDto(room));
     }
 
-    // DELETE one room
+    /// DELETE one room by Admin
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
         roomService.deleteRoom(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Create a new room
+    /// Create a new room by Admin
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<RoomDto> createRoom(
             @RequestBody @Valid NewRoomDto newRoomDto) {
@@ -73,7 +76,8 @@ public class RoomApiController {
                 .body(dto);
     }
 
-    // Update room description
+    /// Update room description by admin
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/description")
     public ResponseEntity<Void> updateRoomDescription(
             @PathVariable Long id,

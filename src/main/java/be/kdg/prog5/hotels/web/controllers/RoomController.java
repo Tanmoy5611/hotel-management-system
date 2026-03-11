@@ -10,6 +10,7 @@ import be.kdg.prog5.hotels.viewmodel.RoomForm;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -84,8 +85,9 @@ public class RoomController {
         return "rooms";   // Return Thymeleaf page (rooms.html)
     }
 
-    /// Add Room Form
+    /// Add Room Form by Admin only
     // Shows the form when clicks “Add Room”
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/add")
     public String addForm(Model model) {
         log.debug("Loading add room form");
@@ -99,7 +101,8 @@ public class RoomController {
         return "add-room";  // Return add-room page
     }
 
-    // for handling POST request when submits the “Add Room” form
+    /// for handling POST request when submits the “Add Room” form
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public String addSubmit(@Valid @ModelAttribute("roomForm") RoomForm roomForm,
                             BindingResult bindingResult,
@@ -171,7 +174,8 @@ public class RoomController {
         return "room-detail";
     }
 
-    // Show Booking Page
+    // Show Booking Page for Admin and User
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/{roomId}/book")
     public String showBookingPage(@PathVariable Long roomId,
                                   Model model) {
@@ -185,6 +189,7 @@ public class RoomController {
         return "book-room";
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/{roomId}/book")
     public String processBooking(@PathVariable Long roomId,
                                  @RequestParam Long guestId,
@@ -224,7 +229,8 @@ public class RoomController {
         }
     }
 
-    /// delete a room by its id
+    /// delete a room by its id by Admin
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{roomId}/delete")
     public String deleteRoom(@PathVariable Long roomId) {
         log.debug("Deleting room {}", roomId);
@@ -233,7 +239,8 @@ public class RoomController {
         return "redirect:/rooms";
     }
 
-    /// Room description
+    /// Room description by Admin
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{roomId}/edit-description")
     public String editRoomDescriptionForm(@PathVariable Long roomId,
                                           Model model) {
@@ -246,6 +253,7 @@ public class RoomController {
         return "edit-room-description"; // Thymeleaf page
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{roomId}/edit-description")
     public String updateRoomDescription(@PathVariable Long roomId,
                                         @RequestParam String description) {

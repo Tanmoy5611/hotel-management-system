@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -94,8 +95,9 @@ public class HotelController {        // All URLs in this controller start with 
     }
 
 
-    /// Add hotel
+    /// Add hotel with @PreAuthorize security
     // This method shows the "Add Hotel" form when visits "/hotels/add"
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/add")
     public String addForm(Model model) {
         log.debug("Loading add hotel form");
@@ -106,8 +108,9 @@ public class HotelController {        // All URLs in this controller start with 
         return "add-hotel";   // Return the add-hotel.html template
     }
 
-    // Save new Hotel
-    // This method processes the HotelForm submission for adding  new hotel
+    /// Save new Hotel with @PreAuthorize security
+    // This method processes the HotelForm submission for adding new hotel
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/add")
     public String addSubmit(@ModelAttribute("hotelForm") @Valid HotelForm hotelForm,
                             BindingResult bindingResult) {
@@ -182,7 +185,8 @@ public class HotelController {        // All URLs in this controller start with 
         return "hotel-detail";            // hotel-detail.html
     }
 
-    /// Delete hotel
+    /// Delete hotel With PreAuthorize security for ADMIN
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{hotelId}/delete")
     public String deleteHotel(@PathVariable String hotelId) {
         log.debug("Deleting hotel {}", hotelId);
@@ -193,7 +197,8 @@ public class HotelController {        // All URLs in this controller start with 
     }
 
 
-    // Hotel description edit
+    /// Hotel description edit by ADMin only
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{hotelId}/edit-description")
     public String editHotelDescriptionForm(@PathVariable String hotelId, Model model) {
         log.debug("Loading edit hotel description form for hotel {}", hotelId);
@@ -204,7 +209,8 @@ public class HotelController {        // All URLs in this controller start with 
         return "edit-hotel-description";
     }
 
-    // Update hotel description
+    /// Update hotel description by Admin only
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{hotelId}/edit-description")
     public String updateHotelDescription(@PathVariable String hotelId,
                                          @RequestParam String description) {
