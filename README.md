@@ -9,7 +9,6 @@
 - **Name:** Tanmoy Das
 - **KdG Email:** tanmoy.das@student.kdg.be
 - **Student ID:** 0166044-77
-
 ---
 
 ## Project Description
@@ -72,7 +71,7 @@ The domain model consists of the following entities:
 - discountPercentage (BigDecimal)
 - Uses discountPercentage > 0
 
-### 5. Stay (Link Entity – Room ↔ Guest)
+### 5. Stay (Link Entity – Room <-> Guest)
 Represents a booking.
 
 - id
@@ -85,14 +84,11 @@ Business logic:
 - `getNumberOfNights()`
 - `getTotalPrice()`
 - `getFinalPrice()` (applies discount)
-
 ---
 
 ## Architecture Overview
 
-The application follows a layered architecture:
-
-Controller → Service → Repository → Database
+The application follows a layered architecture: `Controller → Service → Repository → Database`
 
 ```bash
 ┌─────────────────────────────┐
@@ -152,7 +148,6 @@ Controller → Service → Repository → Database
 - Calculations are performed in the domain layer.
 - Formatting is done **only in the view layer (Thymeleaf)**.
 - No floating-point types are used for prices.
-
 ---
 
 ## Build & Run Instructions (CLI)
@@ -229,7 +224,6 @@ http://localhost:8080
 	•	Multi-language support (i18n) - EN, NL, FR, DE, BN
 	•	Thymeleaf UI with Bootstrap
     •	Dark / Light theme
-
 ---
 
 # Week 2 - REST API (Room)
@@ -250,7 +244,6 @@ In Week 2, a robust **REST API** was implemented for the **Room** entity. The im
     * **Global Exception Handling:** Managed via `@RestControllerAdvice` for consistent error structures.
 * **Integration:** * Tested and verified via `rooms-api.http`.
     * Fully integrated with **JavaScript (AJAX)** to enable dynamic, asynchronous deletion without page refreshes.
-
 ---
 
 ## Controller Implementation
@@ -373,7 +366,6 @@ This endpoint allows for the permanent removal of a room record from the system.
 1. **Service Layer:** The controller calls the deletion logic, ensuring the room is removed from the database.
 2. **Response Wrapper:** Instead of returning data, the controller returns `ResponseEntity.noContent().build()`.
 3. **Frontend Impact:** The client receives a success confirmation (204) and can then update the UI (e.g., removing the row from a table via AJAX).
-
 ---
 
 ### 5. DELETE - Room Not Found (404)
@@ -388,7 +380,6 @@ Attempts to delete a non-existent resource are handled gracefully to inform the 
 #### Response
 * **Status:** `404 Not Found`
 * **Body:** `ApiError` (Standardized JSON error structure).
-
 ---
 
 ## DTO & Mapping
@@ -401,7 +392,6 @@ To maintain a clean separation between the database layer and the API layer, the
 * **Custom Logic:** `@Mapping(source = "hotel.name", target = "hotelName")`
 
 > **Note:** This approach prevents the internal `Room` entity from being exposed directly, keeping the API responses clean and specifically tailored for the frontend.
-
 ---
 
 ## Exception Handling
@@ -412,7 +402,6 @@ Centralized error management is implemented using a **Global Exception Handler**
 * **Target Class:** `ApiExceptionHandler`
 * **Handled Exceptions:** `RoomNotFoundException`
 * **Result:** Returns a structured JSON object (`ApiError`) containing a timestamp, status code, and descriptive message.
-
 ---
 
 ## HTTP Test File
@@ -424,7 +413,6 @@ The API was rigorously tested using the `rooms-api.http` file included in the pr
 3. **GET one room (Invalid ID)** - Returns `404 Not Found`.
 4. **DELETE room** - Returns `204 No Content`.
 5. **DELETE room (Invalid ID)** - Returns `404 Not Found`.
-
 ---
 
 ## AJAX Integration
@@ -432,7 +420,6 @@ The API was rigorously tested using the `rooms-api.http` file included in the pr
 The `DELETE` functionality is fully integrated with the frontend using the JavaScript **Fetch API**. This fulfills the requirement for dynamic UI updates without page reloads.
 * **Success (204):** The room is removed from the DOM immediately.
 * **Failure (404):** An error message is displayed to the user via a notification or alert.
-
 ---
 
 # Week 3
@@ -440,7 +427,6 @@ The `DELETE` functionality is fully integrated with the frontend using the JavaS
 During week 3, two additional REST operations were implemented for the Room API. The new endpoints allow creating a room (**POST**) and updating the room description (**PATCH**).
 
 All endpoints were tested using the `rooms-api.http` file included in the project.
-
 ---
 
 ### Creating a room - Created (201)
@@ -540,6 +526,208 @@ Accept: application/json
 ```
 ### Response
 - 404 Not Found
+
+# Week 4 - Spring Security
+
+## Overview
+
+In Week 4, Spring Security was integrated into the Hotels application to add authentication and authorization.
+
+**The application now supports:**
+* **User login and logout**
+* **Role-based authorization**
+* **Persisted users** in the database
+* **Password hashing**
+* A **custom login page**
+* **Dynamic UI behavior** based on user status (Anonymous, Staff, or Administrator)
+* **REST API & Ajax support** maintained from previous weeks
+
+> The Hotels application models **hotel management staff**, not customers.
+---
+
+## Roles used in the system
+| Role | Meaning |
+| :--- | :--- |
+| **Anonymous** | Public visitor browsing hotels and rooms |
+| **USER** | Hotel staff performing operational tasks |
+| **ADMIN** | Hotel manager with full administrative privileges |
+
+
+## Authentication
+
+A custom login page was implemented using Spring Security.
+
+**Login URL:** `/login`
+
+**Users authenticate using:**
+* email
+* password
+
+After successful login, the user is redirected to: `/home`
+
+The navigation bar dynamically updates to show the current login status and provides a logout option.
+
+> **Example:** > Logged in as: `user@hotelapp.com`
+---
+
+## Persisted Users
+
+Users are implemented as a persisted entity in the database, ensuring that accounts are not lost when the application restarts.
+
+* **Entity:** `User`
+* **Repository:** `SpringDataUserRepository`
+
+**The user entity stores:**
+* `id`
+* `email`
+* `password` (hashed)
+* `role` (ADMIN/USER)
+
+This satisfies the requirement that users must be stored and managed via the database.
+
+## Password Hashing
+
+- Passwords are never stored in plaintext to ensure system security.
+- The application utilizes **BCrypt password hashing** via Spring Security's `PasswordEncoder`. 
+- Passwords are salted and encoded before being persisted to the database.
+---
+
+## Default Seeded Users
+
+To facilitate testing, a user seeding routine is implemented using `CommandLineRunner`. When the application starts and the user table is empty, two default users are automatically created.
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **ADMIN** | `admin@hotelapp.com` | `password` |
+| **USER** | `user@hotelapp.com` | `password` |
+
+> These credentials are displayed on the login page during the development phase for easier testing.
+
+## Authorization Model
+
+### Anonymous Users
+
+Anonymous visitors can access public pages such as:
+* `/home`
+* `/hotels`
+* `/rooms`
+* `/hotels/{id}`
+* `/rooms/{id}`
+They can browse the application but cannot perform operational tasks.
+
+---
+
+### USER (Hotel Staff)
+
+The **USER** role represents hotel staff.
+
+Staff members can perform operational tasks such as:
+* view guests
+* add a guest
+* book a room
+* access guest management pages
+
+**Example staff pages:**
+* `/guests`
+* `/guests/add`
+* `/rooms/{id}/book`
+
+These operations represent normal hotel front-desk activities.
+
+### ADMIN (Hotel Manager)
+
+The **ADMIN** role represents a hotel administrator or manager.
+
+Admins have all staff permissions plus management functionality.
+
+**Admins can:**
+* add a hotel
+* add a room
+* add guests
+* book rooms
+* delete hotels, rooms, and guests
+* manage application users
+
+**Admin pages include:**
+* `/admin/users`
+* `/hotels/add`
+* `/rooms/add`
+
+**The admin panel allows:**
+* viewing all users
+* creating new users
+* deleting users
+* switching roles (**USER ↔ ADMIN**)
+
+> The main admin account cannot be deleted.
+
+### Different Behavior for Logged-In Users
+
+The application shows different functionality depending on the authentication state.
+
+**Anonymous visitors**
+* can browse hotels and rooms
+
+**Staff users**
+* can manage guests
+* can book rooms
+
+**Admin users**
+* can manage hotels, rooms, and users
+This ensures authenticated users see more application-specific functionality than anonymous visitors.
+
+---
+
+### REST API Compatibility
+
+The REST API implemented in previous weeks continues to work seamlessly with the new security layer.
+
+**Examples:**
+* `GET /api/rooms`
+* `POST /api/rooms`
+* `PATCH /api/rooms/{id}/description`
+* `DELETE /api/rooms/{id}`
+
+**Security rules applied:**
+
+| Method | Access |
+| :--- | :--- |
+| **GET** | public |
+| **POST** | authenticated |
+| **PATCH** | authenticated |
+| **DELETE** | authenticated |
+
+> **CSRF protection** was temporarily disabled so Ajax requests continue to function, as required by the assignment.
+
+## Example Links
+
+### Public Page
+Accessible without authentication: 
+[http://localhost:8080/home](http://localhost:8080/home)
+
+### Page requiring authentication
+**Example staff page:**
+[http://localhost:8080/guests/add](http://localhost:8080/guests/add)
+
+**Example admin page:**
+[http://localhost:8080/admin/users](http://localhost:8080/admin/users)
+---
+
+## Summary
+
+Week 4 introduced a complete **Spring Security** setup into the Hotels application.
+
+**The implementation includes:**
+* custom login page
+* persisted users
+* **BCrypt** password hashing
+* default seeded users
+* role-based authorization
+* staff operations (add guest, book room)
+* admin operations (manage hotels, rooms, users)
+* continued REST API and Ajax functionality
+
+This creates a realistic security model for a hotel management system where **anonymous visitors**, **staff users**, and **administrators** have different levels of access.
 
 
 > <h2 align="center"> Author: <span style="color:#9d0dfd;"><em>Tanmoy Das</em></span> </h2>
