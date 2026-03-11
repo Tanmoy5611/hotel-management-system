@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Add User</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+
+</head>
+
+<body class="bg-light">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-5">
+
+            <div class="card shadow border-0">
+
+                <div class="card-body p-4">
+
+                    <h3 class="mb-4 text-center">
+
+                        <i class="bi bi-person-plus"></i>
+                        Add New User
+
+                    </h3>
+
+                    <!-- Error message for existing user email -->
+                    <div th:if="${errorMessage}" class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span th:text="${errorMessage}"></span>
+                    </div>
+
+                    <form th:action="@{/admin/users/add}"
+                          th:object="${registerForm}"
+                          method="post">
+
+                        <!-- Email -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">Email</label>
+
+                            <input type="email"
+                                   th:field="*{email}"
+                                   class="form-control"
+                                   placeholder="Enter email"
+                                   required>
+                        </div>
+
+
+                        <!-- Password -->
+                        <div class="mb-4">
+
+                            <label class="form-label">Password</label>
+
+                            <div class="input-group">
+
+                                <input type="password"
+                                       id="passwordField"
+                                       th:field="*{password}"
+                                       class="form-control"
+                                       placeholder="Enter password"
+                                       required>
+
+                                <span class="input-group-text"
+                                      onclick="togglePassword()"
+                                      style="cursor:pointer">
+                                    <i id="eyeIcon" class="bi bi-eye"></i>
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="d-grid gap-2">
+
+                            <button type="submit"
+                                    class="btn btn-success">
+
+                                <i class="bi bi-check-circle"></i>
+                                Create User
+
+                            </button>
+
+                            <a th:href="@{/admin/users}"
+                               class="btn btn-outline-secondary">
+
+                                Cancel
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Footer-->
+<div th:replace="~{fragments/footer :: body}"></div>
+
+<script defer th:src="@{/js/password-toggle.js}"></script>
+
+</body>
+</html>
