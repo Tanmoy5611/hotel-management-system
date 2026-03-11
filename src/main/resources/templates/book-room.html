@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <title th:text="#{booking.title}">Book a Room</title>
@@ -13,7 +15,7 @@
 <body class="bg-light">
 <div th:replace="~{fragments/navbar :: body}"></div>
 
-<div class="container mt-5">
+<div sec:authorize="hasAnyRole('USER','ADMIN')" class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow">
@@ -24,18 +26,33 @@
 
                 <div class="card-body">
 
-                    <!-- Booking Info -->
-                    <p>
-                        <span th:text="#{booking.youAreBooking}"></span>
-                        <strong>
-                            <span th:text="#{booking.room}"></span>
-                            <span th:text="${room.number}"></span>
-                        </strong>
-                        <span th:text="#{booking.at}"></span>
-                        <span th:text="${room.hotel.name}"></span>.
-                    </p>
+                    <!-- Room Summary -->
+                    <div class="alert alert-light border mb-4">
 
-                    <!--  ERROR BLOCK -->
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div>
+                                <strong>
+                                    <i class="bi bi-door-open me-1"></i>
+                                    <span th:text="'Room ' + ${room.number}"></span>
+                                </strong>
+                                <br>
+                                <small class="text-muted"
+                                       th:text="${room.hotel.name}">
+                                </small>
+                            </div>
+
+                            <div class="text-end">
+                <span class="fw-bold text-success"
+                      th:text="${#numbers.formatDecimal(room.pricePerNight,1,2)} + ' € / night'">
+                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Error block for room availability -->
                     <div th:if="${errorCode}"
                          class="alert alert-danger alert-dismissible fade show"
                          role="alert">
@@ -46,14 +63,18 @@
                                 class="btn-close"
                                 data-bs-dismiss="alert">
                         </button>
+
                     </div>
 
+
+                    <!-- Booking Form -->
                     <form th:action="@{/rooms/{id}/book(id=${room.id})}" method="post">
 
                         <!-- Guest Selection -->
                         <div class="mb-3">
                             <label class="form-label"
-                                   th:text="#{booking.selectGuest}"></label>
+                                   th:text="#{booking.selectGuest}">
+                            </label>
 
                             <select name="guestId"
                                     class="form-select"
@@ -70,13 +91,15 @@
                                         th:selected="${g.id == selectedGuestId}"
                                         th:text="${g.fullName} + ' (' + ${g.email} + ')'">
                                 </option>
+
                             </select>
                         </div>
 
                         <!-- Check-in -->
                         <div class="mb-3">
                             <label class="form-label"
-                                   th:text="#{booking.checkIn}"></label>
+                                   th:text="#{booking.checkIn}">
+                            </label>
 
                             <input type="date"
                                    name="checkIn"
@@ -88,7 +111,8 @@
                         <!-- Check-out -->
                         <div class="mb-4">
                             <label class="form-label"
-                                   th:text="#{booking.checkOut}"></label>
+                                   th:text="#{booking.checkOut}">
+                            </label>
 
                             <input type="date"
                                    name="checkOut"
@@ -97,7 +121,9 @@
                                    required>
                         </div>
 
+                        <!-- Buttons -->
                         <div class="d-flex justify-content-between">
+
                             <a th:href="@{/rooms/{id}(id=${room.id})}"
                                class="btn btn-light"
                                th:text="#{booking.back}">
@@ -107,6 +133,7 @@
                                     class="btn btn-success"
                                     th:text="#{booking.confirm}">
                             </button>
+
                         </div>
 
                     </form>
@@ -115,6 +142,24 @@
             </div>
         </div>
     </div>
+</div>
+
+
+<!-- Anonymous users -->
+<div sec:authorize="isAnonymous()" class="container mt-5 text-center">
+
+    <div class="alert alert-warning shadow-sm">
+
+        <i class="bi bi-lock-fill me-2"></i>
+        You must be logged in to book a room.
+
+    </div>
+
+    <a href="/login" class="btn btn-primary btn-lg">
+        <i class="bi bi-box-arrow-in-right me-1"></i>
+        Login
+    </a>
+
 </div>
 
 <!-- Footer -->

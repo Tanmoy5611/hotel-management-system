@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -63,17 +65,21 @@
                     <span th:text="#{hotel.back}"></span>
                 </a>
 
-                <button type="button"
-                        class="btn btn-danger"
-                        data-bs-toggle="modal"
-                        th:data-bs-target="${'#deleteHotelModal-' + hotel.hotelId}">
-                    <i class="bi bi-trash"></i>
-                    <span th:text="#{hotel.deleteButton}"></span>
-                </button>
+                <div sec:authorize="hasRole('ADMIN')">
+
+                    <button type="button"
+                            class="btn btn-danger"
+                            data-bs-toggle="modal"
+                            th:data-bs-target="${'#deleteHotelModal-' + hotel.hotelId}">
+                        <i class="bi bi-trash"></i>
+                        <span th:text="#{hotel.deleteButton}"></span>
+                    </button>
+                </div>
             </div>
 
             <!-- Delete Modal -->
             <div class="modal fade"
+                 sec:authorize="hasRole('ADMIN')"
                  th:id="${'deleteHotelModal-' + hotel.hotelId}"
                  tabindex="-1">
 
@@ -159,11 +165,13 @@
         </div>
     </div>
 
-    <a th:href="@{/hotels/{hotelId}/edit-description(hotelId=${hotel.hotelId})}"
-       class="btn btn-sm btn-outline-primary mt-2">
-        <i class="bi bi-pencil-square me-1"></i>
-        Edit description
-    </a>
+    <div sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/hotels/{hotelId}/edit-description(hotelId=${hotel.hotelId})}"
+           class="btn btn-sm btn-outline-primary mt-2">
+            <i class="bi bi-pencil-square me-1"></i>
+            Edit description
+        </a>
+    </div>
 
     <hr class="my-4">
 
@@ -174,11 +182,14 @@
             <span th:text="#{hotel.availableRooms}"></span>
         </h4>
 
-        <a th:href="@{/rooms/add(hotelId=${hotel.hotelId})}"
-           class="btn btn-success">
-            <i class="bi bi-plus-circle"></i>
-            Add Room
-        </a>
+        <div sec:authorize="hasRole('ADMIN')">
+
+            <a th:href="@{/rooms/add(hotelId=${hotel.hotelId})}"
+               class="btn btn-success">
+                <i class="bi bi-plus-circle"></i>
+                Add Room
+            </a>
+        </div>
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -218,7 +229,9 @@
                     </p>
 
                     <!-- Guests in the room -->
-                    <div class="mt-3">
+                    <div sec:authorize="hasAnyRole('ADMIN','USER')"
+                         class="mt-3"
+                         th:if="${not #lists.isEmpty(guestsPerRoom[r.id])}">>
                         <strong>
                             <i class="bi bi-people-fill"></i>
                             <span th:text="#{hotel.guests}"></span>
@@ -256,10 +269,14 @@
         </div>
     </div>
 
-    <p class="mt-4 text-muted">
-        <i class="bi bi-collection"></i>
-        <span th:text="${totalGuests} + ' ' + #{hotel.totalGuests}"></span>
-    </p>
+
+    <div sec:authorize="hasAnyRole('ADMIN','USER')">
+        <p class="mt-4 text-muted">
+            <i class="bi bi-collection"></i>
+            <span th:text="${totalGuests} + ' ' + #{hotel.totalGuests}"></span>
+        </p>
+    </div>
+
 </div>
 
 <!-- Footer -->

@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,7 +17,21 @@
 <!-- Navbar -->
 <div th:replace="~{fragments/navbar :: body}"></div>
 
-<div class="container my-4">
+<div sec:authorize="hasAnyRole('USER','ADMIN')" class="container my-4">
+
+    <div sec:authorize="isAnonymous()" class="container mt-5 text-center">
+
+        <div class="alert alert-warning shadow-sm">
+            <i class="bi bi-lock-fill me-2"></i>
+            Please login to view guest details.
+        </div>
+
+        <a href="/login" class="btn btn-primary">
+            <i class="bi bi-box-arrow-in-right me-1"></i>
+            Login
+        </a>
+
+    </div>
 
     <!-- Guest Header -->
     <div class="card mb-4 shadow-sm">
@@ -130,8 +146,9 @@
             <span th:text="#{guest.back}"></span>
         </a>
 
-        <!-- Delete button opens modal -->
-        <button type="button"
+        <!-- Delete button opens modal for Admin -->
+        <button sec:authorize="hasRole('ADMIN')"
+                type="button"
                 class="btn btn-danger"
                 data-bs-toggle="modal"
                 th:data-bs-target="${'#deleteGuestModal-' + guest.id}">
@@ -142,7 +159,7 @@
     </div>
 
     <!-- Delete Modal -->
-    <div class="modal fade"
+    <div sec:authorize="hasRole('ADMIN')" class="modal fade"
          th:id="${'deleteGuestModal-' + guest.id}"
          tabindex="-1">
 

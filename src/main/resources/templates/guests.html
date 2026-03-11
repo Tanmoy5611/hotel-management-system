@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -144,7 +146,8 @@
                         Profile Overview
                     </span>
 
-                    <button type="button"
+                    <button sec:authorize="hasRole('ADMIN')"
+                            type="button"
                             class="btn btn-sm btn-outline-danger"
                             data-bs-toggle="modal"
                             th:data-bs-target="${'#deleteGuest-' + g.id}">
@@ -155,7 +158,7 @@
             </div>
 
             <!-- Delete Modal -->
-            <div class="modal fade"
+            <div sec:authorize="hasRole('ADMIN')" class="modal fade"
                  th:id="${'deleteGuest-' + g.id}"
                  tabindex="-1">
 

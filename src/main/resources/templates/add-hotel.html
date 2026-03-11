@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,142 +31,152 @@
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
 
-                <form th:action="@{/hotels/add}"
-                      th:object="${hotelForm}"
-                      method="post"
-                      class="card p-4 shadow-sm needs-validation"
-                      novalidate>
+                <!-- Not allowed message -->
+                <div sec:authorize="!hasRole('ADMIN')" class="alert alert-danger">
+                    You are not allowed to access this page.
+                </div>
 
-                    <div class="row g-3">
+                <!-- Admin only form -->
+                <div sec:authorize="hasRole('ADMIN')">
 
-                        <!-- Hotel name -->
-                        <div class="col-12">
-                            <label class="form-label fw-semibold"
-                                   th:text="#{hotels.table.name}">
-                                Name
-                            </label>
+                    <form th:action="@{/hotels/add}"
+                          th:object="${hotelForm}"
+                          method="post"
+                          class="card p-4 shadow-sm needs-validation"
+                          novalidate>
+
+                        <div class="row g-3">
+
+                            <!-- Hotel name -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold"
+                                       th:text="#{hotels.table.name}">
+                                    Name
+                                </label>
                                 <input type="text"
                                        th:field="*{name}"
                                        class="form-control">
-                            <div class="text-danger small mt-1"
-                                 th:errors="*{name}"></div>
-                        </div>
+                                <div class="text-danger small mt-1"
+                                     th:errors="*{name}"></div>
+                            </div>
 
-                        <!-- City -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" th:text="#{hotels.table.city}"></label>
-                            <input type="text" th:field="*{city}" class="form-control">
-                            <div class="text-danger small" th:errors="*{city}"></div>
-                        </div>
+                            <!-- City -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold" th:text="#{hotels.table.city}"></label>
+                                <input type="text" th:field="*{city}" class="form-control">
+                                <div class="text-danger small" th:errors="*{city}"></div>
+                            </div>
 
-                        <!-- Country -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" th:text="#{hotels.table.country}"></label>
-                            <input type="text" th:field="*{country}" class="form-control">
-                            <div class="text-danger small" th:errors="*{country}"></div>
-                        </div>
+                            <!-- Country -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold" th:text="#{hotels.table.country}"></label>
+                                <input type="text" th:field="*{country}" class="form-control">
+                                <div class="text-danger small" th:errors="*{country}"></div>
+                            </div>
 
-                        <!-- Opened on -->
-                        <div class="col-12">
-                            <label class="form-label fw-semibold"
-                                   th:text="#{hotels.table.opened}">
-                                Opened On
-                            </label>
+                            <!-- Opened on -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold"
+                                       th:text="#{hotels.table.opened}">
+                                    Opened On
+                                </label>
                                 <input type="date"
                                        th:field="*{openedOn}"
                                        class="form-control">
-                            <div class="text-danger small mt-1"
-                                 th:errors="*{openedOn}"></div>
-                        </div>
+                                <div class="text-danger small mt-1"
+                                     th:errors="*{openedOn}"></div>
+                            </div>
 
-                        <!-- Stars -->
-                        <div class="col-12">
-                            <label class="form-label fw-semibold"
-                                   th:text="#{hotels.table.stars}">
-                                Stars
-                            </label>
+                            <!-- Stars -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold"
+                                       th:text="#{hotels.table.stars}">
+                                    Stars
+                                </label>
                                 <input type="number"
                                        min="1"
                                        max="5"
                                        th:field="*{stars}"
                                        class="form-control">
-                            <div class="text-danger small mt-1"
-                                 th:errors="*{stars}"></div>
-                        </div>
-
-                        <!-- Has Spa -->
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input type="checkbox"
-                                       th:field="*{hasSpa}"
-                                       class="form-check-input"
-                                       id="hasSpa">
-                                <label for="hasSpa"
-                                       class="form-check-label fw-semibold"
-                                       th:text="#{hotels.table.spa}">
-                                    Has Spa
-                                </label>
+                                <div class="text-danger small mt-1"
+                                     th:errors="*{stars}"></div>
                             </div>
-                        </div>
 
-                        <!-- Image URL -->
-                        <div class="col-12">
-                            <label class="form-label fw-semibold"
-                                   th:text="#{hotels.table.image}">
-                                Image URL
-                            </label>
+                            <!-- Has Spa -->
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input type="checkbox"
+                                           th:field="*{hasSpa}"
+                                           class="form-check-input"
+                                           id="hasSpa">
+                                    <label for="hasSpa"
+                                           class="form-check-label fw-semibold"
+                                           th:text="#{hotels.table.spa}">
+                                        Has Spa
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Image URL -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold"
+                                       th:text="#{hotels.table.image}">
+                                    Image URL
+                                </label>
                                 <input type="text"
                                        th:field="*{imageUrl}"
                                        class="form-control"
                                        placeholder="/images/hotels/example.jpg">
-                            <div class="text-danger small mt-1"
-                                 th:errors="*{imageUrl}"></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Hotel Description
-                            </label>
-
-                            <textarea id="description"
-                                      name="description"
-                                      class="form-control"
-                                      rows="6"
-                                      maxlength="4000"
-                                      placeholder="Hotel history, story, atmosphere, or special features..."
-                                      th:field="*{description}">
-                            </textarea>
-
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">
-                                    Max 4000 characters
-                                </small>
-                                <small id="charCounter" class="char-counter">
-                                    0 / 4000
-                                </small>
+                                <div class="text-danger small mt-1"
+                                     th:errors="*{imageUrl}"></div>
                             </div>
 
-                            <div class="text-danger small mt-1" th:errors="*{description}"></div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Hotel Description
+                                </label>
+
+                                <textarea id="description"
+                                          name="description"
+                                          class="form-control"
+                                          rows="6"
+                                          maxlength="4000"
+                                          placeholder="Hotel history, story, atmosphere, or special features..."
+                                          th:field="*{description}">
+                            </textarea>
+
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted">
+                                        Max 4000 characters
+                                    </small>
+                                    <small id="charCounter" class="char-counter">
+                                        0 / 4000
+                                    </small>
+                                </div>
+
+                                <div class="text-danger small mt-1" th:errors="*{description}"></div>
+                            </div>
+
+
                         </div>
 
+                        <!-- Buttons -->
+                        <div class="mt-4 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-circle"></i>
+                                <span th:text="#{button.save}">Save</span>
+                            </button>
 
-                    </div>
+                            <a th:href="@{/hotels}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i>
+                                <span th:text="#{hotel.back}">Back</span>
+                            </a>
+                        </div>
 
-                    <!-- Buttons -->
-                    <div class="mt-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-check-circle"></i>
-                            <span th:text="#{button.save}">Save</span>
-                        </button>
+                    </form>
 
-                        <a th:href="@{/hotels}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left"></i>
-                            <span th:text="#{hotel.back}">Back</span>
-                        </a>
-                    </div>
-
-                </form>
+                </div>
 
             </div>
         </div>

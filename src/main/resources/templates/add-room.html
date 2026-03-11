@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,8 +18,25 @@
 <div th:replace="~{fragments/navbar :: body}"></div>
 
 <!-- Main -->
-<main class="flex-grow-1">
+<main sec:authorize="hasRole('ADMIN')" class="flex-grow-1">
     <div class="container my-4">
+
+        <!-- Anonymous users -->
+        <div sec:authorize="!hasRole('ADMIN')" class="container mt-5 text-center">
+
+            <div class="alert alert-danger shadow-sm">
+
+                <i class="bi bi-shield-lock me-2"></i>
+                You are not authorized to access this page.
+
+            </div>
+
+            <a href="/" class="btn btn-primary">
+                <i class="bi bi-house-door me-1"></i>
+                Go to Home
+            </a>
+
+        </div>
 
         <!-- Page title -->
         <h2 class="text-primary mb-4">

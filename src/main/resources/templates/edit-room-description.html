@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Edit Room Description</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Room Description</title>
 
-  <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
-  <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
-  <link rel="stylesheet" th:href="@{/css/styles.css}">
-  <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
 </head>
 
 <body class="bg-light">
@@ -18,65 +20,74 @@
 
 <div class="container my-5">
 
-  <div class="card shadow-sm">
-
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0">
-        <i class="bi bi-pencil-square me-2"></i>
-        Edit Room Description
-      </h5>
+    <!-- Not allowed message -->
+    <div sec:authorize="!hasRole('ADMIN')" class="alert alert-danger">
+        You are not allowed to edit hotel descriptions.
     </div>
 
-    <div class="card-body">
+    <!-- Admin only -->
+    <div sec:authorize="hasRole('ADMIN')">
 
-      <form th:action="@{/rooms/{id}/edit-description(id=${room.id})}"
-            method="post">
+        <div class="card shadow-sm">
 
-        <!-- Description -->
-        <div class="mb-3">
-          <label class="form-label fw-semibold">
-            <i class="bi bi-info-circle me-1"></i>
-            Room Description
-          </label>
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Edit Room Description
+                </h5>
+            </div>
 
-          <textarea id="description"
-                    name="description"
-                    class="form-control"
-                    rows="8"
-                    maxlength="1000"
-                    placeholder="Describe the room, comfort, view, and special features..."
-                    th:text="${room.description}">
+            <div class="card-body">
+
+                <form th:action="@{/rooms/{id}/edit-description(id=${room.id})}"
+                      method="post">
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Room Description
+                        </label>
+
+                        <textarea id="description"
+                                  name="description"
+                                  class="form-control"
+                                  rows="8"
+                                  maxlength="1000"
+                                  placeholder="Describe the room, comfort, view, and special features..."
+                                  th:text="${room.description}">
                     </textarea>
 
-          <!-- Counter -->
-          <div class="d-flex justify-content-between mt-1">
-            <small class="text-muted">
-              Max 1000 characters
-            </small>
-            <small id="charCounter" class="char-counter">
-              0 / 1000
-            </small>
-          </div>
+                        <!-- Counter -->
+                        <div class="d-flex justify-content-between mt-1">
+                            <small class="text-muted">
+                                Max 1000 characters
+                            </small>
+                            <small id="charCounter" class="char-counter">
+                                0 / 1000
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Save
+                        </button>
+
+                        <a th:href="@{/rooms/{id}(id=${room.id})}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
         </div>
-
-        <!-- Actions -->
-        <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary">
-            <i class="bi bi-check-circle me-1"></i>
-            Save
-          </button>
-
-          <a th:href="@{/rooms/{id}(id=${room.id})}"
-             class="btn btn-outline-secondary">
-            <i class="bi bi-x-circle me-1"></i>
-            Cancel
-          </a>
-        </div>
-
-      </form>
-
     </div>
-  </div>
 
 </div>
 

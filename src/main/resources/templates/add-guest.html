@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,13 +20,27 @@
 
 <!-- Main -->
 <main class="flex-grow-1">
-    <div class="container my-4">
+    <div sec:authorize="hasAnyRole('USER','ADMIN')" class="container my-4">
 
         <!-- Page title -->
         <h2 class="text-primary mb-4">
             <i class="bi bi-person-plus-fill"></i>
             <span th:text="#{guest.add.title}">Add Guest</span>
         </h2>
+
+        <div sec:authorize="isAnonymous()" class="container mt-5 text-center">
+
+            <div class="alert alert-warning shadow-sm">
+                <i class="bi bi-lock-fill me-2"></i>
+                Please login to add a guest.
+            </div>
+
+            <a href="/login" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right me-1"></i>
+                Login
+            </a>
+
+        </div>
 
         <!-- Wide centered form -->
         <div class="row justify-content-center">
