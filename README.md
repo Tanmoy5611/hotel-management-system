@@ -596,10 +596,10 @@ This satisfies the requirement that users must be stored and managed via the dat
 
 To facilitate testing, a user seeding routine is implemented using `CommandLineRunner`. When the application starts and the user table is empty, two default users are automatically created.
 
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **ADMIN** | `admin@hotelapp.com` | `password` |
-| **USER** | `user@hotelapp.com` | `password` |
+| Role | Email | Password   |
+| :--- | :--- |:-----------|
+| **ADMIN** | `admin@hotelapp.com` | `admin123` |
+| **USER** | `user@hotelapp.com` | `user123`  |
 
 > These credentials are displayed on the login page during the development phase for easier testing.
 
