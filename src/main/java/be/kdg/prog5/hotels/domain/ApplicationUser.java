@@ -2,10 +2,13 @@ package be.kdg.prog5.hotels.domain;
 
 import jakarta.persistence.*;
 
-// representing a user that can log into the application
+import java.util.ArrayList;
+import java.util.List;
+
+// representing a user that can log into the HotelBooking application
 @Entity
 @Table(name = "application_user")    // Custom table name
-public class User {
+public class ApplicationUser {
 
     // Primary key of the user
     @Id
@@ -18,10 +21,16 @@ public class User {
 
     private String role;
 
-    public User() {
+    // ApplicationUser owns Guest
+    // ApplicationUser (1) <--> (many) Guest
+    @OneToMany(mappedBy = "owner")
+    private List<Guest> guests = new ArrayList<>();
+
+
+    public ApplicationUser() {
     }
 
-    public User(String email, String password, String role) {
+    public ApplicationUser(String email, String password, String role) {
         this.email = email;
         this.password = password;
         this.role = role;
@@ -54,5 +63,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<Guest> getGuests() {
+        return guests;
+    }
+
+    public void setGuests(List<Guest> guests) {
+        this.guests = guests;
     }
 }
