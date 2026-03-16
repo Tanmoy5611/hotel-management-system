@@ -91,8 +91,8 @@ public class GuestController {
         return "guest-detail";
     }
 
-    // Delete guest by Admin
-    @PreAuthorize("hasRole('ADMIN')")
+    /// Delete guest by Admin or Owner (The user)
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/guests/{guestId}/delete")
     public String deleteGuest(@PathVariable Long guestId) {
         log.debug("Deleting guest {}", guestId);
@@ -121,6 +121,8 @@ public class GuestController {
             @RequestParam(name = "q", required = false) String query,
             Model model
     ) {
+        log.debug("Searching guests with query {}", query);
+
         if (query == null || query.isBlank()) {
             return "redirect:/guests";
         }
