@@ -68,6 +68,17 @@
                           th:text="${#numbers.formatDecimal(guest.discountPercentage, 1, 0)} + '%'">
                     </span>
 
+                    <!-- Created by badge (Admin only) -->
+                    <div class="mt-3 d-flex gap-2 flex-wrap"
+                         sec:authorize="hasRole('ADMIN')">
+                        <span class="badge rounded-pill px-3 py-2
+                        bg-primary-subtle text-primary
+                        border border-primary-subtle fw-semibold">
+                            <i class="bi bi-person-badge-fill me-1"></i>
+                            Created by
+                            <span th:text="${guest.owner.email}"></span>
+                        </span>
+                    </div>
 
                 </div>
             </div>
@@ -147,7 +158,8 @@
         </a>
 
         <!-- Delete button opens modal for Admin -->
-        <button sec:authorize="hasRole('ADMIN')"
+        <button
+                th:if="${#authentication.name == guest.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
                 type="button"
                 class="btn btn-danger"
                 data-bs-toggle="modal"
@@ -159,7 +171,8 @@
     </div>
 
     <!-- Delete Modal -->
-    <div sec:authorize="hasRole('ADMIN')" class="modal fade"
+    <div th:if="${#authentication.name == guest.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
+         class="modal fade"
          th:id="${'deleteGuestModal-' + guest.id}"
          tabindex="-1">
 
