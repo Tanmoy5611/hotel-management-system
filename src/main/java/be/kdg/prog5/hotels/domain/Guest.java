@@ -21,6 +21,10 @@ public class Guest {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private ApplicationUser owner;
+
     private LocalDate dob;
 
     private String email;
@@ -53,6 +57,9 @@ public class Guest {
     public String getFullName() {
         return fullName;
     }
+    public ApplicationUser getOwner() {
+        return owner;
+    }
     public LocalDate getDob() {
         return dob;
     }
@@ -72,6 +79,9 @@ public class Guest {
     /// public void setId(Long id) {this.id = id;}       // No set id (primary key) method bc it is auto generated
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+    public void setOwner(ApplicationUser owner) {
+        this.owner = owner;
     }
     public void setDob(LocalDate dob) {
         this.dob = dob;
