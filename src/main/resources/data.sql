@@ -158,73 +158,78 @@ VALUES
  'Comfortable single room with modern facilities, ideal for solo travelers seeking quality.',
  (SELECT id FROM hotels WHERE hotel_id = 'pan-pacific'));
 
+INSERT INTO application_user (id, email, password, role)
+VALUES
+    (1, 'admin@hotelapp.com', '$2a$10$1wVrS7yhflsS56LIUOOTJ.wpjK2CrDw6DNVtbc9TRYzv5thAyLn9m', 'ADMIN'),
+    (2, 'applicationUser@hotelapp.com', '$2a$10$ij4aqSXWNmAXwt/0VDFaS.5wg/x/PUsMqEQPg9o4OeHvxAtHk7sMK', 'USER');
+
 
 -- guests
-INSERT INTO guests (full_name, dob, email, avatar_url, guest_type, discount_percentage)
-VALUES ('Billie Wilson', '1990-04-10', 'billie.wilson93@gmail.com', '/images/guests/billie_wilson.jpg', 'VIP', 15),
+INSERT INTO guests (full_name, dob, email, avatar_url, guest_type, discount_percentage, owner_id)
+VALUES ('Billie Wilson', '1990-04-10', 'billie.wilson93@gmail.com', '/images/guests/billie_wilson.jpg', 'VIP', 15, 1),
 
-       ('Liam Johnson', '1985-12-03', 'liam.johnson_27@outlook.com', '/images/guests/liam_johnson.jpg', 'GUEST', 0),
+       ('Liam Johnson', '1985-12-03', 'liam.johnson_27@outlook.com', '/images/guests/liam_johnson.jpg', 'GUEST', 0, 2),
 
        ('Sophia Martinez', '1992-09-18', 'sophia.martinez84@yahoo.com', '/images/guests/sophia_martinez.jpg', 'GUEST',
-        0),
+        0, 1),
 
-       ('Ahanyna Saha', '2002-11-28', 'ahanyna.saha02@gmail.com', '/images/guests/ahanyna_saha.jpg', 'VIP', 12),
+       ('Ahanyna Saha', '2002-11-28', 'ahanyna.saha02@gmail.com', '/images/guests/ahanyna_saha.jpg', 'VIP', 12, 2),
 
-       ('Olivia Garcia', '1995-02-08', 'olivia.garcia_15@outlook.com', '/images/guests/olivia_garcia.jpg', 'VIP', 10),
+       ('Olivia Garcia', '1995-02-08', 'olivia.garcia_15@outlook.com', '/images/guests/olivia_garcia.jpg', 'VIP', 10, 1),
 
-       ('Ethan Brown', '1991-06-15', 'ethan.brown91@yahoo.com', '/images/guests/ethan_brown.jpg', 'GUEST', 0),
+       ('Ethan Brown', '1991-06-15', 'ethan.brown91@yahoo.com', '/images/guests/ethan_brown.jpg', 'GUEST', 0, 1),
 
-       ('Mia Chen', '1997-03-22', 'mia.chen_19@hotmail.com', '/images/guests/mia_chen.jpg', 'GUEST', 0),
+       ('Mia Chen', '1997-03-22', 'mia.chen_19@hotmail.com', '/images/guests/mia_chen.jpg', 'GUEST', 0, 1),
 
-       ('Alexander Rossi', '1989-11-09', 'alex.rossi89@outlook.com', '/images/guests/alexander_rossi.jpg', 'VIP', 8),
+       ('Alexander Rossi', '1989-11-09', 'alex.rossi89@outlook.com', '/images/guests/alexander_rossi.jpg', 'VIP', 8, 2),
 
-       ('Marrison Harri', '2001-06-12', 'marrison.harri01@gmail.com', '/images/guests/marrison_harri.jpg', 'GUEST', 0),
+       ('Marrison Harri', '2001-06-12', 'marrison.harri01@gmail.com', '/images/guests/marrison_harri.jpg', 'GUEST', 0, 2),
 
-       ('Emma Janssens', '1995-04-10', 'emma.janssens95@gmail.com', '/images/guests/emma_janssens.jpg', 'GUEST', 0),
+       ('Emma Janssens', '1995-04-10', 'emma.janssens95@gmail.com', '/images/guests/emma_janssens.jpg', 'GUEST', 0, 2),
 
-       ('Lucas Peeters', '1988-11-21', 'lucas.peeters88@telenet.be', '/images/guests/lucas_peeters.jpg', 'VIP', 5),
+       ('Lucas Peeters', '1988-11-21', 'lucas.peeters88@telenet.be', '/images/guests/lucas_peeters.jpg', 'VIP', 5, 2),
 
-       ('Kate Claes', '1992-07-15', 'kate.claes92@outlook.com', '/images/guests/kate_claes.jpg', 'GUEST', 0),
+       ('Kate Claes', '1992-07-15', 'kate.claes92@outlook.com', '/images/guests/kate_claes.jpg', 'GUEST', 0, 1),
 
-       ('Noah Smith', '1988-07-25', 'noah.smith_88@yahoo.com', '/images/guests/noah_smith.jpg', 'GUEST', 0),
+       ('Noah Smith', '1988-07-25', 'noah.smith_88@yahoo.com', '/images/guests/noah_smith.jpg', 'GUEST', 0, 1),
 
-       ('Arthur Evans', '1955-10-10', 'arthur.evans55@gmail.com', '/images/guests/arthur_evans.jpg', 'GUEST', 0),
+       ('Arthur Evans', '1955-10-10', 'arthur.evans55@gmail.com', '/images/guests/arthur_evans.jpg', 'GUEST', 0, 1),
 
        ('Robert Sterling', '1962-02-20', 'robert.sterling62@outlook.com', '/images/guests/robert_sterling.jpg', 'VIP',
-        20),
+        20, 1),
 
-       ('Eleanor Vance', '1948-05-18', 'eleanor.vance48@yahoo.com', '/images/guests/eleanor_vance.jpg', 'GUEST', 0),
+       ('Eleanor Vance', '1948-05-18', 'eleanor.vance48@yahoo.com', '/images/guests/eleanor_vance.jpg', 'GUEST', 0, 1),
 
-       ('David Chen', '1970-12-05', 'david.chen70@gmail.com', '/images/guests/david_chen.jpg', 'VIP', 15),
+       ('David Chen', '1970-12-05', 'david.chen70@gmail.com', '/images/guests/david_chen.jpg', 'VIP', 15, 1),
 
-       ('Gabriel Reyes', '1985-08-25', 'gabriel.reyes85@outlook.com', '/images/guests/gabriel_reyes.jpg', 'GUEST', 0),
+       ('Gabriel Reyes', '1985-08-25', 'gabriel.reyes85@outlook.com', '/images/guests/gabriel_reyes.jpg', 'GUEST', 0, 1),
 
-       ('Anya Lee', '1992-06-01', 'anya.lee92@yahoo.com', '/images/guests/anya_lee.jpg', 'GUEST', 0),
+       ('Anya Lee', '1992-06-01', 'anya.lee92@yahoo.com', '/images/guests/anya_lee.jpg', 'GUEST', 0, 1),
 
-       ('Elsa Nordin', '1998-03-15', 'elsa.nordin98@gmail.com', '/images/guests/elsa_nordin.jpg', 'GUEST', 0),
+       ('Elsa Nordin', '1998-03-15', 'elsa.nordin98@gmail.com', '/images/guests/elsa_nordin.jpg', 'GUEST', 0, 1),
 
-       ('Liam Jensen', '2001-07-22', 'liam.jensen01@outlook.com', '/images/guests/liam_jensen.jpg', 'GUEST', 0),
+       ('Liam Jensen', '2001-07-22', 'liam.jensen01@outlook.com', '/images/guests/liam_jensen.jpg', 'GUEST', 0, 1),
 
-       ('Sofia Rossi', '1995-11-28', 'sofia.rossi95@gmail.com', '/images/guests/sofia_rossi.jpg', 'VIP', 12),
+       ('Sofia Rossi', '1995-11-28', 'sofia.rossi95@gmail.com', '/images/guests/sofia_rossi.jpg', 'VIP', 12, 2),
 
-       ('Ethan Miller', '1997-04-10', 'ethan.miller97@yahoo.com', '/images/guests/ethan_miller.jpg', 'VIP', 10),
+       ('Ethan Miller', '1997-04-10', 'ethan.miller97@yahoo.com', '/images/guests/ethan_miller.jpg', 'VIP', 10, 2),
 
        ('Ronan OConnell', '2002-09-05', 'ronan.oconnell02@outlook.com', '/images/guests/ronan_oconnell.jpg', 'GUEST',
-        0),
+        0, 2),
 
-       ('Nancy Sanchez', '2000-01-30', 'nancy.sanchez00@gmail.com', '/images/guests/nancy_sanchez.jpg', 'GUEST', 0),
+       ('Nancy Sanchez', '2000-01-30', 'nancy.sanchez00@gmail.com', '/images/guests/nancy_sanchez.jpg', 'GUEST', 0, 1),
 
-       ('Mark Thompson', '1968-09-12', 'mark.thompson68@outlook.com', '/images/guests/mark_thompson.jpg', 'VIP', 5),
+       ('Mark Thompson', '1968-09-12', 'mark.thompson68@outlook.com', '/images/guests/mark_thompson.jpg', 'VIP', 5, 2),
 
-       ('Richard Stone', '1961-04-05', 'richard.stone61@yahoo.com', '/images/guests/richard_stone.jpg', 'VIP', 14),
+       ('Richard Stone', '1961-04-05', 'richard.stone61@yahoo.com', '/images/guests/richard_stone.jpg', 'VIP', 14, 2),
 
-       ('Anna Svensson', '1999-06-20', 'anna.svensson99@gmail.com', '/images/guests/anna_svensson.jpg', 'GUEST', 0),
+       ('Anna Svensson', '1999-06-20', 'anna.svensson99@gmail.com', '/images/guests/anna_svensson.jpg', 'GUEST', 0, 2),
 
-       ('Chloe Dubois', '2000-01-15', 'chloe.dubois00@outlook.com', '/images/guests/chloe_dubois.jpg', 'GUEST', 0),
+       ('Chloe Dubois', '2000-01-15', 'chloe.dubois00@outlook.com', '/images/guests/chloe_dubois.jpg', 'GUEST', 0,2),
 
-       ('Thomas Keller', '1972-03-25', 'thomas.keller72@yahoo.com', '/images/guests/thomas_keller.jpg', 'VIP', 8),
+       ('Thomas Keller', '1972-03-25', 'thomas.keller72@yahoo.com', '/images/guests/thomas_keller.jpg', 'VIP', 8, 2),
 
-       ('Keya Saha', '1996-10-08', 'keya.saha96@gmail.com', '/images/guests/keya_saha.jpg', 'VIP', 25);
+       ('Keya Saha', '1996-10-08', 'keya.saha96@gmail.com', '/images/guests/keya_saha.jpg', 'VIP', 25, 1);
 
 
 INSERT INTO stays (room_id, guest_id, check_in_date, check_out_date)
