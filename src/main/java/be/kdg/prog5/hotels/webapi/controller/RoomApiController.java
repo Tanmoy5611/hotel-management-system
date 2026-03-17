@@ -1,4 +1,4 @@
-package be.kdg.prog5.hotels.webapi;
+package be.kdg.prog5.hotels.webapi.controller;
 
 import be.kdg.prog5.hotels.business.RoomService;
 import be.kdg.prog5.hotels.domain.Room;

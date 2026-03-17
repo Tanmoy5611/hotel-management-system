@@ -287,7 +287,7 @@
     <!-- Book Room Button -->
     <div class="text-center mt-5 mb-4">
 
-        <!-- Show booking button ONLY if user is logged in -->
+        <!-- Show booking button ONLY if applicationUser is logged in -->
         <div sec:authorize="hasAnyRole('USER','ADMIN')">
 
             <a th:href="@{/rooms/{id}/book(id=${room.id})}"
@@ -298,7 +298,7 @@
 
         </div>
 
-        <!-- Show login suggestion if user is anonymous -->
+        <!-- Show login suggestion if applicationUser is anonymous -->
         <div sec:authorize="isAnonymous()">
 
             <a href="/login" class="btn btn-outline-primary btn-lg px-5">

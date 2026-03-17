@@ -174,7 +174,7 @@ public class RoomController {
         return "room-detail";
     }
 
-    // Show Booking Page for Admin and User
+    // Show Booking Page for Admin and ApplicationUser
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/{roomId}/book")
     public String showBookingPage(@PathVariable Long roomId,
