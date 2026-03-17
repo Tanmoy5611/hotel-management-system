@@ -7,8 +7,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.web.servlet.function.RequestPredicates.headers;
-
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -19,11 +17,13 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
 
+                        // ADMIN pages
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         // Only ADMIN can delete hotels, rooms, guests
                         .requestMatchers(
                                 "/hotels/*/delete",
-                                "/rooms/*/delete",
-                                "/guests/*/delete"
+                                "/rooms/*/delete"
                         ).hasRole("ADMIN")
 
                         // Public pages accessible without login
@@ -69,8 +69,6 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
-                // temporary for assignment so REST/Ajax works
-                .csrf(csrf -> csrf.disable())
 
                 // additional security headers
                 .headers(headers -> headers
