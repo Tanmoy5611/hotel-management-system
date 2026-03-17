@@ -70,23 +70,23 @@
 
                 <tbody>
 
-                <tr th:each="user : ${users}">
+                <tr th:each="applicationUser : ${users}">
 
                     <td>
                         <i class="bi bi-person-circle me-2"></i>
-                        <span th:text="${user.email}"></span>
+                        <span th:text="${applicationUser.email}"></span>
                     </td>
 
                     <td>
 
                         <span class="badge"
-                              th:classappend="${user.role == 'ADMIN'} ? 'bg-danger' : 'bg-primary'">
+                              th:classappend="${applicationUser.role == 'ADMIN'} ? 'bg-danger' : 'bg-primary'">
 
                             <i class="bi"
-                               th:classappend="${user.role == 'ADMIN'} ? 'bi-shield-lock' : 'bi-person'">
+                               th:classappend="${applicationUser.role == 'ADMIN'} ? 'bi-shield-lock' : 'bi-person'">
                             </i>
 
-                            <span th:text="${user.role}"></span>
+                            <span th:text="${applicationUser.role}"></span>
 
                         </span>
 
@@ -96,9 +96,9 @@
 
                         <button type="button"
                                 class="btn btn-warning btn-sm"
-                                th:if="${user.email != 'admin@hotelapp.com'}"
+                                th:if="${applicationUser.email != 'admin@hotelapp.com'}"
                                 data-bs-toggle="modal"
-                                th:attr="data-bs-target='#roleModal__' + ${user.id}">
+                                th:attr="data-bs-target='#roleModal__' + ${applicationUser.id}">
 
                             <i class="bi bi-arrow-repeat"></i>
                             <span th:text="#{users.changeRole}">Change Role</span>
@@ -107,19 +107,19 @@
 
                         <button type="button"
                                 class="btn btn-danger btn-sm"
-                                th:if="${user.email != 'admin@hotelapp.com'}"
+                                th:if="${applicationUser.email != 'admin@hotelapp.com'}"
                                 data-bs-toggle="modal"
-                                th:attr="data-bs-target='#deleteModal__' + ${user.id}">
+                                th:attr="data-bs-target='#deleteModal__' + ${applicationUser.id}">
 
                             <i class="bi bi-trash"></i>
                             <span th:text="#{users.delete}">Delete</span>
 
                         </button>
 
-                        <span class="text-muted small"
-                              th:if="${user.email == 'admin@hotelapp.com'}"
-                              th:text="#{users.protected}">
-                            protected
+                        <span class="text-muted small d-flex align-items-center"
+                              th:if="${applicationUser.email == 'admin@hotelapp.com'}">
+                            <i class="bi bi-lock-fill me-1"></i>
+                            <span th:text="#{users.protected}">PROTECTED</span>
                         </span>
 
                     </td>
@@ -137,10 +137,10 @@
 </div>
 
 <!-- Change Role modals -->
-<div th:each="user : ${users}">
+<div th:each="applicationUser : ${users}">
 
     <div class="modal fade"
-         th:id="'roleModal__' + ${user.id}"
+         th:id="'roleModal__' + ${applicationUser.id}"
          tabindex="-1">
 
         <div class="modal-dialog modal-dialog-centered">
@@ -167,7 +167,7 @@
                         Change role of
                     </span>
 
-                    <strong th:text="${user.email}"></strong> ?
+                    <strong th:text="${applicationUser.email}"></strong> ?
 
                 </div>
 
@@ -179,7 +179,7 @@
                         Cancel
                     </button>
 
-                    <form th:action="@{/admin/users/{id}/toggle-role(id=${user.id})}"
+                    <form th:action="@{/admin/users/{id}/toggle-role(id=${applicationUser.id})}"
                           method="post">
 
                         <button class="btn btn-warning"
@@ -200,10 +200,10 @@
 </div>
 
 <!-- Delete modal -->
-<div th:each="user : ${users}">
+<div th:each="applicationUser : ${users}">
 
     <div class="modal fade"
-         th:id="'deleteModal__' + ${user.id}"
+         th:id="'deleteModal__' + ${applicationUser.id}"
          tabindex="-1">
 
         <div class="modal-dialog modal-dialog-centered">
@@ -227,10 +227,10 @@
                 <div class="modal-body">
 
                     <span th:text="#{users.deleteConfirm}">
-                        Delete user
+                        Delete applicationUser
                     </span>
 
-                    <strong th:text="${user.email}"></strong> ?
+                    <strong th:text="${applicationUser.email}"></strong> ?
 
                 </div>
 
@@ -242,7 +242,7 @@
                         Cancel
                     </button>
 
-                    <form th:action="@{/admin/users/{id}/delete(id=${user.id})}"
+                    <form th:action="@{/admin/users/{id}/delete(id=${applicationUser.id})}"
                           method="post">
 
                         <button class="btn btn-danger"
@@ -264,7 +264,7 @@
 
 <div th:replace="~{fragments/footer :: body}"></div>
 
-<script defer th:src="@{/js/user-search.js}"></script>
+<script defer th:src="@{/js/application-user-search.js}"></script>
 
 </body>
 </html>

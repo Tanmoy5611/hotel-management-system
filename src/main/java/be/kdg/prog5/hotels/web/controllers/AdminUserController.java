@@ -1,6 +1,6 @@
 package be.kdg.prog5.hotels.web.controllers;
 
-import be.kdg.prog5.hotels.business.UserService;
+import be.kdg.prog5.hotels.business.ApplicationUserService;
 import be.kdg.prog5.hotels.viewmodel.RegisterForm;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('ADMIN')") // only admins can access this controller
 public class AdminUserController {
 
-    private final UserService userService;
+    private final ApplicationUserService applicationUserService;
 
-    public AdminUserController(UserService userService) {
-        this.userService = userService;
+    public AdminUserController(ApplicationUserService applicationUserService) {
+        this.applicationUserService = applicationUserService;
     }
 
     // show all users
     @GetMapping
     public String showUsers(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("users", applicationUserService.getAllUsers());
         return "admin-users";
     }
 
@@ -39,7 +39,7 @@ public class AdminUserController {
                           Model model) {
 
         // Try to create the user
-        var error = userService.createUser(registerForm);
+        var error = applicationUserService.createUser(registerForm);
 
         // If validation error occurs, return to the form
         if (error.isPresent()) {
@@ -55,14 +55,14 @@ public class AdminUserController {
     // delete user
     @PostMapping("/{id}/delete")
     public String deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        applicationUserService.deleteUser(id);
         return "redirect:/admin/users";
     }
 
     // toggle role USER <-> ADMIN
     @PostMapping("/{id}/toggle-role")
     public String toggleRole(@PathVariable Long id) {
-        userService.toggleUserRole(id);
+        applicationUserService.toggleUserRole(id);
         return "redirect:/admin/users";
     }
 }
