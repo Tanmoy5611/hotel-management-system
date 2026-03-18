@@ -1,7 +1,7 @@
 package be.kdg.prog5.hotels.web.security;
 
-import be.kdg.prog5.hotels.data.SpringDataUserRepository;
-import be.kdg.prog5.hotels.domain.User;
+import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
+import be.kdg.prog5.hotels.domain.ApplicationUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
     // repository to fetch users from the DB
-    private final SpringDataUserRepository userRepository;
+    private final SpringDataApplicationUserRepository userRepository;
 
-    public CustomUserDetailsService(SpringDataUserRepository userRepository) {
+    public CustomUserDetailsService(SpringDataApplicationUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -22,12 +22,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        // find the user by email
-        User user = userRepository.findByEmail(email)
-                // if user not found then throw exception
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        // find the applicationUser by email
+        ApplicationUser applicationUser = userRepository.findByEmail(email)
+                // if applicationUser not found then throw exception
+                .orElseThrow(() -> new UsernameNotFoundException("ApplicationUser not found"));
 
-        // convert User entity into CustomUserDetails object
-        return new CustomUserDetails(user);
+        // convert ApplicationUser entity into CustomUserDetails object
+        return new CustomUserDetails(applicationUser);
     }
 }

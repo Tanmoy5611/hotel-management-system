@@ -1,6 +1,6 @@
 package be.kdg.prog5.hotels.web.security;
 
-import be.kdg.prog5.hotels.domain.User;
+import be.kdg.prog5.hotels.domain.ApplicationUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,34 +8,34 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-//  adapts the User entity so Spring Security can understand it
+//  adapts the ApplicationUser entity so Spring Security can understand it
 public class CustomUserDetails implements UserDetails {
 
-    // the actual user from the database
-    private final User user;
+    // the actual applicationUser from the database
+    private final ApplicationUser applicationUser;
 
-    // constructor receives the User entity
-    public CustomUserDetails(User user) {
-        this.user = user;
+    // constructor receives the ApplicationUser entity
+    public CustomUserDetails(ApplicationUser applicationUser) {
+        this.applicationUser = applicationUser;
     }
 
-    // return the role of the user (USER or ADMIN)
+    // return the role of the applicationUser (USER or ADMIN)
     // Spring Security expects roles to start with "ROLE_"
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + applicationUser.getRole()));
     }
 
     // return the encrypted password stored in the database
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return applicationUser.getPassword();
     }
 
     // use email as the username for login
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return applicationUser.getEmail();
     }
 
     // account expiration (not used yet)
@@ -56,7 +56,7 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
-    // user is always enabled
+    // applicationUser is always enabled
     @Override
     public boolean isEnabled() {
         return true;
