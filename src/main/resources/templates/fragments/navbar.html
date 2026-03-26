@@ -7,6 +7,10 @@
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
     <title>NavBar</title>
 </head>
 
@@ -190,6 +194,7 @@
 
 </nav>
 
+<script th:src="@{/js/csrf.js}"></script>
 <script th:src="@{/js/theme-toggle.js}"></script>
 
 </body>

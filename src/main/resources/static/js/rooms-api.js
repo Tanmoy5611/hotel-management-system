@@ -12,7 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch(`/api/rooms/${roomId}`, {
                     method: "DELETE",
                     headers: {
-                        "Accept": "application/json"
+                        "Accept": "application/json",
+
+                        // CSRF header
+                        ...getCsrfHeaders()
                     }
                 });
 

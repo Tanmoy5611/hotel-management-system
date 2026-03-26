@@ -24,7 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Accept": "application/json"
+                    "Accept": "application/json",
+
+                        // CSRF header
+                    ...getCsrfHeaders()
                 },
                 body: JSON.stringify(payload)
             });

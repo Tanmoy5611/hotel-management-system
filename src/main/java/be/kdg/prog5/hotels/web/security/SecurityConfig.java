@@ -22,9 +22,18 @@ public class SecurityConfig {
 
                         // Only ADMIN can delete hotels, rooms, guests
                         .requestMatchers(
+                                "/hotels/add",
+                                "/rooms/add",
                                 "/hotels/*/delete",
                                 "/rooms/*/delete"
                         ).hasRole("ADMIN")
+
+                        // signed-in staff/admin only for Guests
+                        .requestMatchers(
+                                "/guests",
+                                "/guests/**"
+                        ).hasAnyRole("USER", "ADMIN")
+
 
                         // Public pages accessible without login
                         .requestMatchers(
@@ -32,9 +41,9 @@ public class SecurityConfig {
                                 "/home",
                                 "/login",
                                 "/hotels",
-                                "/hotels/**",
+                                "/hotels/*",
                                 "/rooms",
-                                "/rooms/**",
+                                "/rooms/*",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",

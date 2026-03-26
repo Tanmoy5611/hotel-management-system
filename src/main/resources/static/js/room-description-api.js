@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Stop script if edit button does not exist
     if (!editBtn) return;
 
-
     // Edit button - swtich to edit mode
     editBtn.addEventListener("click", () => {
         // Combine first and second part of description
@@ -56,7 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(`/api/rooms/${roomId}/description`, {
                 method: "PATCH",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+
+                    // CSRF header
+                    ...getCsrfHeaders()
                 },
                 body: JSON.stringify({
                     description: newDescription

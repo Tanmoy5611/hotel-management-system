@@ -12,6 +12,10 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" th:href="@{/css/room-detail.css}">
     <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
 </head>
 
 <body class="bg-light">
@@ -456,6 +460,7 @@
 <!-- Footer-->
 <div th:replace="~{fragments/footer :: body}"></div>
 
+<script th:src="@{/js/csrf.js}"></script>
 <script th:src="@{/js/rooms-api.js}" defer></script>
 <script th:src="@{/js/room-create-toast.js}" defer></script>
 <script th:src="@{/js/read-more.js}" defer></script>
