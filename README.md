@@ -419,7 +419,7 @@ The API was rigorously tested using the `rooms-api.http` file included in the pr
 
 The `DELETE` functionality is fully integrated with the frontend using the JavaScript **Fetch API**. This fulfills the requirement for dynamic UI updates without page reloads.
 * **Success (204):** The room is removed from the DOM immediately.
-* **Failure (404):** An error message is displayed to the user via a notification or alert.
+* **Failure (404):** An error message is displayed to the applicationUser via a notification or alert.
 ---
 
 # Week 3
@@ -539,7 +539,7 @@ In Week 4, Spring Security was integrated into the Hotels application to add aut
 * **Persisted users** in the database
 * **Password hashing**
 * A **custom login page**
-* **Dynamic UI behavior** based on user status (Anonymous, Staff, or Administrator)
+* **Dynamic UI behavior** based on applicationUser status (Anonymous, Staff, or Administrator)
 * **REST API & Ajax support** maintained from previous weeks
 
 > The Hotels application models **hotel management staff**, not customers.
@@ -563,11 +563,11 @@ A custom login page was implemented using Spring Security.
 * email
 * password
 
-After successful login, the user is redirected to: `/home`
+After successful login, the applicationUser is redirected to: `/home`
 
 The navigation bar dynamically updates to show the current login status and provides a logout option.
 
-> **Example:** > Logged in as: `user@hotelapp.com`
+> **Example:** > Logged in as: `applicationUser@hotelapp.com`
 ---
 
 ## Persisted Users
@@ -577,7 +577,7 @@ Users are implemented as a persisted entity in the database, ensuring that accou
 * **Entity:** `User`
 * **Repository:** `SpringDataUserRepository`
 
-**The user entity stores:**
+**The applicationUser entity stores:**
 * `id`
 * `email`
 * `password` (hashed)
@@ -594,12 +594,12 @@ This satisfies the requirement that users must be stored and managed via the dat
 
 ## Default Seeded Users
 
-To facilitate testing, a user seeding routine is implemented using `CommandLineRunner`. When the application starts and the user table is empty, two default users are automatically created.
+To facilitate testing, a applicationUser seeding routine is implemented using `CommandLineRunner`. When the application starts and the applicationUser table is empty, two default users are automatically created.
 
-| Role | Email | Password   |
-| :--- | :--- |:-----------|
+| Role | Email                | Password   |
+| :--- |:---------------------|:-----------|
 | **ADMIN** | `admin@hotelapp.com` | `admin123` |
-| **USER** | `user@hotelapp.com` | `user123`  |
+| **USER** | `user@hotelapp.com`  | `user123`  |
 
 > These credentials are displayed on the login page during the development phase for easier testing.
 
@@ -728,6 +728,193 @@ Week 4 introduced a complete **Spring Security** setup into the Hotels applicati
 * continued REST API and Ajax functionality
 
 This creates a realistic security model for a hotel management system where **anonymous visitors**, **staff users**, and **administrators** have different levels of access.
+
+
+## Week 5 - Security & Authorization
+
+In Week 5, Spring Security was implemented to secure the Hotel Booking application.
+
+The main goal was to introduce:
+- authentication (login system)
+- role-based authorization (USER / ADMIN)
+- ownership-based access control (users linked to their own data)
+- CSRF protection for secure requests
+
+---
+
+## Seeded Users
+
+The application seeds the following users automatically:
+
+| Email              | Password  | Role              |
+|--------------------|-----------|-------------------|
+| admin@hotelapp.com | admin123  | ADMIN (PROTECTED) |
+| user@hotelapp.com  | user123   | USER              |
+| tanmoy@gmail.com   | tanmoy123 | ADMIN             |
+
+Passwords are stored securely using **BCrypt hashing**.
+
+---
+
+## Roles in the Application
+
+There are three types of users:
+
+---
+
+### 1. Unauthenticated Users (Anonymous)
+
+Users who are not logged in.
+
+**Can:**
+- View home page
+- View hotels
+- View rooms
+
+**Cannot:**
+- Create guests
+- Delete guests
+- Access admin or staff features
+
+Example: http://localhost:8080/home
+
+---
+
+### 2. USER Role (Staff)
+
+Represents staff users of the system.
+
+**Can:**
+- View guests
+- Create new guests
+- View guest details
+- Interact with the system (rooms, bookings, etc.)
+
+**Ownership rule:**
+- When a USER creates a guest -> that guest is linked to that user
+- USER can **only delete their own guests**
+
+Example: http://localhost:8080/guests/add
+
+---
+
+### 3. ADMIN Role
+
+Administrators have full access.
+
+**Can:**
+- Manage hotels
+- Manage rooms
+- Manage users
+- Delete any guest (even if not owner)
+
+Example: http://localhost:8080/admin/users
+
+---
+
+## User–Guest Association
+
+Each guest is linked to a user (owner).
+
+Relationship:
+ApplicationUser (1) –– (many) Guest
+
+When a guest is created:
+- the logged-in user becomes the owner
+- ownership is enforced during delete/update
+
+**Access rules:**
+- Owner -> can modify/delete
+- ADMIN -> can modify/delete all
+- Other users → cannot modify/delete
+
+---
+
+## UI Access Control
+
+The UI hides actions that users are not allowed to perform.
+
+Examples:
+- "Add Guest" button hidden for anonymous users
+- Admin menu visible only to ADMIN
+- Delete button shown only for:
+  - owner
+  - ADMIN
+
+⚠️ Important: UI hiding is not enough → backend also validates.
+
+---
+
+## Server-Side Authorization
+
+All security rules are enforced in the backend using Spring Security.
+
+Examples:
+- `/admin/**` → ADMIN only
+- `/api/**` (POST, PATCH, DELETE) -> authenticated users only
+- Ownership checks enforced in service layer
+
+This prevents users from bypassing restrictions using tools like Postman.
+
+---
+
+## REST API Security
+
+The REST API continues to work with security rules:
+
+- `GET /api/**` -> public
+- `POST /api/**` -> authenticated
+- `PATCH /api/**` -> authenticated
+- `DELETE /api/**` -> authenticated
+
+Example protected endpoint:
+POST /api/rooms
+
+---
+
+## CSRF Protection
+
+CSRF protection is **enabled** using Spring Security (default behavior).
+
+Implementation includes:
+- CSRF token in HTML meta tags
+- Token added to all AJAX requests via headers
+- Shared `csrf.js` helper for reuse
+
+This ensures:
+- Only valid requests from the application are accepted
+- External/malicious requests are blocked
+
+---
+
+## Consistency of Security Model
+
+The system follows consistent security rules:
+
+- Anonymous users -> read-only access
+- Authenticated users -> can create data
+- Users -> can only modify their own data
+- Admin -> full control
+
+This matches real-world application behavior and assignment requirements.
+
+---
+
+## Summary
+
+Week 5 introduces a complete and secure system:
+
+- Authentication with Spring Security
+- Role-based access (USER / ADMIN)
+- Ownership-based authorization
+- Protected REST API
+- CSRF protection for all state-changing requests
+- UI + backend validation
+
+This results in a realistic hotel management system where:
+- users manage their own data
+- administrators manage the entire system securely
+
 
 
 > <h2 align="center"> Author: <span style="color:#9d0dfd;"><em>Tanmoy Das</em></span> </h2>
