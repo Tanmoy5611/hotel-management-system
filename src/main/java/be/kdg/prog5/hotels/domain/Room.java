@@ -97,9 +97,8 @@ public class Room {
         return hotel;
     }
 
-    // Avoid lazy loading collections in UI. Return unmodifiable view.
     public Set<Stay> getStays() {
-        return Collections.unmodifiableSet(stays);
+        return stays;
     }
 
     // Setters

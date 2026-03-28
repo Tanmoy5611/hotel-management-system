@@ -46,7 +46,7 @@ public class Stay {
 
     // Constructor - create a Stay link entity that connects one Room with one Guest
     // Constructor used only from aggregate root (Room) - Only Room aggregate should create Stay
-    Stay(Room room, Guest guest, LocalDate checkInDate, LocalDate checkOutDate) {
+   public Stay(Room room, Guest guest, LocalDate checkInDate, LocalDate checkOutDate) {
         this.room = room;
         this.guest = guest;
         this.checkInDate = checkInDate;
