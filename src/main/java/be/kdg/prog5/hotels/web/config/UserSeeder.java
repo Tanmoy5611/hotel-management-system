@@ -4,6 +4,7 @@ import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
 import be.kdg.prog5.hotels.domain.Guest;
+import be.kdg.prog5.hotels.domain.RoleType;
 import be.kdg.prog5.hotels.domain.VIPGuest;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -33,14 +34,14 @@ public class UserSeeder {
                 ApplicationUser admin = new ApplicationUser(
                         "admin@hotelapp.com",
                         passwordEncoder.encode("admin123"),
-                        "ADMIN"
+                        RoleType.ADMIN
                 );
 
                 // create normal applicationUser account
                 ApplicationUser applicationUser = new ApplicationUser(
                         "applicationUser@hotelapp.com",
                         passwordEncoder.encode("user123"),
-                        "USER"
+                        RoleType.USER
                 );
 
                 // save both users in database
