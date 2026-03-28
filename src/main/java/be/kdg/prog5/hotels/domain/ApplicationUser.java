@@ -15,8 +15,11 @@ public class ApplicationUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Email is unique because it is used for authentication and identification
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
     private String role;

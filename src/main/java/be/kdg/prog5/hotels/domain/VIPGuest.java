@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @DiscriminatorValue("VIP")    // stored in the guest_type column ➡ JPA knows this row represents a VIPGuest
 public class VIPGuest extends Guest {
 
-    @Column(name = "discount_percentage", nullable = false)
+    @Column(name = "discount_percentage", nullable = true)
     private BigDecimal discountPercentage = BigDecimal.ZERO;  //  no null problems
 
     // Required by Hibernate / JPA

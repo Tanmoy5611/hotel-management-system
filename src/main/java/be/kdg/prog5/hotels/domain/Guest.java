@@ -1,6 +1,7 @@
 package be.kdg.prog5.hotels.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,6 +28,8 @@ public class Guest {
 
     private LocalDate dob;
 
+    @NotNull
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(name = "avatar_url")                         // Maps Java field avatarUrl to database column avatar_url
