@@ -2,12 +2,16 @@ package be.kdg.prog5.hotels.business;
 
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
+import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.domain.*;
+import be.kdg.prog5.hotels.web.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,13 +31,21 @@ public class RoomServiceImpl implements RoomService {
     private final SpringDataHotelRepository hotelRepo;
     private final SpringDataGuestRepository guestRepo;
 
+    private final SecurityService securityService;
+    // logging is a business concern
+    private final ActivityLogService activityLogService;
+
 
     public RoomServiceImpl(SpringDataRoomRepository roomRepo,
                            SpringDataHotelRepository hotelRepo,
-                           SpringDataGuestRepository guestRepo) {
+                           SpringDataGuestRepository guestRepo,
+                           SecurityService securityService,
+                           ActivityLogService activityLogService) {
         this.roomRepo = roomRepo;
         this.hotelRepo = hotelRepo;
         this.guestRepo = guestRepo;
+        this.securityService = securityService;
+        this.activityLogService = activityLogService;
     }
 
     // Read rooms
@@ -80,7 +92,19 @@ public class RoomServiceImpl implements RoomService {
         // Assign aggregate relation
         room.setHotel(hotel);
 
+        // Logging activity for created room
+        ApplicationUser user = securityService.getLoggedInUserSafe();
+
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.CREATE_ROOM,
+                    "Room " + room.getNumber() + " created in hotel " + hotelId,
+                    user
+            );
+        }
+
         return roomRepo.save(room);
+
     }
 
     // get rooms by number
@@ -121,6 +145,17 @@ public class RoomServiceImpl implements RoomService {
         // Because Room owns Stay with cascade + orphanRemoval,
         // deleting Room automatically deletes all related Stay rows
         roomRepo.delete(room);
+
+        // Logging activity for deleted room
+        ApplicationUser user = securityService.getLoggedInUserSafe();
+
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.DELETE_ROOM,
+                    "Room " + room.getNumber() + " in hotel " + room.getHotel().getName() + " deleted",
+                    user
+            );
+        }
     }
 
     // Update room description
@@ -134,6 +169,16 @@ public class RoomServiceImpl implements RoomService {
         room.setDescription(description);
         // No save() needed -> JPA dirty checking
 
+        // Logging activity for updated room
+        ApplicationUser user = securityService.getLoggedInUserSafe();
+
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.UPDATE_ROOM,
+                    "Updated description of room " + room.getNumber() + " in hotel " + room.getHotel().getName(),
+                    user
+            );
+        }
     }
 
     // Proper Aggregate Operation (For UI have a “Book Room” feature)
@@ -155,6 +200,19 @@ public class RoomServiceImpl implements RoomService {
 
         // CascadeType.ALL handles the saving of the new Stay record
         roomRepo.save(room);
+
+        // Logging activity for booked room
+        ApplicationUser user = securityService.getLoggedInUserSafe();
+
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.BOOK_ROOM,
+                    "Guest " + guest.getFullName() +
+                            " booked room " + room.getNumber() +
+                            " in hotel " + room.getHotel().getName(),
+                    user
+            );
+        }
     }
 
 

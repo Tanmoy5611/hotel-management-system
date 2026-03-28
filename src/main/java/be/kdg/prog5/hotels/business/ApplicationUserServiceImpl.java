@@ -1,8 +1,13 @@
 package be.kdg.prog5.hotels.business;
 
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
+import be.kdg.prog5.hotels.domain.ActivityType;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
+import be.kdg.prog5.hotels.domain.RoleType;
 import be.kdg.prog5.hotels.viewmodel.RegisterForm;
+import be.kdg.prog5.hotels.web.security.SecurityService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +21,19 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
 
     private final SpringDataApplicationUserRepository userRepository;
 
+    private final SecurityService securityService;
+    private final ActivityLogService activityLogService;
+
     // encoder used to hash passwords before storing them
     private final PasswordEncoder passwordEncoder;
 
     public ApplicationUserServiceImpl(SpringDataApplicationUserRepository userRepository,
+                                      SecurityService securityService,
+                                      ActivityLogService activityLogService,
                                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.securityService = securityService;
+        this.activityLogService = activityLogService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -45,11 +57,22 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
         ApplicationUser applicationUser = new ApplicationUser(
                 form.getEmail(),
                 passwordEncoder.encode(form.getPassword()),
-                "USER"
+                RoleType.USER
         );
 
         // save applicationUser to the database
         userRepository.save(applicationUser);
+
+        // Log activity for the user who created the account
+        ApplicationUser user = securityService.getLoggedInUserSafe();
+
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.CREATE_USER,
+                    "User " + applicationUser.getEmail() + " created",
+                    user
+            );
+        }
 
         // return empty Optional if creation succeeded
         return Optional.empty();
@@ -69,6 +92,17 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
         }
 
         userRepository.delete(applicationUser);
+
+        // Log activity for the user who deleted the account
+        ApplicationUser user = securityService.getLoggedInUserSafe();
+
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.DELETE_USER,
+                    "User " + applicationUser.getEmail() + " deleted",
+                    user
+            );
+        }
     }
 
     // toggle role between USER and ADMIN
@@ -84,14 +118,30 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
             return;
         }
 
+        // store old role before change
+        RoleType oldRole = applicationUser.getRole();
+
         // switch role
-        if (applicationUser.getRole().equals("USER")) {
-            applicationUser.setRole("ADMIN");
+        if (applicationUser.getRole() == RoleType.USER) {
+            applicationUser.setRole(RoleType.ADMIN);
         } else {
-            applicationUser.setRole("USER");
+            applicationUser.setRole(RoleType.USER);
         }
 
         // save updated role
         userRepository.save(applicationUser);
+
+        // Log activity for the user who changed the role
+        ApplicationUser user = securityService.getLoggedInUserSafe();
+
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.UPDATE_USER_ROLE,
+                    "User " + applicationUser.getEmail() +
+                            " role changed from " + oldRole +
+                            " to " + applicationUser.getRole(),
+                    user
+            );
+        }
     }
 }

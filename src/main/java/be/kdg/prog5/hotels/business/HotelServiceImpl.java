@@ -1,9 +1,15 @@
 package be.kdg.prog5.hotels.business;
 
+import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
+import be.kdg.prog5.hotels.domain.ActivityType;
+import be.kdg.prog5.hotels.domain.ApplicationUser;
 import be.kdg.prog5.hotels.domain.Hotel;
+import be.kdg.prog5.hotels.web.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +25,16 @@ public class HotelServiceImpl implements HotelService {
 
     private final SpringDataHotelRepository hotelRepo;
 
-    public HotelServiceImpl(SpringDataHotelRepository hotelRepo) {
+    private final SecurityService securityService;
+    private final ActivityLogService activityLogService;
+
+
+    public HotelServiceImpl(SpringDataHotelRepository hotelRepo,
+                            SecurityService securityService,
+                            ActivityLogService activityLogService) {
         this.hotelRepo = hotelRepo;
+        this.securityService = securityService;
+        this.activityLogService = activityLogService;
     }
 
     /// Read Hotels
@@ -93,6 +107,21 @@ public class HotelServiceImpl implements HotelService {
             }
 
             hotel.setHotelId(finalHotelId);
+
+            // capture saved hotel
+            Hotel savedHotel = hotelRepo.save(hotel);
+
+            // activity logging for created hotel
+            ApplicationUser user = securityService.getLoggedInUserSafe();
+
+            if (user != null) {
+                activityLogService.log(
+                        ActivityType.CREATE_HOTEL,
+                        "Hotel " + savedHotel.getName() +
+                                " in " + savedHotel.getCity() + ", " + savedHotel.getCountry() + " created",
+                        user
+                );
+            }
         }
 
         return hotelRepo.save(hotel);
@@ -110,6 +139,18 @@ public class HotelServiceImpl implements HotelService {
         //  No manual room deletion
         // Cascade handles it automatically
         hotelRepo.delete(hotel);
+
+        // Logging activity for deleted hotel
+        ApplicationUser user = securityService.getLoggedInUserSafe();
+
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.DELETE_HOTEL,
+                    "Hotel " + hotel.getName() +
+                            " in " + hotel.getCity() + ", " + hotel.getCountry() + " deleted",
+                    user
+            );
+        }
     }
 
     /// Search hotel by name
@@ -133,6 +174,17 @@ public class HotelServiceImpl implements HotelService {
 
         hotel.setDescription(description);
         // JPA dirty checking persists automatically
+
+        // logging activity for updated hotel
+        ApplicationUser user = securityService.getLoggedInUserSafe();
+
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.UPDATE_HOTEL,
+                    "Updated description of hotel " + hotel.getName(),
+                    user
+            );
+        }
     }
 
     /// Home Page

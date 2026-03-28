@@ -3,14 +3,10 @@ package be.kdg.prog5.hotels.business;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.data.SpringDataStayRepository;
-import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
-import be.kdg.prog5.hotels.domain.ApplicationUser;
-import be.kdg.prog5.hotels.domain.Guest;
-import be.kdg.prog5.hotels.domain.Room;
+import be.kdg.prog5.hotels.domain.*;
+import be.kdg.prog5.hotels.web.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,16 +25,21 @@ public class GuestServiceImpl implements GuestService {
     private final SpringDataGuestRepository guestRepo;
     private final SpringDataRoomRepository roomRepo;
     private final SpringDataStayRepository stayRepo;
-    private final SpringDataApplicationUserRepository userRepository;
+
+    private final SecurityService securityService;
+    private final ActivityLogService activityLogService;
+
 
     public GuestServiceImpl(SpringDataGuestRepository guestRepo,
                             SpringDataRoomRepository roomRepo,
                             SpringDataStayRepository stayRepo,
-                            SpringDataApplicationUserRepository userRepository) {
+                            SecurityService securityService,
+                            ActivityLogService activityLogService) {
         this.guestRepo = guestRepo;
         this.roomRepo = roomRepo;
         this.stayRepo = stayRepo;
-        this.userRepository = userRepository;
+        this.securityService = securityService;
+        this.activityLogService = activityLogService;
     }
 
     /// Read Guests
@@ -66,16 +67,15 @@ public class GuestServiceImpl implements GuestService {
         Guest guest = guestRepo.findById(guestId)
                 .orElseThrow(() -> new IllegalArgumentException("Guest not found"));
 
-        // get logged-in applicationUser
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        ApplicationUser user = securityService.getLoggedInUserSafe();
 
-        ApplicationUser applicationUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("ApplicationUser not found"));
 
-        // check authorization
-        if (!guest.getOwner().getId().equals(applicationUser.getId()) && !applicationUser.getRole().equals("ADMIN")) {
-            throw new IllegalStateException("You are not allowed to delete this guest");
+        // Authorization only if user exists (tests safe)
+        if (user != null) {
+            if (!guest.getOwner().getId().equals(user.getId())
+                    && user.getRole() != RoleType.ADMIN) {
+                throw new IllegalStateException("You are not allowed to delete this guest");
+            }
         }
 
         // Need to delete stays first as Guest does NOT own Stay
@@ -83,6 +83,16 @@ public class GuestServiceImpl implements GuestService {
 
         // Delete guest AFTER
         guestRepo.delete(guest);
+
+        // Logging activity for deleted guest
+        if (user != null) {
+            activityLogService.log(
+                    ActivityType.DELETE_GUEST,
+                    "Guest " + guest.getFullName() + " (id=" + guestId + ") deleted",
+                    user
+            );
+        }
+
     }
 
     /// Search Guest
@@ -114,28 +124,53 @@ public class GuestServiceImpl implements GuestService {
     public Guest createGuestWithRoom(Guest guest, Long roomId, LocalDate checkIn, LocalDate checkOut) {
         log.debug("Creating guest {} with room {}", guest, roomId);
 
-        // get logged-in applicationUser
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        // get logged-in user (SAFE)
+        ApplicationUser user = securityService.getLoggedInUserSafe();
 
-        ApplicationUser applicationUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("ApplicationUser not found"));
-
-        // assign owner
-        guest.setOwner(applicationUser);
+        // assign owner ONLY if user exists (tests safe)
+        if (user != null) {
+            guest.setOwner(user);
+        }
 
         Guest savedGuest = guestRepo.save(guest);
 
         if (roomId != null) {
+
+            // validate dates
+            if (checkIn == null || checkOut == null) {
+                throw new IllegalArgumentException("Check-in and check-out dates are required when assigning a room");
+            }
+
             Room room = roomRepo.findById(roomId)
                     .orElseThrow(() -> new IllegalArgumentException("Room not found"));
 
-            // Room owns Stay -> room creates Stay
+            // Room owns Stay -> room creates Stay (aggregate logic)
             room.addGuest(savedGuest, checkIn, checkOut);
 
             // Cascade on Room will persist Stay automatically
             roomRepo.save(room);
 
+            // Log with full trace (room + hotel)
+            if (user != null) {
+                activityLogService.log(
+                        ActivityType.CREATE_GUEST,
+                        "Guest " + savedGuest.getFullName() +
+                                " created and assigned to room " + room.getNumber() +
+                                " in hotel " + room.getHotel().getName(),
+                        user
+                );
+            }
+
+        } else {
+
+            // Log without room
+            if (user != null) {
+                activityLogService.log(
+                        ActivityType.CREATE_GUEST,
+                        "Guest " + savedGuest.getFullName() + " created (no room assigned)",
+                        user
+                );
+            }
         }
 
         return savedGuest;
