@@ -55,7 +55,7 @@ public class SecurityConfig {
                         // anyone can GET data
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
 
-                        // only logged users can modify data
+                         // only logged users can modify data
                         .requestMatchers(HttpMethod.POST, "/api/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/**").authenticated()

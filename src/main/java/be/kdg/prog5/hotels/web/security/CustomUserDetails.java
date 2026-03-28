@@ -23,7 +23,7 @@ public class CustomUserDetails implements UserDetails {
     // Spring Security expects roles to start with "ROLE_"
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + applicationUser.getRole()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + applicationUser.getRole().name()));
     }
 
     // return the encrypted password stored in the database
