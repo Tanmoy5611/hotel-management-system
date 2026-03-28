@@ -22,7 +22,9 @@ public class ApplicationUser {
     @Column(nullable = false)
     private String password;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RoleType role;
 
     // ApplicationUser owns Guest
     // ApplicationUser (1) <--> (many) Guest
@@ -33,7 +35,7 @@ public class ApplicationUser {
     public ApplicationUser() {
     }
 
-    public ApplicationUser(String email, String password, String role) {
+    public ApplicationUser(String email, String password, RoleType role) {
         this.email = email;
         this.password = password;
         this.role = role;
@@ -52,7 +54,7 @@ public class ApplicationUser {
         return password;
     }
 
-    public String getRole() {
+    public RoleType getRole() {
         return role;
     }
 
@@ -64,7 +66,7 @@ public class ApplicationUser {
         this.password = password;
     }
 
-    public void setRole(String role) {
+    public void setRole(RoleType role) {
         this.role = role;
     }
 
