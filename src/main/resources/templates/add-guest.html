@@ -135,7 +135,7 @@
                                 Assign Room (optional)
                             </label>
 
-                            <select th:field="*{roomId}" class="form-select">
+                            <select id="roomSelect" th:field="*{roomId}" class="form-select">
                                 <option value="" th:text="#{guest.placeholder.room}">
                                     -- Select Room --
                                 </option>
@@ -154,6 +154,7 @@
                                 Check-in
                             </label>
                             <input type="date"
+                                   id="checkIn"
                                    th:field="*{checkIn}"
                                    class="form-control">
                             <div class="text-danger small mt-1"
@@ -167,6 +168,7 @@
                                 Check-out
                             </label>
                             <input type="date"
+                                   id="checkOut"
                                    th:field="*{checkOut}"
                                    class="form-control">
                             <div class="text-danger small mt-1"
@@ -198,6 +200,8 @@
 
 <!-- Footer -->
 <div th:replace="~{fragments/footer :: body}"></div>
+
+<script defer th:src="@{/js/guest-form.js}"></script>
 
 </body>
 </html>
