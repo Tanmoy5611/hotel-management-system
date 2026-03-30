@@ -38,7 +38,7 @@ class GuestRepositoryTest {
         user = new ApplicationUser(
                 "test@test.com",
                 "password",
-                "USER"
+                RoleType.USER
         );
 
         // saveAndFlush ensures immediate DB sync (avoids delayed constraint failures later)
