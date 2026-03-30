@@ -1,5 +1,6 @@
 package be.kdg.prog5.hotels.web.controllers;
 
+import be.kdg.prog5.hotels.business.ActivityLogService;
 import be.kdg.prog5.hotels.business.ApplicationUserService;
 import be.kdg.prog5.hotels.viewmodel.RegisterForm;
 import jakarta.validation.Valid;
@@ -14,15 +15,22 @@ import org.springframework.web.bind.annotation.*;
 public class AdminUserController {
 
     private final ApplicationUserService applicationUserService;
+    private final ActivityLogService activityLogService;
 
-    public AdminUserController(ApplicationUserService applicationUserService) {
+    public AdminUserController(ApplicationUserService applicationUserService,
+                               ActivityLogService activityLogService) {
         this.applicationUserService = applicationUserService;
+        this.activityLogService = activityLogService;
     }
 
     // show all users
     @GetMapping
     public String showUsers(Model model) {
         model.addAttribute("users", applicationUserService.getAllUsers());
+
+        // get recent activity logs (global logs) for admin page
+        model.addAttribute("logs", activityLogService.getRecentLogs());
+
         return "admin-users";
     }
 

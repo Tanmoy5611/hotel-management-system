@@ -79,15 +79,15 @@
 
                     <td>
 
-                        <span class="badge"
-                              th:classappend="${applicationUser.role == 'ADMIN'} ? 'bg-danger' : 'bg-primary'">
-
+                        <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2"
+                              th:classappend="
+                              ${applicationUser.role == 'ADMIN'} ?
+                              'bg-danger-subtle text-danger border border-danger' :
+                              'bg-primary-subtle text-primary border border-primary'">
                             <i class="bi"
-                               th:classappend="${applicationUser.role == 'ADMIN'} ? 'bi-shield-lock' : 'bi-person'">
+                               th:classappend="${applicationUser.role.name() == 'ADMIN'} ? 'bi-shield-lock-fill' : 'bi-person-circle'">
                             </i>
-
                             <span th:text="${applicationUser.role}"></span>
-
                         </span>
 
                     </td>
@@ -116,9 +116,9 @@
 
                         </button>
 
-                        <span class="text-muted small d-flex align-items-center"
+                        <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2 bg-success-subtle text-success border border-success"
                               th:if="${applicationUser.email == 'admin@hotelapp.com'}">
-                            <i class="bi bi-lock-fill me-1"></i>
+                            <i class="bi bi-lock-fill"></i>
                             <span th:text="#{users.protected}">PROTECTED</span>
                         </span>
 
@@ -134,9 +134,108 @@
 
     </div>
 
+    <!--  Activity Management -->
+    <div class="mt-5" sec:authorize="hasRole('ADMIN')">
+
+        <!-- Section header -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h2 class="fw-semibold">
+                <i class="bi bi-activity"></i>
+                <span th:text="#{activity.management}">Activity Management</span>
+            </h2>
+
+            <span class="badge bg-secondary"
+                  th:text="${#lists.size(logs)} + ' ' + #{activity.items}">
+            </span>
+
+        </div>
+
+        <!-- Activity table card -->
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body p-0">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                    <tr>
+                        <th th:text="#{activity.action}">Action</th>
+                        <th th:text="#{activity.description}">Description</th>
+                        <th th:text="#{activity.user}">User</th>
+                        <th th:text="#{activity.time}">Time</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <!-- Empty state -->
+                    <tr th:if="${#lists.isEmpty(logs)}">
+                        <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox me-2"></i>
+                            <span th:text="#{activity.empty}">No recent activity</span>
+                        </td>
+                    </tr>
+
+                    <!-- Log items -->
+                    <tr th:each="log : ${logs}">
+
+                        <!-- Action -->
+                        <td>
+                        <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2"
+
+                              th:classappend="
+                                ${log.action.name().contains('DELETE')} ? 'bg-danger' :
+                                (${log.action.name().contains('CREATE')} ? 'bg-success' :
+                                (${log.action.name().contains('BOOK')} ? 'bg-primary' : 'bg-secondary'))">
+
+                            <i class="bi"
+                               th:classappend="
+                                ${log.action.name().contains('DELETE')} ? 'bi-trash' :
+                                (${log.action.name().contains('CREATE')} ? 'bi-plus-circle' :
+                                (${log.action.name().contains('BOOK')} ? 'bi-calendar-check' : 'bi-info-circle'))">
+                            </i>
+
+                            <span th:text="${log.action.name().replace('_', ' ')}">
+                                ACTION
+                            </span>
+
+                        </span>
+                        </td>
+
+                        <!-- Description -->
+                        <td th:text="${log.description}">
+                            Description
+                        </td>
+
+                        <!-- User -->
+                        <td>
+                            <i class="bi bi-person-circle me-1 text-muted"></i>
+                            <span th:text="${log.user.email}"></span>
+                        </td>
+
+                        <!-- Time -->
+                        <td>
+                            <small class="text-muted"
+                                   th:text="${#temporals.format(log.timestamp, 'dd MMM yyyy HH:mm')}">
+                                26 Mar 19:30
+                            </small>
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
 </div>
 
-<!-- Change Role modals -->
+<!-- Change RoleType modals -->
 <div th:each="applicationUser : ${users}">
 
     <div class="modal fade"

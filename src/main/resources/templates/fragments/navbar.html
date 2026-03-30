@@ -36,7 +36,10 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/home}" th:text="#{nav.home}">
+                    <a class="nav-link d-flex align-items-center gap-1"
+                       th:href="@{/home}"
+                       th:title="#{nav.home}">
+                        <i class="bi bi-house-fill"></i>
                     </a>
                 </li>
 
@@ -74,10 +77,9 @@
                 </li>
 
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin/users}" title="User Management">
+                    <a class="nav-link" th:href="@{/admin/users}" title="Admin Panel">
                         <i class="bi bi-shield-lock-fill me-1"></i>
-                        <span>Users</span>
-
+                        <span>Dashboard</span>
                     </a>
                 </li>
 
@@ -95,13 +97,30 @@
                 </li>
 
                 <li class="nav-item d-flex align-items-center me-3" sec:authorize="isAuthenticated()">
-                    <div class="bg-white bg-opacity-10 rounded-pill px-3 py-1 border border-white border-opacity-25 d-flex align-items-center">
+
+                <!-- If ADMIN then clickable to redirect to admin panel -->
+                    <a th:href="@{/admin/users}"
+                       class="text-decoration-none"
+                       sec:authorize="hasRole('ADMIN')">
+                        <div class="bg-white bg-opacity-10 rounded-pill px-3 py-1 border border-white border-opacity-25 d-flex align-items-center hover-dashboard">
+                            <i class="bi bi-person-circle text-white me-2"></i>
+                            <span class="text-white small">
+                                <span>Logged in as:</span>
+                                <strong class="ms-1" sec:authentication="name"></strong>
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- USER not clickable -->
+                    <div class="bg-white bg-opacity-10 rounded-pill px-3 py-1 border border-white border-opacity-25 d-flex align-items-center"
+                         sec:authorize="!hasRole('ADMIN')">
                         <i class="bi bi-person-circle text-white me-2"></i>
                         <span class="text-white small">
                             <span>Logged in as:</span>
-                            <strong class="ms-1" sec:authentication="name">User</strong>
+                            <strong class="ms-1" sec:authentication="name"></strong>
                         </span>
                     </div>
+
                 </li>
 
                 <li class="nav-item" sec:authorize="isAuthenticated()">

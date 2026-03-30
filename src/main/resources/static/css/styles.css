@@ -436,3 +436,13 @@ footer {
 .card-footer{
     border-top:1px solid rgba(255,255,255,0.08);
 }
+
+.hover-dashboard {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.hover-dashboard:hover {
+    background-color: rgba(255,255,255,0.25);
+    transform: translateY(-1px);
+}
