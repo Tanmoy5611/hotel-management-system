@@ -84,6 +84,48 @@ Business logic:
 - `getNumberOfNights()`
 - `getTotalPrice()`
 - `getFinalPrice()` (applies discount)
+
+### 6. ApplicationUser (Authentication & Ownership)
+
+Represents a user that can log into the system.
+- id (database ID)
+- email (unique, used for login)
+- password (encrypted)
+- role (RoleType enum)
+- OneToMany → Guests (user owns guests)
+
+### RoleType enum:
+```bash
+ADMIN,
+USER
+```
+
+### 7. ActivityLog (Audit / System Tracking)
+
+Represents system activities performed by users (admin dashboard).
+
+- id (database ID)
+- action (ActivityType enum)
+- description
+- timestamp (LocalDateTime)
+- ManyToOne → ApplicationUser (who performed the action)
+
+### ActivityType enum:
+
+```bash
+CREATE_HOTEL,
+UPDATE_HOTEL,
+DELETE_HOTEL,
+CREATE_ROOM,
+UPDATE_ROOM,
+DELETE_ROOM,
+BOOK_ROOM,
+CREATE_GUEST,
+DELETE_GUEST,
+CREATE_USER,
+DELETE_USER,
+UPDATE_USER_ROLE
+```
 ---
 
 ## Architecture Overview
@@ -805,8 +847,11 @@ Administrators have full access.
 **Can:**
 - Manage hotels
 - Manage rooms
+- Manage guests
 - Manage users
 - Delete any guest (even if not owner)
+- Switch between USER and ADMIN roles
+- Admin Dashboard to manage users and view recent activity logs
 
 Example: http://localhost:8080/admin/users
 
@@ -841,7 +886,7 @@ Examples:
   - owner
   - ADMIN
 
-⚠️ Important: UI hiding is not enough → backend also validates.
+Important: UI hiding is not enough -> backend also validates.
 
 ---
 
@@ -850,7 +895,7 @@ Examples:
 All security rules are enforced in the backend using Spring Security.
 
 Examples:
-- `/admin/**` → ADMIN only
+- `/admin/**` -> ADMIN only
 - `/api/**` (POST, PATCH, DELETE) -> authenticated users only
 - Ownership checks enforced in service layer
 
@@ -914,8 +959,222 @@ Week 5 introduces a complete and secure system:
 This results in a realistic hotel management system where:
 - users manage their own data
 - administrators manage the entire system securely
+---
 
 
+# Week 6 - Testing
+
+## Overview
+
+In this week, I implemented tests for both the repository layer and the service layer.
+
+The goal was to:
+* **Verify database constraints and mappings**
+* **Validate business logic** in the service layer
+* **Ensure tests are isolated** and reproducible
+* **Follow best practices** from the course (Arrange–Act–Assert, multiple scenarios)
+
+---
+
+##  Test Configuration (Spring Profile)
+
+All tests run with a separate profile:
+`@ActiveProfiles("test")`
+
+**This ensures:**
+* Tests use a separate environment
+* No interference with development or production data
+
+## Test Data Setup Strategy
+
+In every test class, I used:
+`@BeforeEach`
+
+### What happens in setup:
+
+**All repositories are cleaned:**
+* `repository.deleteAll();`
+
+**Required entities are created manually:**
+* `ApplicationUser` (mandatory for Guest owner FK)
+* `Hotel`
+* `Guest` (when needed)
+
+**Why this is important:**
+* **Each test starts with a clean database:** Prevents data leaking from previous runs.
+* **Tests are independent:** A failure in one test does not affect the others.
+* **No hidden dependencies:** All state is explicitly defined within the setup method.
+---
+
+## Repository Layer Tests
+
+### 1. GuestRepository Tests
+
+**What was tested:**
+
+#### Delete operations
+* `deleteById()` removes a guest correctly
+* `deleteAll()` clears the table
+
+#### Validation constraints
+1. **Email cannot be null**
+  * `ConstraintViolationException` → Bean Validation (Hibernate Validator)
+
+2. **Email must be unique**
+  * `DataIntegrityViolationException` → Database constraint
+
+3. **Owner is required (NOT NULL FK)**
+  * `DataIntegrityViolationException`
+
+**Important understanding:**
+
+| Type | Where enforced |
+| :--- | :--- |
+| **@NotNull** | Validation layer |
+| **UNIQUE / FK** | Database |
+
+### 2. RoomRepository Tests
+
+**What was tested:**
+
+#### Aggregate behavior
+**Room → Stay (cascade + orphanRemoval)**
+
+* Deleting a `Room` automatically deletes all related `Stay` entities.
+* `roomRepository.deleteById(roomId);`
+
+**Ensures:**
+* No orphan records in the database.
+* Correct aggregate design and data consistency.
+
+#### Unique constraint
+**Same room number in same hotel → NOT allowed**
+
+* `DataIntegrityViolationException`
+
+**Enforced by database** (not Hibernate) to prevent duplicate room entries within a single hotel.
+
+#### Lazy loading (performance)
+**`Room.stays` is LAZY**
+
+* `Hibernate.isInitialized(room.getStays()) == false`
+
+**Prevents unnecessary queries** by ensuring related stays are only loaded when explicitly accessed.
+
+#### Eager loading
+**`Stay.guest` is EAGER**
+
+* `stay.getGuest() != null`
+
+**Guest is loaded immediately** whenever a stay is retrieved, optimizing for common access patterns.
+
+---
+
+## Service Layer Tests (Integration Tests)
+
+### Configuration
+
+`@SpringBootTest`
+`@ActiveProfiles("test")`
+
+**These are integration tests, not unit tests:**
+* Use a **real database**
+* Use **real repositories**
+* Test the **full flow** (Service → Repository → DB)
+---
+
+### Tested Service: `RoomService`
+
+#### 1. `createRoom()`
+*  **Success** → room created and linked to hotel
+*  **Duplicate** → `RoomAlreadyExistsException`
+
+#### 2. `getRoomById()`
+*  Returns correct room
+*  Throws `RoomNotFoundException`
+
+#### 3. `deleteRoom()`
+*  Room removed from database
+
+#### 4. `updateRoomDescription()`
+*  Uses **JPA dirty checking** (no explicit `.save()` needed)
+
+#### 5. `bookRoom()` (Aggregate logic)
+*  Creates a `Stay` (`Room` acts as the aggregate root)
+*  Guest not found → `IllegalArgumentException`
+*  Room not found → `RoomNotFoundException`
+
+#### 6. `findRooms()` (Filtering)
+* Uses **Optional** parameters:
+  * `Optional<RoomType>`
+  * `Optional<Boolean>`
+  * `Optional<BigDecimal>`
+* **Allows flexible queries** without tedious null checks.
+---
+
+### Important Fix (Logging + Security)
+
+**Problem:**
+* Services rely on the **logged-in user** for activity logging.
+* Tests run in a background context with **no authentication**, causing null pointer exceptions or test failures.
+
+**Solution:**
+
+- Created a safe retrieval method:
+`securityService.getLoggedInUserSafe()`
+
+- And implemented null-safe logging logic:
+```
+if (user != null) {
+    activityLogService.log(...);
+}
+```
+
+###  Result:
+
+* **Tests run without authentication**
+* **Logging still works** in the real application
+* **Business logic is independent** of security context
+---
+
+### How to Run Tests
+
+**From terminal:**
+```bash
+./gradlew test
+```
+
+**Or via IntelliJ:**
+- Right click → Run Tests
+---
+
+### What Makes These Tests Good
+
+These tests follow course best practices:
+
+* **Independent:** A clean database is ensured for each test run.
+* **Repeatable:** Results are consistent across different environments.
+* **Clear AAA structure:** Every test follows the **Arrange–Act–Assert** pattern.
+* **Comprehensive:** Both success and failure scenarios are covered.
+* **Realistic:** They validate actual database behavior, including constraints and mappings.
+* **Logic-focused:** They verify the core business logic within the service layer.
+---
+
+**Chosen because:**
+* Service logic is heavily dependent on data persistence.
+* It provides more realistic testing of how the application functions in production.
+--- 
+
+### Summary of Week 6:
+
+In this week, I implemented a robust testing suite that ensures the reliability of the core application layers:
+
+* **Repository tests** for validating database constraints, entity mappings, and specific loading behaviors (Lazy vs. Eager).
+* **Service integration tests** to verify complex business logic and aggregate roots.
+* **Proper test isolation** using dedicated Spring profiles (`@ActiveProfiles("test")`) to keep environments separate.
+* **Safe logging** mechanisms that allow business logic to function even when no security context or authenticated user is present. 
+* **Result:** A reliable and realistic testing setup that is fully aligned with course requirements and industry best practices. ###
+----
 
 > <h2 align="center"> Author: <span style="color:#9d0dfd;"><em>Tanmoy Das</em></span> </h2>
 <p align="center">
