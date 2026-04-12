@@ -231,7 +231,7 @@
                     <!-- Guests in the room -->
                     <div sec:authorize="hasAnyRole('ADMIN','USER')"
                          class="mt-3"
-                         th:if="${not #lists.isEmpty(guestsPerRoom[r.id])}">>
+                         th:if="${not #lists.isEmpty(guestsPerRoom[r.id])}">
                         <strong>
                             <i class="bi bi-people-fill"></i>
                             <span th:text="#{hotel.guests}"></span>
