@@ -1,6 +1,8 @@
 package be.kdg.prog5.hotels.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +18,14 @@ public class ApplicationUser {
     private Long id;
 
     // Email is unique because it is used for authentication and identification
+    @Email
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RoleType role;
