@@ -21,7 +21,8 @@ public class Hotel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // Technical primary key for database
 
-    @Column(name = "hotel_id", nullable = false, unique = true, updatable = false)
+    // Uniqueness is enforced at database level using an index instead of duplicating constraints
+    @Column(name = "hotel_id", nullable = false, updatable = false)
     private String hotelId;           //  Business identifier (used in URLs,like /hotels/hilton-antwerp)
 
     @Column(name = "name", nullable = false)
