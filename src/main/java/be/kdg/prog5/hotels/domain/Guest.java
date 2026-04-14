@@ -1,7 +1,8 @@
 package be.kdg.prog5.hotels.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ public class Guest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // primary key which is auto created by database
     private Long id;
 
+    @NotBlank
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
@@ -28,7 +30,8 @@ public class Guest {
 
     private LocalDate dob;
 
-    @NotNull
+    @NotBlank
+    @Email
     @Column(nullable = false, unique = true)
     private String email;
 
