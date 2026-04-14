@@ -27,7 +27,7 @@ public class Room {
     private int number;
 
     @Enumerated(EnumType.STRING)    // stores enum values safely as readable strings
-    @Column(name = "type")
+    @Column(name = "type", nullable = false) // Room type is mandatory domain data, so we enforce NOT NULL at DB level
     private RoomType type;
 
     @Column(name = "price_per_night", nullable = false, precision = 10, scale = 2)
@@ -98,7 +98,7 @@ public class Room {
     }
 
     public Set<Stay> getStays() {
-        return stays;
+        return Collections.unmodifiableSet(stays); // Aggregate collections should not be modified directly from outside
     }
 
     // Setters
