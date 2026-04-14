@@ -15,9 +15,12 @@ public class ActivityLog {
     private ActivityType action;
 
     private String description;
+
+    @Column(nullable = false)
     private LocalDateTime timestamp;
 
-    @ManyToOne
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private ApplicationUser user;
 
     // Required by JPA
