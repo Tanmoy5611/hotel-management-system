@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Entity
 @Table(
@@ -47,6 +48,19 @@ public class Stay {
     // Constructor - create a Stay link entity that connects one Room with one Guest
     // Constructor used only from aggregate root (Room) - Only Room aggregate should create Stay
    public Stay(Room room, Guest guest, LocalDate checkInDate, LocalDate checkOutDate) {
+
+        if (room == null || guest == null) {
+           throw new IllegalArgumentException("Room and Guest cannot be null");
+       }
+
+       if (checkInDate == null || checkOutDate == null) {
+           throw new IllegalArgumentException("Dates cannot be null");
+       }
+
+       if (checkOutDate.isBefore(checkInDate)) {
+           throw new IllegalArgumentException("Check-out must be after check-in");
+       }
+
         this.room = room;
         this.guest = guest;
         this.checkInDate = checkInDate;
@@ -75,7 +89,8 @@ public class Stay {
     // Stay duration calculation for guest
     // because Duration belongs to Stay
     public long getNumberOfNights() {
-        return ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        return Math.max(nights, 1);
     }
 
     // calculate total price based on stay duration and room price
@@ -89,7 +104,10 @@ public class Stay {
 
         BigDecimal total = getTotalPrice();
 
-        BigDecimal discountPercent = (guest.getDiscountPercentage());
+        // guard against null values to ensure pricing logic is stable
+        BigDecimal discountPercent =
+                Optional.ofNullable(guest.getDiscountPercentage())
+                        .orElse(BigDecimal.ZERO);
 
         BigDecimal discountAmount =
                 total.multiply(discountPercent)
