@@ -22,7 +22,8 @@ public class GuestForm {
     private String email;
 
     // Only used if VIP
-    @Min(0) @Max(100)
+    @DecimalMin("0.0")
+    @DecimalMax("100.0")
     private BigDecimal discountPercentage;
 
     private String avatarUrl;
