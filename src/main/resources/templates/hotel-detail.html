@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${hotel.name}">Hotel Detail</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -23,7 +24,7 @@
     <!-- Hotel header -->
     <div class="row mb-4 align-items-center">
         <div class="col-lg-6">
-            <img th:src="@{${hotel.imageUrl}}"
+            <img th:src="${hotel.imageUrl}"
                  class="img-fluid rounded shadow-sm hotel-main-img"
                  th:alt="${hotel.name}">
         </div>
@@ -198,7 +199,7 @@
             <div class="card h-100 shadow-sm hover-card">
 
                 <!-- Room photo -->
-                <img th:src="@{${r.photoUrl}}" class="card-img-top room-img" alt="Room image">
+                <img th:src="@{${r.photoUrl}}" class="card-img-top room-img" th:alt="${r.type}">
 
                 <div class="card-body">
 

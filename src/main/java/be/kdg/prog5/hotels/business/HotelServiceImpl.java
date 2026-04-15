@@ -1,6 +1,6 @@
 package be.kdg.prog5.hotels.business;
 
-import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
+import be.kdg.prog5.hotels.business.exceptions.HotelNotFoundException;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
@@ -8,8 +8,6 @@ import be.kdg.prog5.hotels.domain.Hotel;
 import be.kdg.prog5.hotels.web.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,17 +49,11 @@ public class HotelServiceImpl implements HotelService {
     public List<Hotel> getHotelsByMinStarsAndOpenedAfter(int minStars, LocalDate openedAfter) {
         log.debug("Getting hotels with stars >= {} and opened after {}", minStars, openedAfter);
 
-        List<Hotel> hotels = hotelRepo.findByStarsGreaterThanEqual(minStars);
-
-        // Optional second filter in Java
         if (openedAfter != null) {
-            hotels = hotels.stream()
-                    .filter(h -> h.getOpenedOn() != null &&
-                            h.getOpenedOn().isAfter(openedAfter))
-                    .toList();
+            return hotelRepo.findByStarsGreaterThanEqualAndOpenedOnAfter(minStars, openedAfter);
         }
+        return hotelRepo.findByStarsGreaterThanEqual(minStars);
 
-        return hotels;
     }
 
     @Override
@@ -80,7 +72,6 @@ public class HotelServiceImpl implements HotelService {
         log.debug("Checking if hotelId {} already exists", hotelId);
         return hotelRepo.existsByHotelId(hotelId);
     }
-
 
     /// Create hotel
     @Override
@@ -107,6 +98,7 @@ public class HotelServiceImpl implements HotelService {
             }
 
             hotel.setHotelId(finalHotelId);
+        }
 
             // capture saved hotel
             Hotel savedHotel = hotelRepo.save(hotel);
@@ -122,9 +114,8 @@ public class HotelServiceImpl implements HotelService {
                         user
                 );
             }
-        }
 
-        return hotelRepo.save(hotel);
+        return savedHotel;
     }
 
     /// Delete hotel
@@ -133,8 +124,12 @@ public class HotelServiceImpl implements HotelService {
         log.debug("Deleting hotel with business id {}", hotelId);
 
         Hotel hotel = hotelRepo.findByHotelId(hotelId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Hotel not found"));
+                .orElseThrow(() -> new HotelNotFoundException(hotelId));
+
+        // store values BEFORE delete (safe logging)
+        String name = hotel.getName();
+        String city = hotel.getCity();
+        String country = hotel.getCountry();
 
         //  No manual room deletion
         // Cascade handles it automatically
@@ -146,8 +141,8 @@ public class HotelServiceImpl implements HotelService {
         if (user != null) {
             activityLogService.log(
                     ActivityType.DELETE_HOTEL,
-                    "Hotel " + hotel.getName() +
-                            " in " + hotel.getCity() + ", " + hotel.getCountry() + " deleted",
+                    "Hotel " + name +
+                            " in " + city + ", " + country + " deleted",
                     user
             );
         }
@@ -169,8 +164,7 @@ public class HotelServiceImpl implements HotelService {
         log.debug("Updating description for hotel {}", hotelId);
 
         Hotel hotel = hotelRepo.findByHotelId(hotelId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Hotel not found"));
+                .orElseThrow(() -> new HotelNotFoundException(hotelId));
 
         hotel.setDescription(description);
         // JPA dirty checking persists automatically

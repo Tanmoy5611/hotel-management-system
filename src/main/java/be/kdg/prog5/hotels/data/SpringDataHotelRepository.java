@@ -37,6 +37,8 @@ public interface SpringDataHotelRepository extends JpaRepository<Hotel, Long> {
 
     List<Hotel> findByStarsGreaterThanEqual(int minStars);
 
+    List<Hotel> findByStarsGreaterThanEqualAndOpenedOnAfter(int stars, LocalDate date);
+
     // to check if there is already a hotel
     boolean existsByHotelId(String hotelId);
 

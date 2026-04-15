@@ -33,7 +33,6 @@ public class HotelController {        // All URLs in this controller start with 
         this.hotelService = hotelService;
     }
 
-
     /// List hotels + filters
     // method of showing all Hotels (list) + filter them based on: minStars +  opened date
     // The controller only orchestrates which business method to call based on user input.
@@ -94,7 +93,6 @@ public class HotelController {        // All URLs in this controller start with 
         return "hotels";
     }
 
-
     /// Add hotel with @PreAuthorize security
     // This method shows the "Add Hotel" form when visits "/hotels/add"
     @PreAuthorize("isAuthenticated()")
@@ -142,9 +140,8 @@ public class HotelController {        // All URLs in this controller start with 
         hotelService.createHotel(hotel);  // Save via business layer
 
         // Redirect to /hotels after successfully adding a new hotel
-        return "redirect:/hotels";
+        return "redirect:/hotels?created";
     }
-
 
     /// Hotel details
     //  Show 1 hotel + its rooms + guests per room
@@ -155,7 +152,9 @@ public class HotelController {        // All URLs in this controller start with 
         //  Load hotel from DB using business service
         Hotel hotel = hotelService.getHotelByHotelId(hotelId);
 
-        Set<Room> rooms = hotel.getRooms();
+        // defensive null-safe
+        Set<Room> rooms = Optional.ofNullable(hotel.getRooms())
+                .orElse(Collections.emptySet());
 
         // Map guests PER ROOM using ROOM ID
         // For each room, load guests (Many-to-Many room - guest)
@@ -193,9 +192,10 @@ public class HotelController {        // All URLs in this controller start with 
 
         hotelService.deleteHotelByHotelId(hotelId);          // Business layer handles cascading / repo
 
-        return "redirect:/hotels";
-    }
+        // return "redirect:/hotels";
+        return "redirect:/hotels?deleted";
 
+    }
 
     /// Hotel description edit by ADMin only
     @PreAuthorize("hasRole('ADMIN')")
@@ -216,8 +216,13 @@ public class HotelController {        // All URLs in this controller start with 
                                          @RequestParam String description) {
         log.debug("Updating hotel description for hotel {}", hotelId);
 
-        hotelService.updateHotelDescription(hotelId, description);
+        // validation
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Description cannot be empty");
+        }
+
+        hotelService.updateHotelDescription(hotelId, description.trim());
+
         return "redirect:/hotels/" + hotelId;
     }
-
 }
