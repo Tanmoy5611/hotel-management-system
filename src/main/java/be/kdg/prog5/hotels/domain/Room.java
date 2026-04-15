@@ -126,6 +126,30 @@ public class Room {
         this.hotel = hotel;
     }
 
+    // check if THIS room is available
+    public boolean isAvailable(LocalDate checkIn, LocalDate checkOut) {
+
+        // basic safety (optional but good)
+        if (checkIn == null || checkOut == null) {
+            return true; // no dates -> assume available
+        }
+
+        for (Stay stay : this.stays) {
+
+            // Overlap logic: If new booking starts before existing checkout
+            // AND ends after existing checkin then conflict
+            boolean overlaps =
+                    checkIn.isBefore(stay.getCheckOutDate()) &&
+                            checkOut.isAfter(stay.getCheckInDate());
+
+            if (overlaps) {
+                return false;  // room is NOT available
+            }
+        }
+
+        return true;  // no conflicts then available
+    }
+
     // ROOM creates its own Stay
     public void addGuest(Guest guest, LocalDate checkIn, LocalDate checkOut) {
 
@@ -141,13 +165,8 @@ public class Room {
             throw new BookingException("booking.past.not.allowed");
         }
 
-        // Overlap check of the dates
-        boolean overlaps = stays.stream().anyMatch(existing ->
-                checkIn.isBefore(existing.getCheckOutDate()) &&
-                        checkOut.isAfter(existing.getCheckInDate())
-        );
-
-        if (overlaps) {
+        // Overlap check of the dates with the existing isAvailable() method
+        if (!this.isAvailable(checkIn, checkOut)) {
             throw new BookingException("booking.overlap.not.allowed");
         }
 
