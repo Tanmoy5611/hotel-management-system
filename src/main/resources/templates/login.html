@@ -3,7 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
@@ -38,6 +40,7 @@
                             <label class="form-label fw-semibold">Email</label>
                             <input type="email"
                                    name="username"
+                                   autocomplete="username"
                                    class="form-control"
                                    placeholder="Enter your email"
                                    required>
@@ -53,6 +56,7 @@
                                 <input type="password"
                                        id="passwordField"
                                        name="password"
+                                       autocomplete="current-password"
                                        class="form-control"
                                        placeholder="Enter your password"
                                        required>

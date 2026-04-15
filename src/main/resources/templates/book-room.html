@@ -4,7 +4,9 @@
       lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{booking.title}">Book a Room</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
@@ -82,7 +84,7 @@
 
                                 <option value=""
                                         disabled
-                                        selected
+                                        th:selected="${selectedGuestId == null}"
                                         th:text="#{booking.searchGuest}">
                                 </option>
 
@@ -98,7 +100,7 @@
                         <!-- Check-in -->
                         <div class="mb-3">
                             <label class="form-label"
-                                   th:text="#{booking.checkIn}">
+                                   th:text="#{booking.checkin}">
                             </label>
 
                             <input type="date"
@@ -111,7 +113,7 @@
                         <!-- Check-out -->
                         <div class="mb-4">
                             <label class="form-label"
-                                   th:text="#{booking.checkOut}">
+                                   th:text="#{booking.checkout}">
                             </label>
 
                             <input type="date"
