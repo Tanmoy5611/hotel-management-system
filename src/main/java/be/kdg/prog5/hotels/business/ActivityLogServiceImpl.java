@@ -4,7 +4,7 @@ import be.kdg.prog5.hotels.data.SpringDataActivityLogRepository;
 import be.kdg.prog5.hotels.domain.ActivityLog;
 import be.kdg.prog5.hotels.domain.ActivityType;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.stereotype.Service;
 
@@ -37,8 +37,9 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         repo.save(log);
     }
 
-    // method to get recent logs
+    // method to get recent 10 logs
     @Override
+    @Transactional(readOnly = true)
     public List<ActivityLog> getRecentLogs() {
         return repo.findTop10ByOrderByTimestampDesc();
     }
