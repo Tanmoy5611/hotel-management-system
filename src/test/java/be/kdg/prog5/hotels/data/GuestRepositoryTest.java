@@ -72,11 +72,10 @@ class GuestRepositoryTest {
 
         // Act
         guestRepository.deleteById(guestId);
+        guestRepository.flush();
 
         // Assert
-        // verify guest is removed from DB
-        boolean exists = guestRepository.findById(guestId).isPresent();
-        assertThat(exists).isFalse();
+        assertThat(guestRepository.findById(guestId)).isEmpty();
     }
 
 
@@ -150,7 +149,7 @@ class GuestRepositoryTest {
      RESULT: Exception occurs during flush -> DataIntegrityViolationException.
      */
     @Test
-    void shouldFailWhenEmailIsDuplicate() {
+    void shouldFailWhenDuplicateEmail() {
         // Arrange
         Guest g1 = new Guest(
                 "A",

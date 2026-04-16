@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{guests.title}">Guests</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
@@ -38,34 +39,30 @@
             </a>
         </div>
 
-        <!-- Min Rooms Filter -->
-        <div class="col-md-3">
-            <form th:action="@{/guests/manyRooms}" method="get" class="d-flex gap-2">
-                <input type="number"
-                       name="min"
-                       class="form-control"
-                       th:placeholder="#{guests.filter.minRooms}"
-                       min="1"
-                       required>
+        <div class="col-md-7">
+            <form th:action="@{/guests/search}" method="get" class="row g-2">
+                <div class="col-md-5">
+                    <input type="number"
+                           name="min"
+                           class="form-control"
+                           th:placeholder="#{guests.filter.minRooms}"
+                           th:value="${minRooms}"
+                           min="1">
+                </div>
 
-                <button type="submit" class="btn btn-danger">
-                    <i class="bi bi-people"></i>
-                </button>
-            </form>
-        </div>
+                <div class="col-md-7">
+                    <div class="d-flex">
+                        <input type="text"
+                               name="q"
+                               class="form-control"
+                               th:placeholder="#{guests.filter.search}"
+                               th:value="${searchQuery}">
 
-        <!-- Name Search -->
-        <div class="col-md-4">
-            <form th:action="@{/guests/search}" method="get" class="d-flex">
-                <input type="text"
-                       name="q"
-                       class="form-control"
-                       th:placeholder="#{guests.filter.search}"
-                       th:value="${searchQuery}">
-
-                <button type="submit" class="btn btn-primary ms-2">
-                    <i class="bi bi-search"></i>
-                </button>
+                        <button type="submit" class="btn btn-primary ms-2">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
 
@@ -86,12 +83,12 @@
         <div class="col" th:each="g : ${guests}">
             <div class="card h-100 shadow-sm hover-card">
 
-                <a th:href="@{'/guests/' + ${g.id}}" class="text-decoration-none text-dark">
+                <a th:href="@{/guests/{id}(id=${g.id})}" class="text-decoration-none text-dark">
 
                     <!-- Avatar -->
-                    <img th:src="@{${g.avatarUrl}}"
+                    <img th:src="${g.avatarUrl}"
                          class="card-img-top guest-img"
-                         alt="Guest photo">
+                         th:alt="${g.fullName}">
 
                     <div class="card-body">
 

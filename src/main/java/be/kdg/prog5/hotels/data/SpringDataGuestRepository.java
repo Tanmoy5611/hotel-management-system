@@ -13,33 +13,20 @@ import java.util.Optional;
 @Repository       // Marks this interface as persistence layer component managed by Spring
 public interface SpringDataGuestRepository extends JpaRepository<Guest, Long> {
 
-    // Query Method VIP guests using inheritance
+    // Query Method VIP guests
     @Query("""
-            SELECT g
-            FROM Guest g
-            WHERE TYPE(g) = VIPGuest
-            """)
+    SELECT g FROM VIPGuest g
+""")
     List<Guest> findVipGuests();
 
-    // Query Method: Search by name (SELECT g FROM Guest g WHERE lower(g.fullName) LIKE lower('%text%') )
-    List<Guest> findByFullNameContainingIgnoreCase(String text);
-
-    // Custom @Query: (JPQL query uses the size of the rooms collection to find guests who booked multiple rooms)
     @Query("""
             SELECT g
             FROM Guest g
-            WHERE size(g.stays) >= :minRooms
+            WHERE LOWER(g.fullName) LIKE LOWER(CONCAT('%', :query, '%'))
+              AND (:minRooms IS NULL OR SIZE(g.stays) >= :minRooms)
             """)
-    List<Guest> findGuestsWithMoreThanRooms(@Param("minRooms") int minRooms);
-
-    //  DISTINCT prevents duplicates if multiple stays
-    @Query("""
-            SELECT DISTINCT g
-            FROM Guest g
-            JOIN g.stays s
-            WHERE s.room.id = :roomId
-            """)
-    List<Guest> findByRoom(@Param("roomId") Long roomId);
+    List<Guest> searchGuests(@Param("query") String query,
+                             @Param("minRooms") Integer minRooms);
 
     //  Optimized query to load the Guest aggregate with Stays, Rooms, and Hotels
     @Query("""

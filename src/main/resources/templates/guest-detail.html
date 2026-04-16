@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'Guest - ' + ${guest.fullName}">Guest Detail</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -19,25 +20,11 @@
 
 <div sec:authorize="hasAnyRole('USER','ADMIN')" class="container my-4">
 
-    <div sec:authorize="isAnonymous()" class="container mt-5 text-center">
-
-        <div class="alert alert-warning shadow-sm">
-            <i class="bi bi-lock-fill me-2"></i>
-            Please login to view guest details.
-        </div>
-
-        <a href="/login" class="btn btn-primary">
-            <i class="bi bi-box-arrow-in-right me-1"></i>
-            Login
-        </a>
-
-    </div>
-
     <!-- Guest Header -->
     <div class="card mb-4 shadow-sm">
         <div class="row g-0">
             <div class="col-md-4 text-center p-3">
-                <img th:src="@{${guest.avatarUrl}}" alt="Avatar"
+                <img th:src="${guest.avatarUrl}" th:alt="${guest.fullName}"
                      class="rounded-circle"
                      style="width:150px; height:150px; object-fit:cover;">
             </div>
@@ -115,7 +102,8 @@
 
             <tbody>
             <tr th:each="row : ${roomRows}"
-                th:onclick="'window.location.href=\'/rooms/' + ${row.room.id} + '\';'"
+                th:attr="data-href=@{/rooms/{id}(id=${row.room.id})}"
+                onclick="window.location=this.dataset.href"
                 style="cursor:pointer;">
 
                 <td th:text="${row.room.number}"></td>
@@ -138,7 +126,7 @@
 
                 <!-- Hotel -->
                 <td>
-                    <a th:href="@{'/hotels/' + ${row.room.hotel.hotelId}}"
+                    <a th:href="@{/hotels/{hotelId}(hotelId=${row.room.hotel.hotelId})}"
                        th:text="${row.room.hotel.name}">
                     </a>
                 </td>

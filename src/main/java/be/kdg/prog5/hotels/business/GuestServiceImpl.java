@@ -1,5 +1,7 @@
 package be.kdg.prog5.hotels.business;
 
+import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
+import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.data.SpringDataStayRepository;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -51,32 +54,28 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.findAll();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Guest> getGuestsByRoom(Long roomId) {
-        log.debug("Getting guests for room {}", roomId);
-
-        return guestRepo.findByRoom(roomId);
-    }
-
     /// Delete guest
     @Override
     public void deleteGuest(Long guestId) {
         log.debug("Deleting guest with id {}", guestId);
 
         Guest guest = guestRepo.findById(guestId)
-                .orElseThrow(() -> new IllegalArgumentException("Guest not found"));
+                .orElseThrow(() -> new GuestNotFoundException(guestId));
 
         ApplicationUser user = securityService.getLoggedInUserSafe();
 
 
         // Authorization only if user exists (tests safe)
         if (user != null) {
-            if (!guest.getOwner().getId().equals(user.getId())
-                    && user.getRole() != RoleType.ADMIN) {
-                throw new IllegalStateException("You are not allowed to delete this guest");
+            if (guest.getOwner() == null ||
+                    (!guest.getOwner().getId().equals(user.getId())
+                            && user.getRole() != RoleType.ADMIN)) {
+                throw new SecurityException("You are not allowed to delete this guest");
             }
         }
+
+        // store values before delete (safe logging)
+        String guestName = guest.getFullName();
 
         // Need to delete stays first as Guest does NOT own Stay
         stayRepo.deleteByGuest_Id(guestId);
@@ -88,7 +87,7 @@ public class GuestServiceImpl implements GuestService {
         if (user != null) {
             activityLogService.log(
                     ActivityType.DELETE_GUEST,
-                    "Guest " + guest.getFullName() + " (id=" + guestId + ") deleted",
+                    "Guest " + guestName + " (id=" + guestId + ") deleted",
                     user
             );
         }
@@ -106,23 +105,33 @@ public class GuestServiceImpl implements GuestService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Guest> searchGuestsByName(String name) {
-        log.debug("Searching guests with name containing {}", name);
+    public List<Guest> searchGuests(String query, Integer minRooms) {
+        log.debug("Searching guests: query={}, minRooms={}", query, minRooms);
 
-        return guestRepo.findByFullNameContainingIgnoreCase(name);
-    }
+        // Input sanitization belongs in the service - controller passes raw values
+        String cleanedQuery = (query == null) ? "" : query.trim();
 
-    @Override
-    public List<Guest> getGuestsWithManyRooms(int minRooms) {
-        log.debug("Getting guests with more than {} rooms", minRooms);
+        Integer cleanedMinRooms = (minRooms == null || minRooms < 1)
+                ? null
+                : minRooms;
 
-        return guestRepo.findGuestsWithMoreThanRooms(minRooms);
+        return guestRepo.searchGuests(cleanedQuery, cleanedMinRooms);
     }
 
     /// Creates guest with room; persists and associates if applicable
     @Override
-    public Guest createGuestWithRoom(Guest guest, Long roomId, LocalDate checkIn, LocalDate checkOut) {
-        log.debug("Creating guest {} with room {}", guest, roomId);
+    public Guest createGuestWithRoom(String fullName, LocalDate dob, String email, String avatarUrl,
+                                     BigDecimal discountPercentage, Long roomId,
+                                     LocalDate checkIn, LocalDate checkOut) {
+        log.debug("Creating guest {} with room {}", fullName, roomId);
+
+        // Domain decision: VIP or regular Guest - belongs in the service
+        Guest guest;
+        if (discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+            guest = new VIPGuest(fullName, dob, email, avatarUrl, discountPercentage);
+        } else {
+            guest = new Guest(fullName, dob, email, avatarUrl);
+        }
 
         // get logged-in user (SAFE)
         ApplicationUser user = securityService.getLoggedInUserSafe();
@@ -136,19 +145,15 @@ public class GuestServiceImpl implements GuestService {
 
         if (roomId != null) {
 
-            // validate dates
-            if (checkIn == null || checkOut == null) {
-                throw new IllegalArgumentException("Check-in and check-out dates are required when assigning a room");
-            }
+            // Domain (Room.addGuest) already validates dates
 
-            Room room = roomRepo.findById(roomId)
-                    .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+            Room room = roomRepo.findByIdWithHotelAndGuests(roomId)
+                    .orElseThrow(() -> new RoomNotFoundException(roomId));
 
             // Room owns Stay -> room creates Stay (aggregate logic)
             room.addGuest(savedGuest, checkIn, checkOut);
 
-            // Cascade on Room will persist Stay automatically
-            roomRepo.save(room);
+            // Room is managed -> JPA dirty checking persists Stay automatically
 
             // Log with full trace (room + hotel)
             if (user != null) {
@@ -181,6 +186,6 @@ public class GuestServiceImpl implements GuestService {
     public Guest getGuestWithDetails(Long guestId) {
         // Calling the JOIN FETCH method ensures stays are loaded before the session closes
         return guestRepo.findByIdWithDetails(guestId)
-                .orElseThrow(() -> new IllegalArgumentException("Guest not found"));
+                .orElseThrow(() -> new GuestNotFoundException(guestId));
     }
 }

@@ -5,7 +5,6 @@ import be.kdg.prog5.hotels.business.RoomService;
 import be.kdg.prog5.hotels.domain.Guest;
 import be.kdg.prog5.hotels.domain.Room;
 import be.kdg.prog5.hotels.domain.Stay;
-import be.kdg.prog5.hotels.domain.VIPGuest;
 import be.kdg.prog5.hotels.viewmodel.GuestForm;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -102,7 +101,7 @@ public class GuestController {
         return "redirect:/guests";
     }
 
-    // Spring Data Queries -  Vip search
+    // Spring Data Queries - Vip search
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/guests/vip")
     public String showVipGuests(Model model) {
@@ -113,43 +112,26 @@ public class GuestController {
         return "guests";   // reuse guests.html
     }
 
-
-    // Guest Name Search
+    // Guest name search and minimum rooms filter
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/guests/search")
     public String searchGuests(
             @RequestParam(name = "q", required = false) String query,
-            Model model
-    ) {
-        log.debug("Searching guests with query {}", query);
-
-        if (query == null || query.isBlank()) {
-            return "redirect:/guests";
-        }
-
-        model.addAttribute("guests", guestService.searchGuestsByName(query));
-        model.addAttribute("searchQuery", query);
-
-        return "guests";
-    }
-
-
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    @GetMapping("/guests/manyRooms")
-    public String showGuestsWithManyRooms(
             @RequestParam(name = "min", required = false) Integer minRooms,
             Model model
     ) {
-        // If empty or invalid -> just go back to normal guests list
-        if (minRooms == null || minRooms < 1) {
+        log.debug("Searching guests with query {} and minRooms {}", query, minRooms);
+
+        // Only HTTP-level short-circuit: nothing to search -> go back to list
+        if ((query == null || query.isBlank()) && minRooms == null) {
             return "redirect:/guests";
         }
 
-        model.addAttribute("guests", guestService.getGuestsWithManyRooms(minRooms));
-        model.addAttribute("minRooms", minRooms);
+        List<Guest> guests = guestService.searchGuests(query, minRooms);
 
-        // keep search bar stable (optional but nice)
-        model.addAttribute("searchQuery", "");
+        model.addAttribute("guests", guests);
+        model.addAttribute("searchQuery", query);
+        model.addAttribute("minRooms", minRooms);
 
         return "guests";
     }
@@ -198,31 +180,13 @@ public class GuestController {
             return "add-guest";
         }
 
-        // ViewModel to Domain Conversion
-        Guest guest;
-
-        // Creates guest instance; VIP if discount applies
-        if (guestForm.getDiscountPercentage() != null &&
-                guestForm.getDiscountPercentage().compareTo(BigDecimal.ZERO) > 0) {
-            guest = new VIPGuest(
-                    guestForm.getFullName(),
-                    guestForm.getDob(),
-                    guestForm.getEmail(),
-                    guestForm.getAvatarUrl(),
-                    guestForm.getDiscountPercentage()
-            );
-        } else {
-            guest = new Guest(
-                    guestForm.getFullName(),
-                    guestForm.getDob(),
-                    guestForm.getEmail(),
-                    guestForm.getAvatarUrl()
-            );
-        }
-
-        // Room Assignment
+        // Controller passes raw form data - service decides Guest vs VIPGuest
         guestService.createGuestWithRoom(
-                guest,
+                guestForm.getFullName(),
+                guestForm.getDob(),
+                guestForm.getEmail(),
+                guestForm.getAvatarUrl(),
+                guestForm.getDiscountPercentage(),
                 guestForm.getRoomId(),
                 guestForm.getCheckIn(),
                 guestForm.getCheckOut()

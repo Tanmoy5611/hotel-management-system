@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{guest.add.title}">Add Guest</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
@@ -28,20 +29,6 @@
             <span th:text="#{guest.add.title}">Add Guest</span>
         </h2>
 
-        <div sec:authorize="isAnonymous()" class="container mt-5 text-center">
-
-            <div class="alert alert-warning shadow-sm">
-                <i class="bi bi-lock-fill me-2"></i>
-                Please login to add a guest.
-            </div>
-
-            <a href="/login" class="btn btn-primary">
-                <i class="bi bi-box-arrow-in-right me-1"></i>
-                Login
-            </a>
-
-        </div>
-
         <!-- Wide centered form -->
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
@@ -56,11 +43,12 @@
 
                         <!-- Full Name -->
                         <div class="col-12">
-                            <label class="form-label fw-semibold"
+                            <label for="fullName" class="form-label fw-semibold"
                                    th:text="#{guest.form.fullName}">
                                 Full Name
                             </label>
-                            <input type="text"
+                            <input id="fullName"
+                                   type="text"
                                    th:field="*{fullName}"
                                    class="form-control"
                                    th:placeholder="#{guest.placeholder.name}">
@@ -70,11 +58,12 @@
 
                         <!-- Email -->
                         <div class="col-12">
-                            <label class="form-label fw-semibold"
+                            <label for="email" class="form-label fw-semibold"
                                    th:text="#{guest.form.email}">
                                 Email
                             </label>
-                            <input type="email"
+                            <input id="email"
+                                   type="email"
                                    th:field="*{email}"
                                    class="form-control"
                                    th:placeholder="#{guest.placeholder.email}">
@@ -84,11 +73,12 @@
 
                         <!-- Date of Birth -->
                         <div class="col-12">
-                            <label class="form-label fw-semibold"
+                            <label for="dob" class="form-label fw-semibold"
                                    th:text="#{guest.form.dob}">
                                 Date of Birth
                             </label>
-                            <input type="date"
+                            <input id="dob"
+                                   type="date"
                                    th:field="*{dob}"
                                    class="form-control">
                             <div class="text-danger small mt-1"
@@ -97,11 +87,12 @@
 
                         <!-- Avatar URL -->
                         <div class="col-12">
-                            <label class="form-label fw-semibold"
+                            <label for="avatarUrl" class="form-label fw-semibold"
                                    th:text="#{guest.form.avatar}">
                                 Avatar URL
                             </label>
-                            <input type="text"
+                            <input id="avatarUrl"
+                                   type="text"
                                    th:field="*{avatarUrl}"
                                    class="form-control"
                                    th:placeholder="#{guest.placeholder.avatar}">
@@ -109,11 +100,12 @@
 
                         <!-- Discount (VIP if > 0) -->
                         <div class="col-12">
-                            <label class="form-label fw-semibold"
+                            <label for="discountPercentage" class="form-label fw-semibold"
                                    th:text="#{guest.form.discount}">
                                 Discount (%)
                             </label>
-                            <input type="number"
+                            <input id="discountPercentage"
+                                   type="number"
                                    min="0"
                                    max="100"
                                    th:field="*{discountPercentage}"
