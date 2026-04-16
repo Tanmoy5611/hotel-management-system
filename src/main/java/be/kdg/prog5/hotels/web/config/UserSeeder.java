@@ -1,5 +1,6 @@
 package be.kdg.prog5.hotels.web.config;
 
+import be.kdg.prog5.hotels.config.AppConstants;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
@@ -32,7 +33,7 @@ public class UserSeeder {
 
                 // create default admin account
                 ApplicationUser admin = new ApplicationUser(
-                        "admin@hotelapp.com",
+                        AppConstants.PROTECTED_ADMIN_EMAIL,
                         passwordEncoder.encode("admin123"),
                         RoleType.ADMIN
                 );

@@ -5,7 +5,9 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{users.title}">User Management</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -81,7 +83,7 @@
 
                         <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2"
                               th:classappend="
-                              ${applicationUser.role == 'ADMIN'} ?
+                              ${applicationUser.role.name() == 'ADMIN'} ?
                               'bg-danger-subtle text-danger border border-danger' :
                               'bg-primary-subtle text-primary border border-primary'">
                             <i class="bi"
@@ -96,7 +98,7 @@
 
                         <button type="button"
                                 class="btn btn-warning btn-sm"
-                                th:if="${applicationUser.email != 'admin@hotelapp.com'}"
+                                th:if="${applicationUser.email != protectedAdminEmail}"
                                 data-bs-toggle="modal"
                                 th:attr="data-bs-target='#roleModal__' + ${applicationUser.id}">
 
@@ -107,7 +109,7 @@
 
                         <button type="button"
                                 class="btn btn-danger btn-sm"
-                                th:if="${applicationUser.email != 'admin@hotelapp.com'}"
+                                th:if="${applicationUser.email != protectedAdminEmail}"
                                 data-bs-toggle="modal"
                                 th:attr="data-bs-target='#deleteModal__' + ${applicationUser.id}">
 
@@ -117,7 +119,7 @@
                         </button>
 
                         <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2 bg-success-subtle text-success border border-success"
-                              th:if="${applicationUser.email == 'admin@hotelapp.com'}">
+                              th:if="${applicationUser.email == protectedAdminEmail}">
                             <i class="bi bi-lock-fill"></i>
                             <span th:text="#{users.protected}">PROTECTED</span>
                         </span>
@@ -154,7 +156,7 @@
         <!-- Activity table card -->
         <div class="card shadow-sm border-0">
 
-            <div class="card-body p-0">
+            <div class="card-body p-0 table-responsive">
 
                 <table class="table table-hover align-middle mb-0">
 
@@ -326,7 +328,7 @@
                 <div class="modal-body">
 
                     <span th:text="#{users.deleteConfirm}">
-                        Delete applicationUser
+                        Delete user
                     </span>
 
                     <strong th:text="${applicationUser.email}"></strong> ?

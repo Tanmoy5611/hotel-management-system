@@ -1,13 +1,12 @@
 package be.kdg.prog5.hotels.business;
 
+import be.kdg.prog5.hotels.business.exceptions.ApplicationUserNotFoundException;
+import be.kdg.prog5.hotels.config.AppConstants;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
 import be.kdg.prog5.hotels.domain.RoleType;
 import be.kdg.prog5.hotels.viewmodel.RegisterForm;
-import be.kdg.prog5.hotels.web.security.SecurityService;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,21 +18,21 @@ import java.util.Optional;
 @Transactional
 public class ApplicationUserServiceImpl implements ApplicationUserService {
 
+    // protected admin account should not be deleted or role-changed
+    private static final String PROTECTED_ADMIN_EMAIL = AppConstants.PROTECTED_ADMIN_EMAIL;
+
     private final SpringDataApplicationUserRepository userRepository;
 
-    private final SecurityService securityService;
-    private final ActivityLogService activityLogService;
+    private final SafeActivityLogger safeActivityLogger;
 
     // encoder used to hash passwords before storing them
     private final PasswordEncoder passwordEncoder;
 
     public ApplicationUserServiceImpl(SpringDataApplicationUserRepository userRepository,
-                                      SecurityService securityService,
-                                      ActivityLogService activityLogService,
+                                      SafeActivityLogger safeActivityLogger,
                                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.securityService = securityService;
-        this.activityLogService = activityLogService;
+        this.safeActivityLogger = safeActivityLogger;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -48,7 +47,7 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
     @Override
     public Optional<String> createUser(RegisterForm form) {
 
-        // check if a applicationUser with the same email already exists
+        // check if an applicationUser with the same email already exists
         if (userRepository.findByEmail(form.getEmail()).isPresent()) {
             return Optional.of("A applicationUser with this email already exists");
         }
@@ -64,15 +63,10 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
         userRepository.save(applicationUser);
 
         // Log activity for the user who created the account
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.CREATE_USER,
-                    "User " + applicationUser.getEmail() + " created",
-                    user
-            );
-        }
+        safeActivityLogger.log(
+                ActivityType.CREATE_USER,
+                "User " + applicationUser.getEmail() + " created"
+        );
 
         // return empty Optional if creation succeeded
         return Optional.empty();
@@ -84,25 +78,20 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
 
         // load applicationUser or throw error if not found
         ApplicationUser applicationUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ApplicationUser not found"));
+                .orElseThrow(() -> new ApplicationUserNotFoundException(id));
 
         /// prevent deletion of the main admin account
-        if (applicationUser.getEmail().equals("admin@hotelapp.com")) {
+        if (applicationUser.getEmail().equals(PROTECTED_ADMIN_EMAIL)) {
             return;
         }
+
+        // capture email before delete (safe logging after entity removal)
+        String email = applicationUser.getEmail();
 
         userRepository.delete(applicationUser);
 
         // Log activity for the user who deleted the account
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.DELETE_USER,
-                    "User " + applicationUser.getEmail() + " deleted",
-                    user
-            );
-        }
+        safeActivityLogger.log(ActivityType.DELETE_USER, "User " + email + " deleted");
     }
 
     // toggle role between USER and ADMIN
@@ -111,10 +100,10 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
 
         // load applicationUser
         ApplicationUser applicationUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ApplicationUser not found"));
+                .orElseThrow(() -> new ApplicationUserNotFoundException(id));
 
         // prevent changing the role of the main admin (Protected)
-        if (applicationUser.getEmail().equals("admin@hotelapp.com")) {
+        if (applicationUser.getEmail().equals(PROTECTED_ADMIN_EMAIL)) {
             return;
         }
 
@@ -128,20 +117,14 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
             applicationUser.setRole(RoleType.USER);
         }
 
-        // save updated role
-        userRepository.save(applicationUser);
+        // No save() needed -> JPA dirty checking handles the role update
 
         // Log activity for the user who changed the role
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.UPDATE_USER_ROLE,
-                    "User " + applicationUser.getEmail() +
-                            " role changed from " + oldRole +
-                            " to " + applicationUser.getRole(),
-                    user
-            );
-        }
+        safeActivityLogger.log(
+                ActivityType.UPDATE_USER_ROLE,
+                "User " + applicationUser.getEmail() +
+                        " role changed from " + oldRole +
+                        " to " + applicationUser.getRole()
+        );
     }
 }

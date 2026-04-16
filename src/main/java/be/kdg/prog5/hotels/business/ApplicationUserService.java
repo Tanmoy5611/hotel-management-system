@@ -12,6 +12,7 @@ public interface ApplicationUserService {
     List<ApplicationUser> getAllUsers();
 
     // create a new user from the register form
+    // Returns an error message if creation fails, empty if successful
     Optional<String> createUser(RegisterForm form);
 
     // delete a user by id
