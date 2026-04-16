@@ -34,7 +34,7 @@ public class HotelController {        // All URLs in this controller start with 
     }
 
     /// List hotels + filters
-    // method of showing all Hotels (list) + filter them based on: minStars +  opened date
+    // method of showing all Hotels (list) + filter them based on: minStars + opened date
     // The controller only orchestrates which business method to call based on user input.
     @GetMapping
     public String list(@RequestParam(name = "minStars", required = false) Integer minStars,
@@ -51,7 +51,7 @@ public class HotelController {        // All URLs in this controller start with 
 
         // if user typed a hotel name then search by name (Spring Data or fallback)
         if (name != null && !name.isBlank()) {
-            hotels = hotelService.searchByName(name.trim());
+            hotels = hotelService.searchByName(name);
         }
 
         // filter by minimum stars (and optional opened date) (uses @Query)
@@ -64,20 +64,8 @@ public class HotelController {        // All URLs in this controller start with 
             hotels = hotelService.getAllHotels();
         }
 
-        // Optional sorting in memory
-        if (sort != null && !sort.isBlank()) {
-            hotels = new ArrayList<>(hotels);    // make list mutable for sorting
-
-            // Sorts hotels by name or stars in memory
-            switch (sort) {
-                case "name" ->
-                        hotels.sort((a, b) ->
-                                a.getName().compareToIgnoreCase(b.getName()));
-                case "stars" ->
-                        hotels.sort((a, b) ->
-                                Integer.compare(b.getStars(), a.getStars()));
-            }
-        }
+        // Optional sorting delegated to service
+        hotels = hotelService.sortHotels(hotels, sort);
 
         // Add data to model for Thymeleaf template
         model.addAttribute("hotels", hotels);
@@ -216,12 +204,7 @@ public class HotelController {        // All URLs in this controller start with 
                                          @RequestParam String description) {
         log.debug("Updating hotel description for hotel {}", hotelId);
 
-        // validation
-        if (description == null || description.isBlank()) {
-            throw new IllegalArgumentException("Description cannot be empty");
-        }
-
-        hotelService.updateHotelDescription(hotelId, description.trim());
+        hotelService.updateHotelDescription(hotelId, description);
 
         return "redirect:/hotels/" + hotelId;
     }

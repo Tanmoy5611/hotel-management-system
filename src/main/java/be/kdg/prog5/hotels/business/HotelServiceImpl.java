@@ -3,15 +3,15 @@ package be.kdg.prog5.hotels.business;
 import be.kdg.prog5.hotels.business.exceptions.HotelNotFoundException;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;
-import be.kdg.prog5.hotels.domain.ApplicationUser;
 import be.kdg.prog5.hotels.domain.Hotel;
-import be.kdg.prog5.hotels.web.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -23,16 +23,13 @@ public class HotelServiceImpl implements HotelService {
 
     private final SpringDataHotelRepository hotelRepo;
 
-    private final SecurityService securityService;
-    private final ActivityLogService activityLogService;
+    private final SafeActivityLogger safeActivityLogger;
 
 
     public HotelServiceImpl(SpringDataHotelRepository hotelRepo,
-                            SecurityService securityService,
-                            ActivityLogService activityLogService) {
+                            SafeActivityLogger safeActivityLogger) {
         this.hotelRepo = hotelRepo;
-        this.securityService = securityService;
-        this.activityLogService = activityLogService;
+        this.safeActivityLogger = safeActivityLogger;
     }
 
     /// Read Hotels
@@ -62,8 +59,7 @@ public class HotelServiceImpl implements HotelService {
         log.debug("Getting hotel with business id {}", hotelId);
 
         return hotelRepo.findByHotelIdWithAggregate(hotelId)
-
-                .orElseThrow(() -> new IllegalArgumentException("Hotel not found"));
+                .orElseThrow(() -> new HotelNotFoundException(hotelId));
     }
 
     @Override
@@ -104,16 +100,11 @@ public class HotelServiceImpl implements HotelService {
             Hotel savedHotel = hotelRepo.save(hotel);
 
             // activity logging for created hotel
-            ApplicationUser user = securityService.getLoggedInUserSafe();
-
-            if (user != null) {
-                activityLogService.log(
-                        ActivityType.CREATE_HOTEL,
-                        "Hotel " + savedHotel.getName() +
-                                " in " + savedHotel.getCity() + ", " + savedHotel.getCountry() + " created",
-                        user
-                );
-            }
+            safeActivityLogger.log(
+                    ActivityType.CREATE_HOTEL,
+                    "Hotel " + savedHotel.getName() +
+                            " in " + savedHotel.getCity() + ", " + savedHotel.getCountry() + " created"
+            );
 
         return savedHotel;
     }
@@ -136,16 +127,11 @@ public class HotelServiceImpl implements HotelService {
         hotelRepo.delete(hotel);
 
         // Logging activity for deleted hotel
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.DELETE_HOTEL,
-                    "Hotel " + name +
-                            " in " + city + ", " + country + " deleted",
-                    user
-            );
-        }
+        safeActivityLogger.log(
+                ActivityType.DELETE_HOTEL,
+                "Hotel " + name +
+                        " in " + city + ", " + country + " deleted"
+        );
     }
 
     /// Search hotel by name
@@ -154,7 +140,36 @@ public class HotelServiceImpl implements HotelService {
     public List<Hotel> searchByName(String text) {
         log.debug("Searching for hotels containing {}", text);
 
-        return hotelRepo.findByNameContainingIgnoreCase(text);
+        // Input sanitization belongs in the service; controller passes raw values
+        String cleanedText = (text == null) ? "" : text.trim();
+
+        return hotelRepo.findByNameContainingIgnoreCase(cleanedText);
+    }
+
+    /// Sort hotels
+    @Override
+    @Transactional(readOnly = true)
+    public List<Hotel> sortHotels(List<Hotel> hotels, String sort) {
+        if (sort == null || sort.isBlank()) {
+            return hotels;
+        }
+
+        List<Hotel> sortedHotels = new ArrayList<>(hotels);
+
+        // Sorts hotels by name or stars in memory
+        switch (sort) {
+            case "name" ->
+                    sortedHotels.sort(Comparator.comparing(
+                            Hotel::getName,
+                            String.CASE_INSENSITIVE_ORDER
+                    ));
+            case "stars" ->
+                    sortedHotels.sort(Comparator.comparingInt(Hotel::getStars).reversed());
+            default ->
+                    log.warn("Unknown hotel sort key '{}'", sort);
+        }
+
+        return sortedHotels;
     }
 
     /// Update hotel description
@@ -163,22 +178,22 @@ public class HotelServiceImpl implements HotelService {
     public void updateHotelDescription(String hotelId, String description) {
         log.debug("Updating description for hotel {}", hotelId);
 
+        // validation and trimming belong in the service
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Description cannot be empty");
+        }
+
         Hotel hotel = hotelRepo.findByHotelId(hotelId)
                 .orElseThrow(() -> new HotelNotFoundException(hotelId));
 
-        hotel.setDescription(description);
+        hotel.setDescription(description.trim());
         // JPA dirty checking persists automatically
 
         // logging activity for updated hotel
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.UPDATE_HOTEL,
-                    "Updated description of hotel " + hotel.getName(),
-                    user
-            );
-        }
+        safeActivityLogger.log(
+                ActivityType.UPDATE_HOTEL,
+                "Updated description of hotel " + hotel.getName()
+        );
     }
 
     /// Home Page

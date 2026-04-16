@@ -16,6 +16,14 @@ public interface HotelService {
     // Filter hotels based on minimum stars and optional opening date
     List<Hotel> getHotelsByMinStarsAndOpenedAfter(int minStars, LocalDate openedAfter);
 
+    // Search hotels by partial name (case-insensitive)
+    // Input sanitization happens in the service; controller passes raw values
+    List<Hotel> searchByName(String text);
+
+    // Sorts hotels by the given sort key ("name" or "stars")
+    // Kept in service so controller has zero data-manipulation logic
+    List<Hotel> sortHotels(List<Hotel> hotels, String sort);
+
     // Create and persist a new hotel
     Hotel createHotel(Hotel hotel);
 
@@ -27,10 +35,8 @@ public interface HotelService {
     // Delete a hotel by BUSINESS identifier
     void deleteHotelByHotelId(String hotelId);
 
-    // Search hotels by partial name (case-insensitive)
-    List<Hotel> searchByName(String text);
-
     // Update only the description of a hotel
+    // Validation + trimming live here; controller passes raw string
     void updateHotelDescription(String hotelId, String description);
 
     /// Home page
