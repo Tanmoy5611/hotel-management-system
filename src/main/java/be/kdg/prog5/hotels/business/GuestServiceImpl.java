@@ -30,19 +30,19 @@ public class GuestServiceImpl implements GuestService {
     private final SpringDataStayRepository stayRepo;
 
     private final SecurityService securityService;
-    private final ActivityLogService activityLogService;
+    private final SafeActivityLogger safeActivityLogger;
 
 
     public GuestServiceImpl(SpringDataGuestRepository guestRepo,
                             SpringDataRoomRepository roomRepo,
                             SpringDataStayRepository stayRepo,
                             SecurityService securityService,
-                            ActivityLogService activityLogService) {
+                            SafeActivityLogger safeActivityLogger) {
         this.guestRepo = guestRepo;
         this.roomRepo = roomRepo;
         this.stayRepo = stayRepo;
         this.securityService = securityService;
-        this.activityLogService = activityLogService;
+        this.safeActivityLogger = safeActivityLogger;
     }
 
     /// Read Guests
@@ -84,13 +84,10 @@ public class GuestServiceImpl implements GuestService {
         guestRepo.delete(guest);
 
         // Logging activity for deleted guest
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.DELETE_GUEST,
-                    "Guest " + guestName + " (id=" + guestId + ") deleted",
-                    user
-            );
-        }
+        safeActivityLogger.log(
+                ActivityType.DELETE_GUEST,
+                "Guest " + guestName + " (id=" + guestId + ") deleted"
+        );
 
     }
 
@@ -156,26 +153,20 @@ public class GuestServiceImpl implements GuestService {
             // Room is managed -> JPA dirty checking persists Stay automatically
 
             // Log with full trace (room + hotel)
-            if (user != null) {
-                activityLogService.log(
-                        ActivityType.CREATE_GUEST,
-                        "Guest " + savedGuest.getFullName() +
-                                " created and assigned to room " + room.getNumber() +
-                                " in hotel " + room.getHotel().getName(),
-                        user
-                );
-            }
+            safeActivityLogger.log(
+                    ActivityType.CREATE_GUEST,
+                    "Guest " + savedGuest.getFullName() +
+                            " created and assigned to room " + room.getNumber() +
+                            " in hotel " + room.getHotel().getName()
+            );
 
         } else {
 
             // Log without room
-            if (user != null) {
-                activityLogService.log(
-                        ActivityType.CREATE_GUEST,
-                        "Guest " + savedGuest.getFullName() + " created (no room assigned)",
-                        user
-                );
-            }
+            safeActivityLogger.log(
+                    ActivityType.CREATE_GUEST,
+                    "Guest " + savedGuest.getFullName() + " created (no room assigned)"
+            );
         }
 
         return savedGuest;
@@ -188,4 +179,5 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.findByIdWithDetails(guestId)
                 .orElseThrow(() -> new GuestNotFoundException(guestId));
     }
+
 }
