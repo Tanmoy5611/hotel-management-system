@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -40,16 +41,6 @@ public interface SpringDataRoomRepository extends JpaRepository<Room, Long> {
     """)
     List<Room> findByNumberWithHotel(@Param("number") int number);
 
-    // Used by guests pages where shown room + hotel (Rooms of one guest)
-    @Query("""
-            SELECT DISTINCT r
-            FROM Stay s
-            JOIN s.room r
-            JOIN FETCH r.hotel
-            WHERE s.guest.id = :guestId
-    """)
-    List<Room> findRoomsByGuestIdWithHotel(@Param("guestId") Long guestId);
-
     // All rooms
     @Query("""
             SELECT DISTINCT r
@@ -57,15 +48,6 @@ public interface SpringDataRoomRepository extends JpaRepository<Room, Long> {
             JOIN FETCH r.hotel
     """)
     List<Room> findAllWithHotel();
-
-    // Rooms of one hotel (hotel detail page)
-    @Query("""
-            SELECT DISTINCT r
-            FROM Room r
-            JOIN FETCH r.hotel
-            WHERE r.hotel.hotelId = :hotelId
-    """)
-    List<Room> findByHotelIdWithHotel(@Param("hotelId") String hotelId);
 
     // Room detail page (room + hotel + stays + guests) aggregate root load
     @Query("""
@@ -78,25 +60,60 @@ public interface SpringDataRoomRepository extends JpaRepository<Room, Long> {
     """)
     Optional<Room> findByIdWithHotelAndGuests(@Param("roomId") Long roomId);
 
+    // Sorted stays - for room detail page (ORDER BY in DB, not in Java)
+    @Query("""
+            SELECT DISTINCT r
+            FROM Room r
+            JOIN FETCH r.hotel
+            LEFT JOIN FETCH r.stays s
+            LEFT JOIN FETCH s.guest
+            WHERE r.id = :roomId
+            ORDER BY s.checkInDate ASC
+    """)
+    Optional<Room> findByIdWithHotelAndGuestsSortedByCheckIn(@Param("roomId") Long roomId);
+
     /// For Home page
     // Cheapest room with JOIN FETCH and explicit Query
-    @Query("SELECT r FROM Room r JOIN FETCH r.hotel ORDER BY r.pricePerNight ASC LIMIT 4")
-    List<Room> findTop4ByOrderByPricePerNightAsc();
+    @Query("""
+        SELECT r FROM Room r
+        JOIN FETCH r.hotel
+        ORDER BY r.pricePerNight ASC
+    """)
+    List<Room> findCheapestRooms(Pageable pageable);
 
     // Most expensive rooms with JOIN FETCH and explicit Query
-    @Query("SELECT r FROM Room r JOIN FETCH r.hotel ORDER BY r.pricePerNight DESC LIMIT 4")
-
-    List<Room> findTop4ByOrderByPricePerNightDesc();
-    // Tp prevent N+1: Rooms with most bookings
     @Query("""
-        SELECT r FROM Room r 
+        SELECT r FROM Room r
+        JOIN FETCH r.hotel
+        ORDER BY r.pricePerNight DESC
+    """)
+    List<Room> findMostExpensiveRooms(Pageable pageable);
+
+    // Tp prevent N+1 via JOIN FETCH + GROUP BY): Rooms with most bookings
+    @Query("""
+        SELECT r FROM Room r
         JOIN FETCH r.hotel h
-        LEFT JOIN r.stays s 
-        GROUP BY r.id, h.id 
+        LEFT JOIN r.stays s
+        GROUP BY r.id, h.id
         ORDER BY COUNT(s) DESC
     """)
-    List<Room> findTopPickedRooms();
+    List<Room> findTopPickedRooms(Pageable pageable);
+
+    // Search rooms by hotel name/city/country and optional room type
+    // JOIN FETCH avoids N+1 for hotel, and stays are not fetched here because
+    // search results do not need full Stay objects
+    @Query("""
+    SELECT DISTINCT r
+    FROM Room r
+    JOIN FETCH r.hotel h
+    LEFT JOIN r.stays
+    WHERE (LOWER(h.name) LIKE LOWER(CONCAT('%', :query, '%'))
+           OR LOWER(h.city) LIKE LOWER(CONCAT('%', :query, '%'))
+           OR LOWER(h.country) LIKE LOWER(CONCAT('%', :query, '%')))
+      AND (:roomType IS NULL OR r.type = :roomType)
+""")
+    List<Room> searchRooms(@Param("query") String query,
+                           @Param("roomType") RoomType roomType);
 
     boolean existsByHotelAndNumber(Hotel hotel, int number);
-
 }

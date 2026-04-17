@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{nav.addRoom}">Add Room</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -24,23 +25,6 @@
 <!-- Main -->
 <main sec:authorize="hasRole('ADMIN')" class="flex-grow-1">
     <div class="container my-4">
-
-        <!-- Anonymous users -->
-        <div sec:authorize="!hasRole('ADMIN')" class="container mt-5 text-center">
-
-            <div class="alert alert-danger shadow-sm">
-
-                <i class="bi bi-shield-lock me-2"></i>
-                You are not authorized to access this page.
-
-            </div>
-
-            <a href="/" class="btn btn-primary">
-                <i class="bi bi-house-door me-1"></i>
-                Go to Home
-            </a>
-
-        </div>
 
         <!-- Page title -->
         <h2 class="text-primary mb-4">
@@ -65,7 +49,9 @@
             <div class="col-12 col-xl-10">
 
                 <form id="add-room-form"
+                      th:action="@{/rooms/add}"
                       th:object="${roomForm}"
+                      method="post"
                       class="card p-4 shadow-sm needs-validation"
                       novalidate>
 
@@ -211,9 +197,7 @@
 <div th:replace="~{fragments/footer :: body}"></div>
 
 <script th:src="@{/js/csrf.js}"></script>
-
 <script th:src="@{/js/description-word-counter.js}"></script>
-
 <script th:src="@{/js/add-room-api.js}"></script>
 
 </body>

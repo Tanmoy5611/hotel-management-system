@@ -1,5 +1,7 @@
 package be.kdg.prog5.hotels.business;
 
+import be.kdg.prog5.hotels.business.exceptions.BookingException;
+import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
@@ -227,6 +229,7 @@ class RoomServiceTest {
 
         // Act
         roomService.deleteRoom(saved.getId());
+        roomRepository.flush();
 
         // Assert
         assertThat(roomRepository.findById(saved.getId())).isEmpty();
@@ -296,6 +299,9 @@ class RoomServiceTest {
 
         // booking creates Stay inside aggregate
         assertThat(found.getStays()).hasSize(1);
+        Stay stay = found.getStays().iterator().next();
+        assertThat(stay.getGuest().getId()).isEqualTo(guest.getId());
+        assertThat(stay.getRoom().getId()).isEqualTo(found.getId());
     }
 
     /*
@@ -327,14 +333,44 @@ class RoomServiceTest {
         );
 
         // Assert
-        // assertThat(result).isNotEmpty();
+        assertThat(result).isNotEmpty();
         assertThat(result)
                 .allMatch(r -> r.getType() == RoomType.SUITE);
     }
 
     /*
+     PURPOSE: Verify domain validation when check-out is before check-in.
+     EXPECTATION: Booking should fail with BookingException.
+     */
+    @Test
+    void shouldFailWhenCheckOutBeforeCheckIn() {
+
+        // Arrange
+        Room room = new Room(
+                300,
+                RoomType.SINGLE,
+                BigDecimal.valueOf(100),
+                false,
+                "photo.jpg",
+                "Room"
+        );
+
+        Room savedRoom = roomService.createRoom(room, "hotel-1");
+
+        // Act + Assert
+        assertThatThrownBy(() ->
+                roomService.bookRoom(
+                        savedRoom.getId(),
+                        guest.getId(),
+                        LocalDate.now(),
+                        LocalDate.now().minusDays(1)
+                )
+        ).isInstanceOf(BookingException.class);
+    }
+
+    /*
      PURPOSE: Verify validation when booking with non-existing Guest.
-     EXPECTATION: Service throws IllegalArgumentException.
+     EXPECTATION: Service throws GuestNotFoundException.
      */
     @Test
     void shouldFailWhenBookingWithNonExistingGuest() {
@@ -361,7 +397,7 @@ class RoomServiceTest {
                         LocalDate.now(),
                         LocalDate.now().plusDays(2)
                 )
-        ).isInstanceOf(IllegalArgumentException.class);
+        ).isInstanceOf(GuestNotFoundException.class);
     }
 
     /*

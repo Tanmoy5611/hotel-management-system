@@ -7,6 +7,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         event.preventDefault();
 
+        if (!form.checkValidity()) {
+            form.classList.add("was-validated");
+            return;
+        }
+
         const formData = new FormData(form);
 
         const payload = {
@@ -25,8 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
-
-                        // CSRF header
+                    // CSRF header
                     ...getCsrfHeaders()
                 },
                 body: JSON.stringify(payload)

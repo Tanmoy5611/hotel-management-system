@@ -10,6 +10,7 @@ import be.kdg.prog5.hotels.viewmodel.RoomForm;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,34 +50,38 @@ public class RoomController {
             @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
             Model model) {
 
+        if (roomNumber != null && roomNumber < 0) {
+            log.debug("Ignoring negative room number filter {}", roomNumber);
+            roomNumber = null;
+        }
+
+        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
+            log.debug("Ignoring negative max price filter {}", maxPrice);
+            maxPrice = null;
+        }
+
+        List<Room> rooms;
+
         // If a room number is provided : direct lookup
         if (roomNumber != null && roomNumber > 0) {
             log.debug("Filtering rooms by number {}", roomNumber);
 
-            List<Room> rooms = roomService.getRoomsByNumber(roomNumber);
+            rooms = roomService.getRoomsByNumber(roomNumber);
+        } else {
+            // Convert incoming query parameters to Optional values
+            // safe enum parsing
+            Optional<RoomType> t = parseRoomType(type);
+            Optional<Boolean> v = Optional.ofNullable(sea);
+            Optional<BigDecimal> p = Optional.ofNullable(maxPrice);
 
-            model.addAttribute("rooms", rooms);
-            model.addAttribute("types", RoomType.values());
-            model.addAttribute("selType", type);
-            model.addAttribute("selSea", sea);
-            model.addAttribute("selPrice", maxPrice);
+            // Debug log for filter inputs
+            log.debug("Listing rooms with filters type={}, sea={}, maxPrice={}", type, sea, maxPrice);
 
-            return "rooms";
+            rooms = roomService.findRooms(t, v, p);
         }
 
-        // Convert incoming query parameters to Optional values
-        Optional<RoomType> t = (type == null || type.isBlank())
-                ? Optional.empty()
-                : Optional.of(RoomType.valueOf(type.toUpperCase()));
-
-        Optional<Boolean> v = Optional.ofNullable(sea);
-        Optional<BigDecimal> p = Optional.ofNullable(maxPrice);
-
-        // Debug log for filter inputs
-        log.debug("Listing rooms with filters type={}, sea={}, maxPrice={}", type, sea, maxPrice);
-
         // Add filtered results and other attributes to Model (to display on HTML)
-        model.addAttribute("rooms", roomService.findRooms(t, v, p));
+        model.addAttribute("rooms", rooms);
         model.addAttribute("types", RoomType.values());
         model.addAttribute("selType", type);
         model.addAttribute("selSea", sea);
@@ -119,14 +124,6 @@ public class RoomController {
         }
 
         // using full constructor because JPA no-args constructor is protected
-        var hotel = hotelService.getHotelByHotelId(roomForm.getHotelId());
-        if (hotel == null) {
-            bindingResult.rejectValue("hotelId", "hotel.invalid", "Invalid hotel");
-            model.addAttribute("types", RoomType.values());
-            model.addAttribute("hotels", hotelService.getAllHotels());
-            return "add-room";
-        }
-
         Room room = new Room(
                 roomForm.getNumber(),
                 roomForm.getType(),
@@ -135,8 +132,6 @@ public class RoomController {
                 roomForm.getPhotoUrl(),
                 roomForm.getDescription()
         );
-
-        room.setHotel(hotel);
 
         // Log and save new room data using the service layer
         log.debug("Creating new room: {}", room);
@@ -159,12 +154,7 @@ public class RoomController {
 
         // Add a room and its related guests to the model so the view can display them
         model.addAttribute("room", room);
-
-        var sortedStays = room.getStays().stream()
-                .sorted((s1, s2) -> s1.getCheckInDate().compareTo(s2.getCheckInDate()))
-                .toList();
-
-        model.addAttribute("guests", sortedStays);
+        model.addAttribute("guests", room.getStays()); // already sorted in service/repository
         model.addAttribute("today", LocalDate.now());
 
         if (Boolean.TRUE.equals(created)) {
@@ -193,8 +183,9 @@ public class RoomController {
     @PostMapping("/{roomId}/book")
     public String processBooking(@PathVariable Long roomId,
                                  @RequestParam Long guestId,
-                                 @RequestParam LocalDate checkIn,
-                                 @RequestParam LocalDate checkOut,
+                                 // explicit date format
+                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
                                  RedirectAttributes redirectAttributes,
                                  Model model) {
 
@@ -236,7 +227,7 @@ public class RoomController {
         log.debug("Deleting room {}", roomId);
 
         roomService.deleteRoom(roomId);
-        return "redirect:/rooms";
+        return "redirect:/rooms?deleted";
     }
 
     /// Room description by Admin
@@ -272,6 +263,20 @@ public class RoomController {
 
         model.addAttribute("errorMessage", ex.getMessage());
 
-        return "error/general-error";
+        return "error/404";
+    }
+
+    // private helper for safe enum parsing from the HTTP request
+    private Optional<RoomType> parseRoomType(String type) {
+        if (type == null || type.isBlank()) {
+            return Optional.empty();
+        }
+
+        try {
+            return Optional.of(RoomType.valueOf(type.toUpperCase()));
+        } catch (IllegalArgumentException ex) {
+            log.warn("Invalid room type filter: {}", type);
+            return Optional.empty();
+        }
     }
 }

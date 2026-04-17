@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'Room Details - ' + ${room.number}">Room Details</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
@@ -29,7 +30,7 @@
     <div class="card shadow-sm mb-4">
         <div class="row g-0">
             <div class="col-md-5">
-                <img th:src="@{${room.photoUrl}}"
+                <img th:src="${room.photoUrl}"
                      class="img-fluid rounded-start room-detail-img"
                      th:alt="'Room ' + ${room.number}">
             </div>
@@ -67,7 +68,7 @@
                     <p class="card-text">
                         <i class="bi bi-building text-warning"></i>
                         <span th:text="#{room.hotel} + ': ' + ${room.hotel.name}"></span>
-                        <a th:href="@{'/hotels/' + ${room.hotel.hotelId}}" class="btn btn-outline-primary btn-sm ms-2">
+                        <a th:href="@{/hotels/{id}(id=${room.hotel.hotelId})}" class="btn btn-outline-primary btn-sm ms-2">
                             <i class="bi bi-arrow-right"></i>
                             <span th:text="#{room.viewHotel}"></span>
                         </a>
@@ -96,8 +97,14 @@
                        th:text="#{room.noDescription}">
                     </p>
 
-                    <!-- Description exists -->
-                    <th:block th:if="${not #strings.isEmpty(room.description)}">
+                    <!-- Description without sentence split -->
+                    <p th:if="${not #strings.isEmpty(room.description) and !room.description.contains('.')}"
+                       class="mb-0"
+                       th:text="${room.description}">
+                    </p>
+
+                    <!-- Description split into preview + collapse -->
+                    <th:block th:if="${not #strings.isEmpty(room.description) and room.description.contains('.')}">
 
                         <p class="mb-0">
 
@@ -201,25 +208,26 @@
         </div>
 
         <!-- Guests table -->
-        <div th:if="${!#lists.isEmpty(guests)}" class="table-responsive">
+        <div th:if="${!#lists.isEmpty(guests)}" class="table-responsive room-bookings-table-wrap">
 
-            <table class="table custom-dark-table align-middle">
+            <table class="table table-hover custom-dark-table align-middle room-bookings-table">
 
                 <thead>
                 <tr>
-                    <th th:text="#{room.table.avatar}"></th>
+                    <th class="d-none d-sm-table-cell" th:text="#{room.table.avatar}"></th>
                     <th th:text="#{room.table.name}"></th>
-                    <th th:text="#{room.table.email}"></th>
-                    <th th:text="#{room.table.check-in}"></th>
-                    <th th:text="#{room.table.check-out}"></th>
-                    <th th:text="#{room.table.stayHistory}"></th>
-                    <th th:text="#{room.table.vip}"></th>
+                    <th class="d-none d-md-table-cell" th:text="#{room.table.email}"></th>
+                    <th class="booking-date-col" th:text="#{room.table.check-in}"></th>
+                    <th class="booking-date-col" th:text="#{room.table.check-out}"></th>
+                    <th class="booking-status-col" th:text="#{room.table.stayHistory}"></th>
+                    <th class="booking-vip-col" th:text="#{room.table.vip}"></th>
                 </tr>
                 </thead>
 
                 <tbody>
                 <tr th:each="stay : ${guests}"
-                    th:onclick="'window.location.href=\'/guests/' + ${stay.guest.id} + '\';'"
+                    th:attr="data-href=@{/guests/{id}(id=${stay.guest.id})}"
+                    onclick="window.location=this.dataset.href"
                     th:classappend="
                 ${today.isAfter(stay.checkOutDate)} ? ' status-past-row' :
                 (${today.isBefore(stay.checkInDate)} ? ' status-future-row' :
@@ -229,8 +237,8 @@
                     style="cursor:pointer;">
 
                     <!-- Avatar -->
-                    <td>
-                        <img th:src="@{${stay.guest.avatarUrl}}"
+                    <td class="d-none d-sm-table-cell">
+                        <img th:src="${stay.guest.avatarUrl}"
                              class="rounded-circle"
                              style="width:38px; height:38px; object-fit:cover;">
                     </td>
@@ -241,18 +249,18 @@
                     </td>
 
                     <!-- Email -->
-                    <td class="text-muted"
+                    <td class="text-muted d-none d-md-table-cell"
                         th:text="${stay.guest.email}">
                     </td>
 
                     <!-- Check-in -->
-                    <td th:text="${stay.checkInDate}"></td>
+                    <td class="booking-date-col" th:text="${stay.checkInDate}"></td>
 
                     <!-- Check-out -->
-                    <td th:text="${stay.checkOutDate}"></td>
+                    <td class="booking-date-col" th:text="${stay.checkOutDate}"></td>
 
                     <!-- Stay History -->
-                    <td>
+                    <td class="booking-status-col">
                 <span class="status-badge"
                       th:classappend="
                         ${today.isAfter(stay.checkOutDate)} ? ' status-past' :
@@ -268,7 +276,7 @@
                     </td>
 
                     <!-- VIP -->
-                    <td>
+                    <td class="booking-vip-col">
                 <span class="vip-badge"
                       th:classappend="
  ${stay.guest.discountPercentage != null
@@ -466,7 +474,6 @@
 <script th:src="@{/js/read-more.js}" defer></script>
 <script th:src="@{/js/room-description-api.js}" defer></script>
 <script th:src="@{/js/description-word-counter.js}" defer></script>
-
 
 </body>
 </html>

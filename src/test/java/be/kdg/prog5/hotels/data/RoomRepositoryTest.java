@@ -2,7 +2,7 @@ package be.kdg.prog5.hotels.data;
 
 import be.kdg.prog5.hotels.domain.*;
 import jakarta.persistence.EntityManager;
-import org.hibernate.Hibernate;
+import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +39,9 @@ class RoomRepositoryTest {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
 
     @BeforeEach
     void setup() {
@@ -232,8 +235,10 @@ class RoomRepositoryTest {
         Room foundRoom = roomRepository.findById(roomId).orElseThrow();
 
         //  Assert
-        // LAZY -> should NOT be initialized yet
-        assertThat(Hibernate.isInitialized(foundRoom.getStays())).isFalse();
+        // LAZY -> should NOT be initialized yet.
+        // Use JPA load-state inspection here because Room#getStays wraps the Hibernate collection
+        // in an unmodifiable view, which can interfere with a direct Hibernate.isInitialized(getterCall) check.
+        assertThat(entityManagerFactory.getPersistenceUnitUtil().isLoaded(foundRoom, "stays")).isFalse();
     }
 
 

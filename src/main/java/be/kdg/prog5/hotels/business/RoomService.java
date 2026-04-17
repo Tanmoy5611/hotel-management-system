@@ -1,9 +1,7 @@
 package be.kdg.prog5.hotels.business;
 
-import be.kdg.prog5.hotels.domain.Guest;
 import be.kdg.prog5.hotels.domain.Room;
 import be.kdg.prog5.hotels.domain.RoomType;
-import be.kdg.prog5.hotels.domain.Stay;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,18 +27,26 @@ public interface RoomService {
     List<Room> getRoomsByNumber(int roomNumber);
 
     // Load full Room aggregate (room + hotel + stays + guests)
+    // Stays are already sorted by check-in date for the detail page
     Room getRoomById(Long roomId);
 
     // Delete room (Room aggregate root handles Stay cascade)
     void deleteRoom(Long roomId);
 
-    // Update description using JPA dirty checking
+    // Validation + trimming happens here, then JPA dirty checking updates the entity
     void updateRoomDescription(Long roomId, String description);
 
-    void bookRoom(Long roomId, Long guestId, LocalDate checkIn, LocalDate checkOut);   // aggregate operation
+    // Aggregate operation: creates Stay via Room
+    void bookRoom(Long roomId, Long guestId, LocalDate checkIn, LocalDate checkOut);
 
     /// For Homepage
     List<Room> getBestValueRooms();
     List<Room> getPremiumRooms();
     List<Room> getTopPickedRooms();
+
+    // Search rooms from the home page
+    List<Room> searchAvailableRooms(String query,
+                                    RoomType roomType,
+                                    LocalDate checkIn,
+                                    LocalDate checkOut);
 }

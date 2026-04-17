@@ -1,20 +1,19 @@
 package be.kdg.prog5.hotels.business;
 
+import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
-import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.domain.*;
-import be.kdg.prog5.hotels.web.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,32 +26,31 @@ public class RoomServiceImpl implements RoomService {
     private static final Logger log =
             LoggerFactory.getLogger(RoomServiceImpl.class);
 
+    private static final int HOME_PAGE_ROOM_LIMIT = 4;
+
     private final SpringDataRoomRepository roomRepo;
     private final SpringDataHotelRepository hotelRepo;
     private final SpringDataGuestRepository guestRepo;
 
-    private final SecurityService securityService;
     // logging is a business concern
-    private final ActivityLogService activityLogService;
+    private final SafeActivityLogger safeActivityLogger;
 
 
     public RoomServiceImpl(SpringDataRoomRepository roomRepo,
                            SpringDataHotelRepository hotelRepo,
                            SpringDataGuestRepository guestRepo,
-                           SecurityService securityService,
-                           ActivityLogService activityLogService) {
+                           SafeActivityLogger safeActivityLogger) {
         this.roomRepo = roomRepo;
         this.hotelRepo = hotelRepo;
         this.guestRepo = guestRepo;
-        this.securityService = securityService;
-        this.activityLogService = activityLogService;
+        this.safeActivityLogger = safeActivityLogger;
     }
 
     // Read rooms
     @Override
     @Transactional(readOnly = true)
     public List<Room> getAllRooms() {
-        log.debug("Getting all rooms: ");
+        log.debug("Getting all rooms");
 
         return roomRepo.findAllWithHotel();
     }
@@ -76,13 +74,13 @@ public class RoomServiceImpl implements RoomService {
     // Create room - (Aggregate Root operation)
     @Override
     public Room createRoom(Room room, String hotelId) {
-        log.debug("Creating room for hotel business id: {}", room + hotelId);
+        log.debug("Creating room {} for hotel {}", room.getNumber(), hotelId);
 
         // Room must always belong to a hotel
         // Fetch hotel using BUSINESS ID
         Hotel hotel = hotelRepo.findByHotelId(hotelId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Hotel not found"));
+                        new IllegalArgumentException("Hotel not found: " + hotelId));
 
         // duplicate room number check
         if (roomRepo.existsByHotelAndNumber(hotel, room.getNumber())) {
@@ -92,19 +90,15 @@ public class RoomServiceImpl implements RoomService {
         // Assign aggregate relation
         room.setHotel(hotel);
 
+        Room savedRoom = roomRepo.save(room);
+
         // Logging activity for created room
-        ApplicationUser user = securityService.getLoggedInUserSafe();
+        safeActivityLogger.log(
+                ActivityType.CREATE_ROOM,
+                "Room " + room.getNumber() + " created in hotel " + hotelId
+        );
 
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.CREATE_ROOM,
-                    "Room " + room.getNumber() + " created in hotel " + hotelId,
-                    user
-            );
-        }
-
-        return roomRepo.save(room);
-
+        return savedRoom;
     }
 
     // get rooms by number
@@ -129,7 +123,8 @@ public class RoomServiceImpl implements RoomService {
     public Room getRoomById(Long roomId) {
         log.debug("Getting room aggregate with id {}", roomId);
 
-        return roomRepo.findByIdWithHotelAndGuests(roomId)
+        // Sorting is handled in DB using ORDER BY check-in date
+        return roomRepo.findByIdWithHotelAndGuestsSortedByCheckIn(roomId)
                 .orElseThrow(() -> new RoomNotFoundException(roomId));
     }
 
@@ -142,20 +137,18 @@ public class RoomServiceImpl implements RoomService {
         Room room = roomRepo.findById(roomId)
                 .orElseThrow(() -> new RoomNotFoundException(roomId));
 
+        String roomNumber = String.valueOf(room.getNumber());
+        String hotelName = room.getHotel().getName();
+
         // Because Room owns Stay with cascade + orphanRemoval,
         // deleting Room automatically deletes all related Stay rows
         roomRepo.delete(room);
 
         // Logging activity for deleted room
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.DELETE_ROOM,
-                    "Room " + room.getNumber() + " in hotel " + room.getHotel().getName() + " deleted",
-                    user
-            );
-        }
+        safeActivityLogger.log(
+                ActivityType.DELETE_ROOM,
+                "Room " + roomNumber + " in hotel " + hotelName + " deleted"
+        );
     }
 
     // Update room description
@@ -164,21 +157,21 @@ public class RoomServiceImpl implements RoomService {
     public void updateRoomDescription(Long roomId, String description) {
         log.debug("Updating room description for room {}", roomId);
 
+        // Validation belongs in the service layer, not the controller
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Description cannot be empty");
+        }
+
         Room room = roomRepo.findById(roomId)
                 .orElseThrow(() -> new RoomNotFoundException(roomId));
-        room.setDescription(description);
+        room.setDescription(description.trim());
         // No save() needed -> JPA dirty checking
 
         // Logging activity for updated room
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.UPDATE_ROOM,
-                    "Updated description of room " + room.getNumber() + " in hotel " + room.getHotel().getName(),
-                    user
-            );
-        }
+        safeActivityLogger.log(
+                ActivityType.UPDATE_ROOM,
+                "Updated description of room " + room.getNumber() + " in hotel " + room.getHotel().getName()
+        );
     }
 
     // Proper Aggregate Operation (For UI have a “Book Room” feature)
@@ -193,28 +186,21 @@ public class RoomServiceImpl implements RoomService {
                 .orElseThrow(() -> new RoomNotFoundException(roomId));
 
         Guest guest = guestRepo.findById(guestId)
-                .orElseThrow(() -> new IllegalArgumentException("Guest not found"));
+                .orElseThrow(() -> new GuestNotFoundException(guestId));
 
-        // Use the domain helper method (Aggregate Root logic)
+        // Domain handles ALL booking rules
+
         room.addGuest(guest, checkIn, checkOut);
-
-        // CascadeType.ALL handles the saving of the new Stay record
-        roomRepo.save(room);
+        // no save needed (JPA dirty checking)
 
         // Logging activity for booked room
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
-        if (user != null) {
-            activityLogService.log(
-                    ActivityType.BOOK_ROOM,
-                    "Guest " + guest.getFullName() +
-                            " booked room " + room.getNumber() +
-                            " in hotel " + room.getHotel().getName(),
-                    user
-            );
-        }
+        safeActivityLogger.log(
+                ActivityType.BOOK_ROOM,
+                "Guest " + guest.getFullName() +
+                        " booked room " + room.getNumber() +
+                        " in hotel " + room.getHotel().getName()
+        );
     }
-
 
     /// Home page
     @Override
@@ -222,7 +208,9 @@ public class RoomServiceImpl implements RoomService {
     public List<Room> getBestValueRooms() {
         log.debug("Fetching top 4 best value rooms");
 
-        return roomRepo.findTop4ByOrderByPricePerNightAsc();
+        return roomRepo.findCheapestRooms(
+                PageRequest.of(0, HOME_PAGE_ROOM_LIMIT)
+        );
     }
 
     @Override
@@ -230,7 +218,9 @@ public class RoomServiceImpl implements RoomService {
     public List<Room> getPremiumRooms() {
         log.debug("Fetching top 4 premium rooms");
 
-        return roomRepo.findTop4ByOrderByPricePerNightDesc();
+        return roomRepo.findMostExpensiveRooms(
+                PageRequest.of(0, HOME_PAGE_ROOM_LIMIT)
+        );
     }
 
     @Override
@@ -238,10 +228,54 @@ public class RoomServiceImpl implements RoomService {
     public List<Room> getTopPickedRooms() {
         log.debug("Fetching top picked rooms via aggregate count query");
 
-        // The query handles the JOIN and COUNT (No N+1)
-        // limit to 4 here to satisfy the UI requirement
-        return roomRepo.findTopPickedRooms().stream()
-                .limit(4)
-                .toList();
+        return roomRepo.findTopPickedRooms(
+                PageRequest.of(0, HOME_PAGE_ROOM_LIMIT)
+        );
     }
+
+    // Search available rooms for Home page
+    @Override
+    @Transactional(readOnly = true)
+    public List<Room> searchAvailableRooms(String query,
+                                           RoomType roomType,
+                                           LocalDate checkIn,
+                                           LocalDate checkOut) {
+
+        log.debug("Searching rooms: query={}, roomType={}, checkIn={}, checkOut={}",
+                query, roomType, checkIn, checkOut);
+
+        // Keep query as empty string instead of null to avoid PostgreSQL type issues
+        String cleanedQuery = (query == null) ? "" : query.trim();
+
+        // Validate dates (basic business rule)
+        if (checkIn != null && checkOut != null && !checkOut.isAfter(checkIn)) {
+            throw new IllegalArgumentException("Check-out must be after check-in");
+        }
+
+        // Fetch rooms from database using one flexible query
+        // (query + roomType handled in repository)
+        List<Room> rooms = roomRepo.searchRooms(cleanedQuery, roomType);
+
+        // If no dates provided -> just return filtered rooms (no availability check)
+        if (checkIn == null || checkOut == null) {
+            return rooms;
+        }
+
+        // Otherwise -> filter manually for availability
+        // (kept in service layer because it's domain logic, not DB logic)
+        List<Room> availableRooms = new ArrayList<>();
+
+        for (Room room : rooms) {
+            // Use domain method isAvailable() to verify if the room is available
+            // for the given check-in and check-out dates
+            if (room.isAvailable(checkIn, checkOut)) {
+                // If available, add it to the result list
+                availableRooms.add(room);
+            }
+        }
+
+        // Return only the rooms that passed the availability check
+        return availableRooms;
+    }
+
 }

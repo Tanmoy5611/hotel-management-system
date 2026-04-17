@@ -42,6 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     alert(errorBody.message);
                 }
 
+                else if (response.status === 403) {
+                    alert("You are not allowed to delete this room.");
+                }
+
                 // Other errors
                 else {
                     alert("Unexpected server error.");

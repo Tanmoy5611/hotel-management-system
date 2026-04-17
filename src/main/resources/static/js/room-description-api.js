@@ -87,7 +87,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Update text on the page
                 descFirst.innerText = firstPart;
-                descFull.querySelector("span").innerText = secondPart;
+                const fullTextSpan = descFull.querySelector("span");
+                if (fullTextSpan) {
+                    fullTextSpan.innerText = secondPart;
+                }
 
                 // Return to display mode
                 editSection.classList.add("d-none");

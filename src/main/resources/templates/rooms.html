@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{rooms.title}">Rooms</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
@@ -34,7 +35,9 @@
             </label>
             <input type="number"
                    name="number"
+                   min="0"
                    class="form-control"
+                   th:value="${param.number}"
                    th:placeholder="#{rooms.filter.number.placeholder}">
         </div>
 
@@ -63,6 +66,7 @@
                 <input id="sea"
                        type="checkbox"
                        name="sea"
+                       value="true"
                        th:checked="${selSea}"
                        class="form-check-input">
                 <label for="sea" class="form-check-label">✓</label>
@@ -77,6 +81,7 @@
             </label>
             <input id="maxPrice"
                    type="number"
+                   min="0"
                    step="0.01"
                    name="maxPrice"
                    th:value="${selPrice}"
@@ -102,9 +107,9 @@
 
             <div class="card h-100 shadow-sm hover-card">
 
-                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
+                <a th:href="@{/rooms/{id}(id=${r.id})}" class="text-decoration-none text-dark">
 
-                    <img th:src="@{${r.photoUrl}}"
+                    <img th:src="${r.photoUrl}"
                          class="card-img-top room-img"
                          alt="Room photo">
 
@@ -127,7 +132,7 @@
                         <p class="card-text d-flex align-items-center gap-2">
                             <i class="bi"
                                th:classappend="${r.seaView}
-                               ? 'bi bi-water text-info'
+                               ? 'bi-water text-info'
                                : 'bi-x-circle text-muted'">
                             </i>
                             <span th:text="${r.seaView} ? #{rooms.seaYes} : #{rooms.seaNo}"></span>
