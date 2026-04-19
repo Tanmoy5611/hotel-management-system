@@ -4,7 +4,6 @@ import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.webapi.dto.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,10 +12,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+// Handles exceptions for REST API requests and returns JSON error responses
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
-    // Handles room not found exceptions; returns error response
+    // Returns 404 JSON when a room does not exist
     @ExceptionHandler(RoomNotFoundException.class)
     public ResponseEntity<ApiError> handleRoomNotFound(
             RoomNotFoundException ex,
@@ -34,7 +34,7 @@ public class ApiExceptionHandler {
                 .body(error);
     }
 
-    // 409 - Duplicate room
+    // Returns 409 JSON when a room number already exists in the same hotel
     @ExceptionHandler(RoomAlreadyExistsException.class)
     public ResponseEntity<ApiError> handleRoomAlreadyExists(
             RoomAlreadyExistsException ex,
@@ -53,17 +53,24 @@ public class ApiExceptionHandler {
                 .body(error);
     }
 
-    // 400 - Validation error
+    // Returns 400 JSON when request body validation fails
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationError(
-            ConstraintViolationException ex,
+            MethodArgumentNotValidException ex,
             HttpServletRequest request) {
+
+        String message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .findFirst()
+                .orElse("Validation error");
 
         ApiError error = new ApiError(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                ex.getMessage(),
+                message,
                 request.getRequestURI()
         );
 
@@ -72,7 +79,7 @@ public class ApiExceptionHandler {
                 .body(error);
     }
 
-    // 500 - Generic error (Internal Server Error)
+    // Returns 500 JSON for unexpected API errors
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(
             Exception ex,
