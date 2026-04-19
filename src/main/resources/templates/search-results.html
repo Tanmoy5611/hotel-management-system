@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{search.title}">Search Results</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+
+<body class="bg-light">
+
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<div class="container my-4">
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                <div>
+                    <h2 class="text-primary mb-1">
+                        <i class="bi bi-search me-2"></i>
+                        <span th:text="#{search.title}">Search Results</span>
+                    </h2>
+                    <p class="text-muted mb-0" th:text="#{search.subtitle}">
+                        Find your perfect room and continue to booking in just a few steps.
+                    </p>
+                </div>
+
+                <a th:href="@{/home}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    <span th:text="#{search.back}">Back to Home</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${errorMessage != null}" class="alert alert-warning shadow-sm">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <span th:text="${errorMessage}">Check-out date must be after check-in date.</span>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <small class="text-muted d-block" th:text="#{search.destination}">Destination</small>
+                    <strong th:text="${query != null and !query.isBlank() ? query : #messages.msg('search.anyLocation')}">Any location</strong>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted d-block" th:text="#{search.roomType}">Room Type</small>
+                    <strong th:text="${selectedRoomType != null ? selectedRoomType : #messages.msg('search.anyType')}">Any type</strong>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted d-block" th:text="#{search.checkin}">Check-in</small>
+                    <strong th:text="${checkIn != null ? #temporals.format(checkIn, 'dd MMM yyyy') : '-'}">-</strong>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted d-block" th:text="#{search.checkout}">Check-out</small>
+                    <strong th:text="${checkOut != null ? #temporals.format(checkOut, 'dd MMM yyyy') : '-'}">-</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">
+            <i class="bi bi-door-open me-2"></i>
+            <span th:text="#{search.availableRooms}">Available Rooms</span>
+        </h4>
+
+        <span class="badge bg-primary fs-6"
+              th:text="${#lists.size(rooms)} + ' ' + #{search.results}">
+            0 result(s)
+        </span>
+    </div>
+
+    <div th:if="${#lists.isEmpty(rooms)}" class="card shadow-sm border-0">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-search display-4 text-muted"></i>
+            <h4 class="mt-3" th:text="#{search.noRooms}">No rooms found</h4>
+            <p class="text-muted mb-3" th:text="#{search.tryAgain}">Try another location, room type, or date range.</p>
+            <a th:href="@{/home}" class="btn btn-primary">
+                <i class="bi bi-arrow-repeat me-1"></i>
+                <span th:text="#{search.searchAgain}">Search Again</span>
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(rooms)}" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" th:each="r : ${rooms}">
+            <div class="card h-100 shadow-sm hover-card border-0">
+
+                <img th:src="${r.photoUrl != null ? r.photoUrl : '/images/rooms/room.jpg'}"
+                     class="card-img-top room-img"
+                     th:alt="#{search.room}">
+
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="fw-bold mb-0">
+                            <span th:text="#{search.room}">Room</span> <span th:text="${r.number}">101</span>
+                        </h5>
+
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            <span th:text="#{search.available}">Available</span>
+                        </span>
+                    </div>
+
+                    <p class="mb-2 text-muted">
+                        <i class="bi bi-building me-1"></i>
+                        <span th:text="${r.hotel.name}">Hotel Name</span>
+                    </p>
+
+                    <p class="mb-2 text-muted">
+                        <i class="bi bi-geo-alt me-1"></i>
+                        <span th:text="${r.hotel.city + ', ' + r.hotel.country}">City, Country</span>
+                    </p>
+
+                    <p class="mb-2">
+                        <i class="bi bi-door-open me-1"></i>
+                        <span th:text="${r.type}">SINGLE</span>
+                    </p>
+
+                    <p class="mb-2">
+                        <i class="bi bi-cash-coin text-success me-1"></i>
+                        <strong th:text="${#numbers.formatDecimal(r.pricePerNight, 1, 2)} + ' ' + #{rooms.perNight}">120.00 € / Night</strong>
+                    </p>
+
+                    <p class="mb-3 d-flex align-items-center gap-2">
+                        <i class="bi"
+                           th:classappend="${r.seaView} ? 'bi-water text-info' : 'bi-x-circle text-muted'"></i>
+                        <span th:text="${r.seaView} ? #{rooms.seaYes} : #{rooms.seaNo}">Sea View</span>
+                    </p>
+
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/rooms/{id}(id=${r.id})}" class="btn btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i>
+                            <span th:text="#{search.viewDetails}">View Details</span>
+                        </a>
+
+                        <a th:href="@{/rooms/{id}/book(id=${r.id})}"
+                           sec:authorize="hasAnyRole('USER','ADMIN')"
+                           class="btn btn-primary">
+                            <i class="bi bi-calendar-check me-1"></i>
+                            <span th:text="#{search.bookNow}">Book Now</span>
+                        </a>
+
+                        <a th:if="${!#authorization.expression('hasAnyRole(''USER'',''ADMIN'')')}"
+                           th:href="@{/login}"
+                           class="btn btn-secondary">
+                            <i class="bi bi-lock me-1"></i>
+                            <span th:text="#{search.loginToBook}">Login to Book</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>

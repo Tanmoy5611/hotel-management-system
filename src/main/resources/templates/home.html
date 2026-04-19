@@ -2,7 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="#{home.page.title}">HotelApp - Find Your Perfect Stay</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
@@ -24,50 +26,51 @@
             Search deals on hotels, rooms, and more all around the world!
         </p>
 
-        <form th:action="@{/hotels}" method="get" class="booking-search mt-3">
+        <form th:action="@{/search}" method="get" class="booking-search mt-3">
 
-            <div class="col-lg-6 col-md-9 col-md-12">
+            <div class="booking-item booking-destination">
                 <div class="input-group">
                     <span class="input-group-text">
                     <i class="bi bi-geo-alt-fill"></i>
                     </span>
                     <input type="text"
-                           name="name"
+                           name="q"
                            class="form-control search-input"
                            th:placeholder="#{home.search.placeholder}">
                 </div>
             </div>
 
-            <div class="form-floating">
-                <input type="date" name="from" class="form-control" id="checkin">
+            <div class="booking-item booking-date form-floating">
+                <input type="date" name="checkIn" class="form-control booking-input" id="checkin">
                 <label for="checkin">
                     <i class=" bi bi-calendar-check me-1"></i>
                     <span th:text="#{home.search.checkin}">Check-in</span>
                 </label>
             </div>
 
-            <div class="form-floating">
-                <input type="date" name="to" class="form-control" id="checkout">
+            <div class="booking-item booking-date form-floating">
+                <input type="date" name="checkOut" class="form-control booking-input" id="checkout">
                 <label for="checkout">
                     <i class="bi bi-calendar-x me-1"></i>
                     <span th:text="#{home.search.checkout}">Check-out</span>
                 </label>
             </div>
 
-            <div class="form-floating">
-                <select name="guests" class="form-select" id="guests">
-                    <option value="1" th:text="#{home.search.guests.one}">1 person</option>
-                    <option value="2" th:text="#{home.search.guests.two}">2 persons</option>
-                    <option value="3" th:text="#{home.search.guests.more}">3+ persons</option>
+            <div class="booking-item booking-type form-floating">
+                <select name="roomType" class="form-select booking-input" id="roomType">
+                    <option value="">Any type</option>
+                    <option value="SINGLE">Single</option>
+                    <option value="DOUBLE">Double</option>
+                    <option value="SUITE">Suite</option>
                 </select>
-                <label for="guests">
-                    <i class="bi bi-person"></i>
-                    <span th:text="#{home.search.guests}">Guests</span>
+                <label for="roomType">
+                    <i class="bi bi-door-open me-1"></i>
+                    Room Type
                 </label>
             </div>
 
             <div class="booking-action ms-auto">
-                <button class="booking-btn">
+                <button type="submit" class="booking-btn">
                     <i class="bi bi-search"></i>
                     <span th:text="#{home.search.button}">Search</span>
                 </button>
@@ -103,8 +106,8 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         <div class="col" th:each="h : ${featuredHotels}">
             <div class="card hotel-card h-100">
-                <a th:href="@{'/hotels/' + ${h.hotelId}}">
-                    <img th:src="@{${h.imageUrl}}" class="card-img-top" alt="Featured Hotels">
+                <a th:href="@{/hotels/{id}(id=${h.hotelId})}">
+                    <img th:src="${h.imageUrl}" class="card-img-top" alt="Featured Hotels">
                     <div class="card-body">
                         <h5 class="fw-bold" th:text="${h.name}"></h5>
                         <p>
@@ -128,8 +131,8 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         <div class="col" th:each="h : ${beachSpaHotels}">
             <div class="card hotel-card h-100">
-                <a th:href="@{'/hotels/' + ${h.hotelId}}">
-                    <img th:src="@{${h.imageUrl}}" class="card-img-top" alt="">
+                <a th:href="@{/hotels/{id}(id=${h.hotelId})}">
+                    <img th:src="${h.imageUrl}" class="card-img-top" alt="">
                     <div class="card-body">
                         <h5 class="fw-bold" th:text="${h.name}"></h5>
                         <p class="text-success">
@@ -155,8 +158,8 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         <div class="col" th:each="h : ${cityHotels}">
             <div class="card hotel-card h-100">
-                <a th:href="@{'/hotels/' + ${h.hotelId}}">
-                    <img th:src="@{${h.imageUrl}}" class="card-img-top" alt="">
+                <a th:href="@{/hotels/{id}(id=${h.hotelId})}">
+                    <img th:src="${h.imageUrl}" class="card-img-top" alt="">
                     <div class="card-body">
                         <h5 class="fw-bold" th:text="${h.name}"></h5>
                         <p class="text-muted small">
@@ -180,9 +183,9 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         <div class="col" th:each="r : ${bestValueRooms}">
             <div class="card hotel-card h-100">
-                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
+                <a th:href="@{/rooms/{id}(id=${r.id})}" class="text-decoration-none text-dark">
 
-                    <img th:src="@{${r.photoUrl}}" class="card-img-top" alt="">
+                    <img th:src="${r.photoUrl}" class="card-img-top" alt="">
 
                     <div class="card-body">
                         <h5 class="fw-bold">
@@ -227,9 +230,9 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         <div class="col" th:each="r : ${premiumRooms}">
             <div class="card hotel-card h-100">
-                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
+                <a th:href="@{/rooms/{id}(id=${r.id})}" class="text-decoration-none text-dark">
 
-                    <img th:src="@{${r.photoUrl}}" class="card-img-top" alt="">
+                    <img th:src="${r.photoUrl}" class="card-img-top" alt="">
 
                     <div class="card-body">
 
@@ -279,8 +282,8 @@
         <div class="col" th:each="r : ${topPickedRooms}">
             <div class="card hotel-card h-100">
 
-                <a th:href="@{'/rooms/' + ${r.id}}" class="text-decoration-none text-dark">
-                    <img th:src="@{${r.photoUrl}}" class="card-img-top" alt="">
+                <a th:href="@{/rooms/{id}(id=${r.id})}" class="text-decoration-none text-dark">
+                    <img th:src="${r.photoUrl}" class="card-img-top" alt="">
 
                     <div class="card-body">
                         <h5 class="fw-bold">
