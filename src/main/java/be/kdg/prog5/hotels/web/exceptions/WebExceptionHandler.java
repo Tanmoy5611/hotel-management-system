@@ -2,6 +2,7 @@ package be.kdg.prog5.hotels.web.exceptions;
 
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -32,6 +33,14 @@ public class WebExceptionHandler {
     public String handleBadRequest(IllegalArgumentException ex, Model model) {
         model.addAttribute("message", ex.getMessage());
         return "error/400";
+    }
+
+    // Shows 403 page when a logged-in user is not allowed to perform an action
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String handleAccessDenied(Model model) {
+        model.addAttribute("message", "You are not allowed to perform this action");
+        return "error/403";
     }
 
     // Shows 500 page for unexpected errors
