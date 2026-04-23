@@ -24,13 +24,25 @@ class GuestRepositoryTest {
     @Autowired
     private SpringDataApplicationUserRepository userRepository;
 
+    @Autowired
+    private SpringDataStayRepository stayRepository;
+
+    @Autowired
+    private SpringDataRoomRepository roomRepository;
+
+    @Autowired
+    private SpringDataHotelRepository hotelRepository;
+
     private ApplicationUser user;
 
     @BeforeEach
     void setup() {
         // Arrange (global)
         // Clean DB before each test -> ensures test isolation -> prevents interference between tests
+        stayRepository.deleteAll();
+        roomRepository.deleteAll();
         guestRepository.deleteAll();
+        hotelRepository.deleteAll();
         userRepository.deleteAll();
 
         // create required ApplicationUser (owner is mandatory FK)
