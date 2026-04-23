@@ -1,6 +1,7 @@
 package be.kdg.prog5.hotels.business;
 
 import be.kdg.prog5.hotels.domain.Guest;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,6 +10,8 @@ import java.util.List;
 public interface GuestService {
     List<Guest> getAllGuests();
 
+    // Owner or admin only - checked before the service method executes
+    @PreAuthorize("@guestAuthorizationService.canDeleteGuest(#guestId, authentication)")
     void deleteGuest(Long guestId);
 
     List<Guest> getVipGuests();

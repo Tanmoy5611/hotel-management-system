@@ -62,18 +62,6 @@ public class GuestServiceImpl implements GuestService {
         Guest guest = guestRepo.findById(guestId)
                 .orElseThrow(() -> new GuestNotFoundException(guestId));
 
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
-
-        // Authorization only if user exists (tests safe)
-        if (user != null) {
-            if (guest.getOwner() == null ||
-                    (!guest.getOwner().getId().equals(user.getId())
-                            && user.getRole() != RoleType.ADMIN)) {
-                throw new SecurityException("You are not allowed to delete this guest");
-            }
-        }
-
         // store values before delete (safe logging)
         String guestName = guest.getFullName();
 
@@ -91,7 +79,7 @@ public class GuestServiceImpl implements GuestService {
 
     }
 
-    /// Search Guest
+    /// Search VIPGuest
     @Override
     @Transactional(readOnly = true)
     public List<Guest> getVipGuests() {
@@ -100,6 +88,7 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.findVipGuests();
     }
 
+    /// Search Guests on the All Guests page
     @Override
     @Transactional(readOnly = true)
     public List<Guest> searchGuests(String query, Integer minRooms) {
@@ -172,6 +161,7 @@ public class GuestServiceImpl implements GuestService {
         return savedGuest;
     }
 
+    // Get guest with details (Stays)
     @Override
     @Transactional(readOnly = true)
     public Guest getGuestWithDetails(Long guestId) {
