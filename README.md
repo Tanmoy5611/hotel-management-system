@@ -983,7 +983,9 @@ All tests run with a separate profile:
 
 **This ensures:**
 * Tests use a separate environment
+* Tests connect to a separate PostgreSQL test database: `hotels_test`
 * No interference with development or production data
+* The normal application seeder does not run during tests because `UserSeeder` is disabled for the `test` profile
 
 ## Test Data Setup Strategy
 
@@ -1057,7 +1059,7 @@ In every test class, I used:
 #### Lazy loading (performance)
 **`Room.stays` is LAZY**
 
-* `Hibernate.isInitialized(room.getStays()) == false`
+* `entityManagerFactory.getPersistenceUnitUtil().isLoaded(foundRoom, "stays") == false`
 
 **Prevents unnecessary queries** by ensuring related stays are only loaded when explicitly accessed.
 
@@ -1078,7 +1080,7 @@ In every test class, I used:
 `@ActiveProfiles("test")`
 
 **These are integration tests, not unit tests:**
-* Use a **real database**
+* Use a **real PostgreSQL test database**
 * Use **real repositories**
 * Test the **full flow** (Service → Repository → DB)
 ---
@@ -1101,7 +1103,7 @@ In every test class, I used:
 
 #### 5. `bookRoom()` (Aggregate logic)
 *  Creates a `Stay` (`Room` acts as the aggregate root)
-*  Guest not found → `IllegalArgumentException`
+*  Guest not found → `GuestNotFoundException`
 *  Room not found → `RoomNotFoundException`
 
 #### 6. `findRooms()` (Filtering)
@@ -1123,11 +1125,9 @@ In every test class, I used:
 - Created a safe retrieval method:
 `securityService.getLoggedInUserSafe()`
 
-- And implemented null-safe logging logic:
+- Centralized the null-safe activity logging in `SafeActivityLogger`:
 ```
-if (user != null) {
-    activityLogService.log(...);
-}
+safeActivityLogger.log(ActivityType.UPDATE_ROOM, "Updated room description");
 ```
 
 ###  Result:
@@ -1141,10 +1141,12 @@ if (user != null) {
 
 **From terminal:**
 ```bash
+docker compose up -d postgres_hotels_test_db
 ./gradlew test
 ```
 
 **Or via IntelliJ:**
+- Start the `postgres_hotels_test_db` Docker container first
 - Right click → Run Tests
 ---
 
@@ -1172,8 +1174,327 @@ In this week, I implemented a robust testing suite that ensures the reliability 
 * **Repository tests** for validating database constraints, entity mappings, and specific loading behaviors (Lazy vs. Eager).
 * **Service integration tests** to verify complex business logic and aggregate roots.
 * **Proper test isolation** using dedicated Spring profiles (`@ActiveProfiles("test")`) to keep environments separate.
-* **Safe logging** mechanisms that allow business logic to function even when no security context or authenticated user is present. 
+* **PostgreSQL test database** setup so tests do not touch development or production data.
+* **Safe activity logging** through `SafeActivityLogger`, allowing business logic to function even when no security context or authenticated user is present.
 * **Result:** A reliable and realistic testing setup that is fully aligned with course requirements and industry best practices. ###
+----
+
+# Week 8 - Controller Testing & Security Verification
+
+## Overview
+
+In this week, I implemented integration tests for the presentation layer and security authorization rules.
+
+The goal was to:
+* **Verify MVC controllers** return the correct Thymeleaf views and model attributes
+* **Verify REST API controllers** return correct HTTP status codes
+* **Test Spring Security with security filters enabled**
+* **Verify owner/admin authorization rules**
+* **Run all tests with the `test` profile and a separate PostgreSQL test database**
+* **Keep all tests executable with one command**
+
+---
+
+## Test Configuration
+
+All Week 8 tests use the test profile:
+
+```java
+@ActiveProfiles("test")
+```
+
+The controller tests also use:
+
+```java
+@SpringBootTest
+@AutoConfigureMockMvc
+```
+
+**This means:**
+* The full Spring context is loaded.
+* Spring Security filters are active during tests.
+* Tests use the separate PostgreSQL database `hotels_test`.
+* The normal application seed data does not interfere with test data.
+* Tests behave closer to the real application than simple unit tests.
+
+---
+
+## Why MockMvc Was Used
+
+`MockMvc` allows controller testing without starting a real web server.
+
+I used it to:
+* Send HTTP requests such as `GET` and `PATCH`
+* Add query parameters and path variables
+* Send JSON request bodies
+* Simulate authenticated users with roles
+* Add CSRF tokens for modifying requests
+* Verify HTTP status codes
+* Verify returned view names
+* Verify model attributes
+
+---
+
+## MVC Integration Tests
+
+### Test Class
+
+`HotelControllerMvcTest`
+
+### Purpose
+
+This class tests the MVC part of the presentation layer.
+It verifies that `HotelController` returns the correct Thymeleaf pages and places the expected data in the model.
+
+### Tested Scenarios
+
+#### 1. Hotels overview page
+
+```http
+GET /hotels
+```
+
+**Verified:**
+* HTTP `200 OK`
+* View name is `hotels`
+* Model contains `hotels`
+* Model contains `total`
+
+#### 2. Search hotels by name
+
+```http
+GET /hotels?name=Grand
+```
+
+**Verified:**
+* HTTP `200 OK`
+* View name is `hotels`
+* Model contains the filtered `hotels` attribute
+
+#### 3. Hotel detail page
+
+```http
+GET /hotels/{hotelId}
+```
+
+**Verified:**
+* HTTP `200 OK`
+* View name is `hotel-detail`
+* Model contains `hotel`
+* Model contains `rooms`
+* Model contains `guestsPerRoom`
+* Model contains `totalGuests`
+
+---
+
+## API Integration Tests
+
+### Test Class
+
+`RoomApiControllerTest`
+
+### Purpose
+
+This class tests the REST API part of the presentation layer.
+It verifies that `RoomApiController` returns the correct HTTP responses and respects Spring Security rules.
+
+### Test Data Strategy
+
+For the API tests I used SQL scripts:
+
+```java
+@Sql(scripts = "/sql/room-api-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+```
+
+**Why this is useful:**
+* Every API test starts with known data.
+* The database is cleaned after every test.
+* Tests are repeatable and independent.
+* There are no hidden dependencies on development seed data.
+
+### Tested Scenarios
+
+#### 1. Get all rooms
+
+```http
+GET /api/rooms
+```
+
+**Verified:**
+* HTTP `200 OK`
+
+#### 2. Admin updates room description
+
+```http
+PATCH /api/rooms/1/description
+```
+
+**Security setup:**
+
+```java
+@WithMockUser(roles = "ADMIN")
+```
+
+**Verified:**
+* HTTP `204 No Content`
+
+#### 3. Normal user cannot update room description
+
+```http
+PATCH /api/rooms/1/description
+```
+
+**Security setup:**
+
+```java
+@WithMockUser(roles = "USER")
+```
+
+**Verified:**
+* HTTP `403 Forbidden`
+
+---
+
+## CSRF Protection
+
+Spring Security is enabled during tests.
+Therefore, state-changing requests such as `PATCH`, `POST`, and `DELETE` require a CSRF token.
+
+For the `PATCH` API tests I used:
+
+```java
+.with(csrf())
+```
+
+This is important because the test should fail or pass because of authorization, not because of a missing CSRF token.
+
+---
+
+## Role Verification Tests
+
+### Test Class
+
+`SecurityAuthorizationTest`
+
+### Purpose
+
+This class tests the owner/admin authorization rule for deleting guests.
+
+The authorization is implemented in the service layer with:
+
+```java
+@PreAuthorize("@guestAuthorizationService.canDeleteGuest(#guestId, authentication)")
+```
+
+Because the security rule is on the service method, the test also calls the service method directly.
+This matches the Week 8 instruction: if authorization is implemented in the service layer with `@PreAuthorize`, it must be tested on the service.
+
+### Tested Scenarios
+
+#### 1. Owner may delete own guest
+
+**Verified:**
+* Delete succeeds
+* Guest is removed from the database
+
+#### 2. Other normal user may not delete guest
+
+**Verified:**
+* `AccessDeniedException`
+* Guest still exists in the database
+
+#### 3. Admin may delete any guest
+
+**Verified:**
+* Delete succeeds
+* Guest is removed from the database
+
+#### 4. Anonymous user may not delete guest
+
+**Verified:**
+* `AccessDeniedException`
+* Guest still exists in the database
+
+---
+
+## How To Run All Tests
+
+Start the PostgreSQL test database:
+
+```bash
+docker compose up -d postgres_hotels_test_db
+```
+
+Then run all tests:
+
+```bash
+./gradlew test
+```
+
+This runs repository tests, service tests, MVC integration tests, API integration tests, and security authorization tests together.
+
+---
+
+## Code Coverage
+
+The following screenshots show IntelliJ IDEA coverage results after executing all tests:
+
+<p align="center">
+  <img src="src/main/resources/static/images/test-screenshots/test_coverage1.png" width="800">
+</p>
+
+<p align="center">
+  <img src="src/main/resources/static/images/test-screenshots/test_coverage2.png" width="800">
+</p>
+
+<p align="center">
+  <img src="src/main/resources/static/images/test-screenshots/test_coverage3.png" width="800">
+</p>
+
+<p align="center">
+  <img src="src/main/resources/static/images/test-screenshots/test_coverage4.png" width="800">
+</p>
+
+---
+
+## Test Classes Required By Week 8
+
+| Requirement | Test class |
+| :--- | :--- |
+| MVC integration tests | `HotelControllerMvcTest` |
+| API integration tests | `RoomApiControllerTest` |
+| Role verification tests | `SecurityAuthorizationTest` |
+
+---
+
+## What Makes These Tests Good
+
+These tests follow the course best practices:
+
+* **Independent:** Test data is cleaned and recreated for predictable results.
+* **Repeatable:** Tests can run many times with the same outcome.
+* **Clear:** Test method names describe the expected behavior.
+* **Realistic:** Tests load the Spring context and use a real PostgreSQL test database.
+* **Security-aware:** Spring Security is enabled and CSRF is included where needed.
+* **Complete scenarios:** Both allowed and forbidden actions are tested.
+* **Single command:** All tests run together using `./gradlew test`.
+
+---
+
+## Summary of Week 8
+
+In this week, I added presentation-layer and security-focused integration tests:
+
+* MVC tests for Thymeleaf hotel pages.
+* REST API tests for room endpoints.
+* Security tests for owner/admin guest deletion.
+* SQL-based API test setup and cleanup.
+* PostgreSQL test database with the `test` profile.
+* CSRF-aware tests for modifying requests.
+
+**Result:** A realistic Week 8 testing setup that verifies controller behavior, API behavior, and Spring Security authorization rules without touching development or production data.
+
 ----
 
 > <h2 align="center"> Author: <span style="color:#9d0dfd;"><em>Tanmoy Das</em></span> </h2>
