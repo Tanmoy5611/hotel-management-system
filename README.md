@@ -1441,19 +1441,19 @@ This runs repository tests, service tests, MVC integration tests, API integratio
 The following screenshots show IntelliJ IDEA coverage results after executing all tests:
 
 <p align="center">
-  <img src="src/main/resources/static/images/test-screenshots/test_coverage1.png" width="800">
+<img src="images/test-screenshots/test_coverage1.png" width="800">
 </p>
 
 <p align="center">
-  <img src="src/main/resources/static/images/test-screenshots/test_coverage2.png" width="800">
+<img src="images/test-screenshots/test_coverage2.png" width="800">
 </p>
 
 <p align="center">
-  <img src="src/main/resources/static/images/test-screenshots/test_coverage3.png" width="800">
+<img src="images/test-screenshots/test_coverage3.png" width="800">
 </p>
 
 <p align="center">
-  <img src="src/main/resources/static/images/test-screenshots/test_coverage4.png" width="800">
+<img src="images/test-screenshots/test_coverage4.png" width="800">
 </p>
 
 ---
