@@ -23,12 +23,11 @@ before_script:
 build:
   stage: build
   script:
-    - ./gradlew --build-cache assemble -x test
+    - ./gradlew --no-daemon --build-cache classes testClasses
   artifacts:
     paths:
       - build/classes/
       - build/resources/
-      - build/libs/
     expire_in: 1 week
 
 test:
@@ -47,7 +46,7 @@ test:
     SPRING_SQL_INIT_MODE: never
   script:
     - bash -c 'for i in {1..30}; do (echo > /dev/tcp/postgres/5432) >/dev/null 2>&1 && exit 0; sleep 1; done; exit 1'
-    - ./gradlew --build-cache test
+    - ./gradlew --no-daemon --build-cache test
   artifacts:
     when: always
     reports:
