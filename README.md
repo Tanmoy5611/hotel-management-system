@@ -1497,6 +1497,206 @@ In this week, I added presentation-layer and security-focused integration tests:
 
 ----
 
+# Week 9 - Unit Testing With Mocking & Continuous Integration
+
+## Overview
+
+In this week, I added mock-based unit tests and a GitLab CI pipeline.
+
+The goal was to:
+* **Unit test one REST API endpoint** with mocked controller dependencies
+* **Unit test business-layer methods** with mocked repositories and logging
+* **Use `verify`** to prove that important dependency methods are called with the correct arguments
+* **Keep all tests executable with one command**
+* **Run build and test automatically in GitLab CI**
+* **Run CI tests against a PostgreSQL service**
+* **Publish a JUnit test report in the pipeline**
+
+---
+
+## Mocking Tests
+
+### API Unit Test Class
+
+`RoomApiControllerUnitTest`
+
+### Tested Endpoint
+
+```http
+POST /api/rooms
+```
+
+This endpoint was chosen because it has meaningful behavior:
+* It validates request data.
+* It converts a DTO to a domain object.
+* It calls the service layer.
+* It converts the saved entity back to a DTO.
+* It can return different HTTP responses.
+
+### Mocked Dependencies
+
+In this test class, the controller is real, but its dependencies are mocked:
+* `RoomService`
+* `RoomMapper`
+
+### Tested Scenarios
+
+* Valid request returns `201 Created`
+* Missing required field returns `400 Bad Request`
+* Duplicate room number returns `409 Conflict`
+
+---
+
+## Business Layer Unit Tests
+
+### Test Class
+
+`RoomServiceUnitTest`
+
+### Tested Service Methods
+
+#### 1. `createRoom(...)`
+
+**Tested scenarios:**
+* Room is created successfully
+* Duplicate room number throws `RoomAlreadyExistsException`
+* Missing hotel throws `IllegalArgumentException`
+
+#### 2. `searchAvailableRooms(...)`
+
+**Tested scenarios:**
+* Query is cleaned and repository filtering is called
+* Invalid date range is rejected before repository access
+* Rooms with overlapping stays are filtered out
+
+### Mocked Dependencies
+
+The service is tested with mocked dependencies:
+* `SpringDataRoomRepository`
+* `SpringDataHotelRepository`
+* `SpringDataGuestRepository`
+* `SafeActivityLogger`
+
+---
+
+## Verify Tests
+
+The Week 9 tests use `verify` to check interactions with mocked dependencies.
+
+Examples:
+* `RoomApiControllerUnitTest` verifies that `roomService.createRoom(...)` is called with the expected room and hotel id.
+* `RoomServiceUnitTest` verifies that `roomRepo.searchRooms(...)` receives the cleaned query.
+* `RoomServiceUnitTest` verifies that activity logging is called after successful room creation.
+
+## Code Coverage after Week 9
+
+The following screenshot shows IntelliJ IDEA coverage results after executing all tests:
+<p align="center">
+<img src="images/test-screenshots/test_coverage5.png" width="800">
+</p>
+
+---
+
+## Continuous Integration
+
+### CI File
+
+`.gitlab-ci.yml`
+
+### Pipeline Stages
+
+The pipeline has two stages:
+
+| Stage | Purpose |
+| :--- | :--- |
+| `build` | Compiles and builds the application without running tests |
+| `test` | Runs all tests and publishes the JUnit report |
+
+### PostgreSQL Service In CI
+
+The test stage starts a PostgreSQL service:
+
+```yaml
+services:
+  - name: postgres:18.1-alpine
+    alias: postgres
+```
+
+Inside the pipeline, tests connect to:
+
+```properties
+jdbc:postgresql://postgres:5432/hotels_test
+```
+
+Locally, tests still use the Docker Compose test database:
+
+```properties
+jdbc:postgresql://localhost:5051/hotels_test
+```
+
+---
+
+## CI Cache And Reports
+
+The pipeline caches Gradle files:
+* `.gradle/caches/`
+* `.gradle/wrapper/`
+* `build/`
+
+The test stage publishes the JUnit report from:
+
+```text
+build/test-results/test/TEST-*.xml
+```
+
+Recent pipeline test report:
+[GitLab latest pipeline test report](https://gitlab.com/kdg-ti/programming-5/projects-25-26/acs201/tanmoy.das/spring-backend/-/pipelines/latest/test_report?ref=main)
+
+---
+
+## How To Run All Tests
+
+Start the PostgreSQL test database:
+
+```bash
+docker compose up -d postgres_hotels_test_db
+```
+
+Run all tests:
+
+```bash
+./gradlew test
+```
+
+This runs repository tests, service integration tests, controller integration tests, security tests, and Week 9 unit tests together.
+
+---
+
+## Test Classes Required By Week 9
+
+| Requirement | Test class |
+| :--- | :--- |
+| Mocking tests for web API endpoint | `RoomApiControllerUnitTest` |
+| Mocking tests for business layer | `RoomServiceUnitTest` |
+| Tests using `verify` | `RoomApiControllerUnitTest`, `RoomServiceUnitTest` |
+
+---
+
+## Summary of Week 9
+
+In this week, I added unit tests with mocks and continuous integration:
+
+* API unit tests for `POST /api/rooms`
+* Business-layer unit tests for room creation and room availability search
+* Mockito `verify` checks for important method calls
+* GitLab CI with separate build and test stages
+* PostgreSQL service for CI tests
+* JUnit test report publishing in GitLab
+
+**Result:** The project now has both realistic integration tests and focused unit tests, and all tests can run locally or in GitLab CI with PostgreSQL.
+
+----
+
 > <h2 align="center"> Author: <span style="color:#9d0dfd;"><em>Tanmoy Das</em></span> </h2>
 <p align="center">
   <i>Bachelor of Applied Computer Science</i><br>
