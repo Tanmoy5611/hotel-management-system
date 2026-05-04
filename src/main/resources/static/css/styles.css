@@ -450,6 +450,12 @@ footer {
     background-color: #121212 !important;
 }
 
+html[data-bs-theme="dark"],
+html[data-bs-theme="dark"] body {
+    background-color: #121212;
+    color: #f8f9fa;
+}
+
 [data-bs-theme="dark"] body {
     background-color: #121212 !important;
     color: #f8f9fa !important;
