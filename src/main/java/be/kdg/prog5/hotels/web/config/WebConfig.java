@@ -4,6 +4,7 @@ import be.kdg.prog5.hotels.web.converters.StringToLocalDateConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -54,5 +55,14 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         // register the interceptor so it works for all URLs
         registry.addInterceptor(localeChangeInterceptor());
+    }
+
+    // Week 10: allow only the separate webpack Client app to call the REST API from the browser
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins("http://localhost:9000")
+                .allowedMethods("GET", "POST")
+                .allowedHeaders("*");
     }
 }

@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -56,7 +58,10 @@ public class SecurityConfig {
                         // anyone can GET data
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
 
-                         // only logged users can modify data
+                        // Week 10: permitAll only so the separate Client project can create guests without login.
+                        .requestMatchers(HttpMethod.POST, "/api/guests").permitAll()
+
+                        // only logged users can modify data
                         .requestMatchers(HttpMethod.POST, "/api/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/**").authenticated()
@@ -72,6 +77,11 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/home", true)
                         .permitAll()
                 )
+
+                // Week 10: CSRF is ignored only for this endpoint because it is called by the separate Client project.
+                .csrf(csrf -> csrf.ignoringRequestMatchers(
+                        antMatcher(HttpMethod.POST, "/api/guests")
+                ))
 
                 // logout configuration
                 .logout(logout -> logout
