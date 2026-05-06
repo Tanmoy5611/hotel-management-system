@@ -19,10 +19,12 @@ public interface SpringDataGuestRepository extends JpaRepository<Guest, Long> {
 """)
     List<Guest> findVipGuests();
 
+    // Search Guests on the Clients page
     @Query("""
             SELECT g
             FROM Guest g
-            WHERE LOWER(g.fullName) LIKE LOWER(CONCAT('%', :query, '%'))
+            WHERE (LOWER(g.fullName) LIKE LOWER(CONCAT('%', :query, '%'))
+                   OR LOWER(g.email) LIKE LOWER(CONCAT('%', :query, '%')))
               AND (:minRooms IS NULL OR SIZE(g.stays) >= :minRooms)
             """)
     List<Guest> searchGuests(@Param("query") String query,
