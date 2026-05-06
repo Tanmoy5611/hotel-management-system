@@ -25,5 +25,9 @@ public interface GuestService {
                               BigDecimal discountPercentage, Long roomId,
                               LocalDate checkIn, LocalDate checkOut);
 
+    // Week 10 Client API: creates a guest without a room from the separate frontend client
+    Guest createGuestFromClient(String fullName, LocalDate dob, String email, String avatarUrl,
+                                BigDecimal discountPercentage);
+
     Guest getGuestWithDetails(Long guestId);
 }

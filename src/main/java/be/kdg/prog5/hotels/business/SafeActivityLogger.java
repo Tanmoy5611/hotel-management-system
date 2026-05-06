@@ -27,4 +27,12 @@ public class SafeActivityLogger {
             activityLogService.log(type, description, user);
         }
     }
+
+    // Used for public actions where there is no logged-in user,
+    // but the service already selected a safe owner/system user for the log.
+    public void logAs(ActivityType type, String description, ApplicationUser user) {
+        if (user != null) {
+            activityLogService.log(type, description, user);
+        }
+    }
 }

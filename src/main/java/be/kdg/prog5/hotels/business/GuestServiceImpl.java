@@ -2,6 +2,8 @@ package be.kdg.prog5.hotels.business;
 
 import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
+import be.kdg.prog5.hotels.config.AppConstants;
+import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.data.SpringDataStayRepository;
@@ -28,6 +30,7 @@ public class GuestServiceImpl implements GuestService {
     private final SpringDataGuestRepository guestRepo;
     private final SpringDataRoomRepository roomRepo;
     private final SpringDataStayRepository stayRepo;
+    private final SpringDataApplicationUserRepository userRepo;
 
     private final SecurityService securityService;
     private final SafeActivityLogger safeActivityLogger;
@@ -36,11 +39,13 @@ public class GuestServiceImpl implements GuestService {
     public GuestServiceImpl(SpringDataGuestRepository guestRepo,
                             SpringDataRoomRepository roomRepo,
                             SpringDataStayRepository stayRepo,
+                            SpringDataApplicationUserRepository userRepo,
                             SecurityService securityService,
                             SafeActivityLogger safeActivityLogger) {
         this.guestRepo = guestRepo;
         this.roomRepo = roomRepo;
         this.stayRepo = stayRepo;
+        this.userRepo = userRepo;
         this.securityService = securityService;
         this.safeActivityLogger = safeActivityLogger;
     }
@@ -157,6 +162,38 @@ public class GuestServiceImpl implements GuestService {
                     "Guest " + savedGuest.getFullName() + " created (no room assigned)"
             );
         }
+
+        return savedGuest;
+    }
+
+    /// Creates guest from the separate Week 10 Client project
+    @Override
+    public Guest createGuestFromClient(String fullName, LocalDate dob, String email, String avatarUrl,
+                                       BigDecimal discountPercentage) {
+        log.debug("Creating guest {} from Week 10 client", fullName);
+
+        Guest guest;
+        if (discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+            guest = new VIPGuest(fullName, dob, email, avatarUrl, discountPercentage);
+        } else {
+            guest = new Guest(fullName, dob, email, avatarUrl);
+        }
+
+        // Guests require an owner. Public client-created guests are assigned to the protected admin account
+        ApplicationUser owner = userRepo.findByEmail(AppConstants.PROTECTED_ADMIN_EMAIL)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Protected admin account is required before creating guests from the client"));
+        guest.setOwner(owner);
+
+        Guest savedGuest = guestRepo.save(guest);
+
+        // The Week 10 client endpoint is public, so there is no logged-in user
+        // Log the action under the protected admin owner that was assigned above
+        safeActivityLogger.logAs(
+                ActivityType.CREATE_GUEST,
+                "Guest " + savedGuest.getFullName() + " created from Week 10 client",
+                owner
+        );
 
         return savedGuest;
     }
