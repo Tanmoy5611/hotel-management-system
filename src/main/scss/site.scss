@@ -1,11 +1,23 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+// Bootstrap values are set before importing Bootstrap SCSS
+$primary: $brand-blue-mid;
+$border-radius: $control-radius;
+$border-radius-lg: $card-radius;
+$font-family-base: "Inter", Arial, sans-serif;
+
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
 /* Global theme */
 :root {
-    --blue-dark: #003b95;
-    --blue-mid: #0062e3;
-    --blue-light: #3da9fc;
-    --yellow: #f9c700;
-    --gray-light: #f5f7fa;
-    --text-dark: #002244;
+    --blue-dark: #{$brand-blue-dark};
+    --blue-mid: #{$brand-blue-mid};
+    --blue-light: #{$brand-blue-light};
+    --yellow: #{$brand-yellow};
+    --gray-light: #{$page-background};
+    --text-dark: #{$brand-text};
 }
 
 /* Base */
@@ -40,46 +52,46 @@ footer {
 /* NavBar */
 .navbar {
     background: linear-gradient(90deg, var(--blue-dark), var(--blue-mid));
-}
 
-.navbar-brand {
-    font-size: 1.4rem;
-    font-weight: 700;
-}
+    .navbar-brand {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
 
-.navbar-nav .nav-link {
-    color: #e9f3ff !important;
-    transition: 0.2s;
-}
+    .navbar-nav .nav-link {
+        color: #e9f3ff !important;
+        transition: 0.2s;
 
-.navbar-nav .nav-link:hover {
-    color: var(--yellow) !important;
-    transform: scale(1.05);
-}
+        &:hover {
+            color: var(--yellow) !important;
+            transform: scale(1.05);
+        }
 
-.navbar-nav .nav-link.active {
-    color: #fff !important;
-    border-bottom: 2px solid #fff;
+        &.active {
+            color: #fff !important;
+            border-bottom: 2px solid #fff;
+        }
+    }
 }
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, #003b95, #0062e3);
+    background: linear-gradient(135deg, $brand-blue-dark, $brand-blue-mid);
     padding: 60px 30px;
-    border-radius: 16px;
+    border-radius: $card-radius;
     color: white;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     margin-bottom: 50px;
-}
 
-.hero h1 {
-    font-weight: 800;
-    font-size: 2.4rem;
-}
+    h1 {
+        font-weight: 800;
+        font-size: 2.4rem;
+    }
 
-.hero p {
-    opacity: 0.9;
-    font-size: 1.1rem;
+    p {
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
 }
 
 /* Booking search container */
@@ -90,19 +102,48 @@ footer {
     flex-wrap: nowrap;
     background: #fff;
     padding: 14px;
-    border-radius: 16px;
+    border-radius: $card-radius;
     box-shadow: 0 10px 25px rgba(0,0,0,.15);
-}
 
-.booking-search > * {
-    min-width: 0;
+    > * {
+        min-width: 0;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+
+    .input-group-text,
+    .search-input {
+        height: 56px;
+    }
+
+    .search-input {
+        border-left: 0;
+    }
+
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        min-height: 56px;
+        height: 56px;
+        padding-top: 1.5rem;
+        padding-bottom: 0.45rem;
+    }
+
+    input:hover,
+    input:focus,
+    select:hover,
+    select:focus {
+        background: #f8f9fa;
+        box-shadow: 0 0 0 2px rgba(13,110,253,.15);
+    }
 }
 
 /* Shared input style */
 .booking-input {
     height: 56px;
     font-size: 16px;
-    border-radius: 12px;
+    border-radius: $control-radius;
     transition: .2s ease;
 }
 
@@ -136,7 +177,7 @@ footer {
 .booking-btn {
     height: 56px;
     padding: 0 26px;
-    border-radius: 12px;
+    border-radius: $control-radius;
     border: none;
     display: flex;
     align-items: center;
@@ -146,42 +187,12 @@ footer {
     font-weight: 700;
     white-space: nowrap;
     transition: .25s ease;
-}
 
-.booking-btn:hover {
-    background: #245a96;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(0,0,0,.2);
-}
-
-/* Input hover/focus */
-.booking-search .input-group {
-    width: 100%;
-}
-
-.booking-search .input-group-text,
-.booking-search .search-input {
-    height: 56px;
-}
-
-.booking-search .search-input {
-    border-left: 0;
-}
-
-.booking-search .form-floating > .form-control,
-.booking-search .form-floating > .form-select {
-    min-height: 56px;
-    height: 56px;
-    padding-top: 1.5rem;
-    padding-bottom: 0.45rem;
-}
-
-.booking-search input:hover,
-.booking-search input:focus,
-.booking-search select:hover,
-.booking-search select:focus {
-    background: #f8f9fa;
-    box-shadow: 0 0 0 2px rgba(13,110,253,.15);
+    &:hover {
+        background: #245a96;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0,0,0,.2);
+    }
 }
 
 /* Responsive */
@@ -251,17 +262,12 @@ footer {
 /* Card system ( For All Pages) */
 .card {
     border: none;
-    border-radius: 16px;
+    border-radius: $card-radius;
     background: #fff;
-    transition: 0.25s ease-in-out;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+    box-shadow: $soft-shadow;
     overflow: hidden;
     animation: fadeUp 0.6s ease;
-}
-
-.card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+    @include smooth-lift;
 }
 
 /* All images zoom on hover and sizing */
@@ -270,11 +276,8 @@ footer {
 .hotel-image,
 .room-image,
 .guest-img {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    object-position: center;
-    border-radius: 16px 16px 0 0;
+    @include image-cover;
+    border-radius: $card-radius $card-radius 0 0;
     transition: transform 0.35s ease-in-out;
 }
 
