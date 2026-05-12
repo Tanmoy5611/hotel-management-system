@@ -1,6 +1,8 @@
 package be.kdg.prog5.hotels.web.exceptions;
 
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
@@ -10,6 +12,8 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 // Handles exceptions for normal Thymeleaf pages and returns HTML error pages
 @ControllerAdvice
 public class WebExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(WebExceptionHandler.class);
 
     // Shows 404 page when a room does not exist
     @ExceptionHandler(RoomNotFoundException.class)
@@ -47,7 +51,7 @@ public class WebExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGeneralError(Exception ex, Model model) {
-        ex.printStackTrace(); // debug
+        log.error("Unexpected web error", ex);
 
         model.addAttribute("message", "Unexpected error occurred");
         return "error/500";

@@ -40,31 +40,42 @@ public class SearchController {
         log.debug("Search request: q={}, roomType={}, checkIn={}, checkOut={}",
                 query, roomTypeStr, checkIn, checkOut);
 
-        // Convert String -> Enum safely (prevents crash when empty "")
+        String errorMessage = null;
+
+        // Convert String -> Enum safely so a bad URL cannot crash the page
         RoomType roomType = null;
         if (roomTypeStr != null && !roomTypeStr.isBlank()) {
-            roomType = RoomType.valueOf(roomTypeStr);
+            try {
+                roomType = RoomType.valueOf(roomTypeStr.trim().toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                log.warn("Invalid room type search parameter: {}", roomTypeStr);
+                errorMessage = "Invalid room type selected";
+            }
         }
 
         // If user submits empty search, redirect to all rooms
         // (better UX + avoids unnecessary DB calls)
-        if ((query == null || query.isBlank()) && roomType == null && checkIn == null && checkOut == null) {
+        if (errorMessage == null
+                && (query == null || query.isBlank())
+                && roomType == null
+                && checkIn == null
+                && checkOut == null) {
             return "redirect:/rooms"; // or /hotels
         }
 
-        List<Room> rooms;
-        String errorMessage = null;
+        List<Room> rooms = List.of();
 
-        try {
-            // Call service layer (business logic)
-            rooms = roomService.searchAvailableRooms(
-                    query, roomType, checkIn, checkOut);
-        } catch (IllegalArgumentException ex) {
-            // Handle invalid input (wrong dates)
-            log.warn("Invalid search input: {}", ex.getMessage());
-            
-            rooms = List.of();
-            errorMessage = ex.getMessage();
+        if (errorMessage == null) {
+            try {
+                // Call service layer (business logic)
+                rooms = roomService.searchAvailableRooms(
+                        query, roomType, checkIn, checkOut);
+            } catch (IllegalArgumentException ex) {
+                // Handle invalid input (wrong dates)
+                log.warn("Invalid search input: {}", ex.getMessage());
+
+                errorMessage = ex.getMessage();
+            }
         }
 
         model.addAttribute("rooms", rooms);
