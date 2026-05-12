@@ -1,4 +1,11 @@
 HELP.md
+.DS_Store
+node_modules/
+src/main/resources/static/js/
+src/main/resources/static/css/
+src/main/resources/static/fonts/
+*.db
+*.log
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
