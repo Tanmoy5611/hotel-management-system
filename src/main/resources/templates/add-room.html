@@ -4,6 +4,7 @@
       lang="en">
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/bundle-add-room.css}">
     <title th:text="#{nav.addRoom}">Add Room</title>
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
@@ -189,9 +190,7 @@
 <!-- Footer -->
 <div th:replace="~{fragments/footer :: body}"></div>
 
-<script th:src="@{/js/csrf.js}"></script>
-<script th:src="@{/js/description-word-counter.js}"></script>
-<script th:src="@{/js/add-room-api.js}"></script>
+<script defer th:src="@{/js/bundle-add-room.js}"></script>
 
 </body>
 </html>
