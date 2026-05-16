@@ -41,6 +41,13 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+// Download Node and npm through Gradle so GitLab CI does not need system npm
+node {
+    version = '20.11.1'
+    npmVersion = '10.2.4'
+    download = true
+}
+
 def npmCandidates = [
         '/opt/homebrew/bin/npm',
         '/usr/local/bin/npm'
@@ -50,7 +57,8 @@ def localNpm = npmCandidates
         .collect { new File(it) }
         .find { it.exists() }
 
-if (localNpm != null) {
+// Use the local Homebrew npm only on my Mac, not inside GitLab CI
+if (localNpm != null && System.getenv('CI') == null) {
     node {
         npmCommand = localNpm.absolutePath
     }
