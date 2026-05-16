@@ -189,47 +189,14 @@
             </div>
 
 
-            <!-- Delete Modal -->
-            <div class="modal fade" sec:authorize="hasRole('ADMIN')"
-                 th:id="${'deleteModal-' + h.hotelId}"
-                 tabindex="-1">
-
-                <div class="modal-dialog modal-dialog-centered modal-sm">
-                    <div class="modal-content">
-                        <div class="modal-header bg-danger text-white py-2">
-                            <h6 class="modal-title" th:text="#{modal.delete.title}">
-                                Delete Hotel
-                            </h6>
-                            <button type="button" class="btn-close btn-close-white"
-                                    data-bs-dismiss="modal">
-                            </button>
-                        </div>
-
-                        <div class="modal-body text-center">
-                            <p class="mb-2"
-                               th:text="#{modal.delete.hotelQuestion}">
-                            </p>
-                            <strong th:text="${h.name}"></strong>
-                        </div>
-
-                        <div class="modal-footer justify-content-between">
-                            <button type="button"
-                                    class="btn btn-secondary btn-sm"
-                                    data-bs-dismiss="modal"
-                                    th:text="#{button.cancel}">
-                            </button>
-
-                            <form th:action="@{'/hotels/' + ${h.hotelId} + '/delete'}" method="post">
-                                <button type="submit"
-                                        class="btn btn-danger btn-sm"
-                                        th:text="#{button.delete}">
-                                </button>
-                            </form>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            <th:block sec:authorize="hasRole('ADMIN')"
+                      th:replace="~{fragments/delete-modal :: formDeleteModal(
+                          ${'deleteModal-' + h.hotelId},
+                          #{modal.delete.hotelQuestion},
+                          ${h.name},
+                          @{|/hotels/${h.hotelId}/delete|}
+                      )}">
+            </th:block>
 
         </div>
     </div>

@@ -158,49 +158,14 @@
                 </div>
             </div>
 
-            <!-- Delete Modal -->
-            <div th:if="${#authentication.name == g.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
-                 class="modal fade"
-                 th:id="${'deleteGuest-' + g.id}"
-                 tabindex="-1">
-
-                <div class="modal-dialog modal-dialog-centered modal-sm">
-                    <div class="modal-content">
-
-                        <div class="modal-header bg-danger text-white py-2">
-                            <h6 class="modal-title" th:text="#{modal.delete.title}">Confirm Delete</h6>
-                            <button type="button"
-                                    class="btn-close btn-close-white"
-                                    data-bs-dismiss="modal"></button>
-                        </div>
-
-                        <div class="modal-body text-center">
-                            <p class="mb-2" th:text="#{modal.delete.guestQuestion}">
-                                Delete this guest?
-                            </p>
-                            <strong th:text="${g.fullName}"></strong>
-                        </div>
-
-                        <div class="modal-footer justify-content-between">
-                            <button type="button"
-                                    class="btn btn-secondary btn-sm"
-                                    data-bs-dismiss="modal"
-                                    th:text="#{button.cancel}">
-                                Cancel
-                            </button>
-
-                            <form th:action="@{|/guests/${g.id}/delete|}" method="post">
-                                <button type="submit"
-                                        class="btn btn-danger btn-sm"
-                                        th:text="#{button.delete}">
-                                    Delete
-                                </button>
-                            </form>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            <th:block th:if="${#authentication.name == g.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
+                      th:replace="~{fragments/delete-modal :: formDeleteModal(
+                          ${'deleteGuest-' + g.id},
+                          #{modal.delete.guestQuestion},
+                          ${g.fullName},
+                          @{|/guests/${g.id}/delete|}
+                      )}">
+            </th:block>
 
         </div>
     </div>
