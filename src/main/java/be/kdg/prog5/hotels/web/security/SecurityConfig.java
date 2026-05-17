@@ -49,6 +49,7 @@ public class SecurityConfig {
                                 "/rooms/*",
                                 "/css/**",
                                 "/js/**",
+                                "/fonts/**",
                                 "/images/**",
                                 "/webjars/**",
                                 "/favicon.ico"

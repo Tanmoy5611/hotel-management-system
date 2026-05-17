@@ -5,7 +5,7 @@
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
     <title th:text="${hotel.name}">Hotel Detail</title>
-    <link rel="stylesheet" th:href="@{/css/edit-description.css}">
+    <link rel="stylesheet" th:href="@{/css/bundle-hotel-detail.css}">
 </head>
 
 <body class="bg-light">
@@ -72,49 +72,14 @@
                 </div>
             </div>
 
-            <!-- Delete Modal -->
-            <div class="modal fade"
-                 sec:authorize="hasRole('ADMIN')"
-                 th:id="${'deleteHotelModal-' + hotel.hotelId}"
-                 tabindex="-1">
-
-                <div class="modal-dialog modal-dialog-centered modal-sm">
-                    <div class="modal-content">
-
-                        <div class="modal-header bg-danger text-white py-2">
-                            <h6 class="modal-title" th:text="#{modal.delete.title}"></h6>
-                            <button type="button"
-                                    class="btn-close btn-close-white"
-                                    data-bs-dismiss="modal"></button>
-                        </div>
-
-                        <div class="modal-body text-center">
-                            <p class="mb-2" th:text="#{modal.delete.hotelQuestion}"></p>
-                            <strong th:text="${hotel.name}"></strong>
-                        </div>
-
-                        <div class="modal-footer justify-content-between">
-
-                            <!-- Cancel -->
-                            <button type="button"
-                                    class="btn btn-secondary btn-sm"
-                                    data-bs-dismiss="modal"
-                                    th:text="#{button.cancel}">
-                            </button>
-
-                            <!-- Yes Delete-->
-                            <form th:action="@{|/hotels/${hotel.hotelId}/delete|}" method="post">
-                                <button type="submit"
-                                        class="btn btn-danger btn-sm"
-                                        th:text="#{button.delete}">
-                                </button>
-                            </form>
-
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            <th:block sec:authorize="hasRole('ADMIN')"
+                      th:replace="~{fragments/delete-modal :: formDeleteModal(
+                          ${'deleteHotelModal-' + hotel.hotelId},
+                          #{modal.delete.hotelQuestion},
+                          ${hotel.name},
+                          @{|/hotels/${hotel.hotelId}/delete|}
+                      )}">
+            </th:block>
 
         </div>
 
@@ -277,7 +242,7 @@
 <!-- Footer -->
 <div th:replace="~{fragments/footer :: body}"></div>
 
-<script th:src="@{/js/read-more.js}"></script>
+<script defer th:src="@{/js/bundle-hotel-detail.js}"></script>
 
 </body>
 </html>

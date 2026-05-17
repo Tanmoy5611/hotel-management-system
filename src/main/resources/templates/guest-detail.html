@@ -152,49 +152,14 @@
 
     </div>
 
-    <!-- Delete Modal -->
-    <div th:if="${#authentication.name == guest.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
-         class="modal fade"
-         th:id="${'deleteGuestModal-' + guest.id}"
-         tabindex="-1">
-
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-
-                <div class="modal-header bg-danger text-white py-2">
-                    <h6 class="modal-title" th:text="#{modal.delete.title}"></h6>
-                    <button type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body text-center">
-                    <p class="mb-2" th:text="#{modal.delete.guestQuestion}"></p>
-                    <strong th:text="${guest.fullName}"></strong>
-                </div>
-
-                <div class="modal-footer justify-content-between">
-
-                    <!-- Cancel -->
-                    <button type="button"
-                            class="btn btn-secondary btn-sm"
-                            data-bs-dismiss="modal"
-                            th:text="#{button.cancel}">
-                    </button>
-
-                    <!-- Yes Delete -->
-                    <form th:action="@{|/guests/${guest.id}/delete|}" method="post">
-                        <button type="submit"
-                                class="btn btn-danger btn-sm"
-                                th:text="#{button.delete}">
-                        </button>
-                    </form>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
+    <th:block th:if="${#authentication.name == guest.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
+              th:replace="~{fragments/delete-modal :: formDeleteModal(
+                  ${'deleteGuestModal-' + guest.id},
+                  #{modal.delete.guestQuestion},
+                  ${guest.fullName},
+                  @{|/guests/${guest.id}/delete|}
+              )}">
+    </th:block>
 
 </div>
 

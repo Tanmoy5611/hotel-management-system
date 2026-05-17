@@ -20,6 +20,10 @@ import java.time.LocalDate;
 @Profile("!test") //  prevent test data from interfering with production
 public class UserSeeder {
 
+    private static final String DEFAULT_USER_EMAIL = "applicationUser@hotelapp.com";
+    private static final String DEFAULT_ADMIN_PASSWORD = "admin123";
+    private static final String DEFAULT_USER_PASSWORD = "user123";
+
     // runs automatically when the application starts
     @Bean
     CommandLineRunner seedUsers(SpringDataApplicationUserRepository userRepository,
@@ -28,52 +32,65 @@ public class UserSeeder {
 
         return args -> {
 
-            // only seed users if the table is empty
-            if (userRepository.count() == 0) {
+            ApplicationUser admin = findOrCreateUser(
+                    userRepository,
+                    passwordEncoder,
+                    AppConstants.PROTECTED_ADMIN_EMAIL,
+                    DEFAULT_ADMIN_PASSWORD,
+                    RoleType.ADMIN
+            );
 
-                // create default admin account
-                ApplicationUser admin = new ApplicationUser(
-                        AppConstants.PROTECTED_ADMIN_EMAIL,
-                        passwordEncoder.encode("admin123"),
-                        RoleType.ADMIN
-                );
+            ApplicationUser applicationUser = findOrCreateUser(
+                    userRepository,
+                    passwordEncoder,
+                    DEFAULT_USER_EMAIL,
+                    DEFAULT_USER_PASSWORD,
+                    RoleType.USER
+            );
 
-                // create normal applicationUser account
-                ApplicationUser applicationUser = new ApplicationUser(
-                        "applicationUser@hotelapp.com",
-                        passwordEncoder.encode("user123"),
-                        RoleType.USER
-                );
-
-                // save both users in database
-                userRepository.save(admin);
-                userRepository.save(applicationUser);
-
-
-                //  Seed Guests
-
-                Guest g1 = new Guest(
-                        "John Smith",
-                        LocalDate.of(1990,5,10),
-                        "john@email.com",
-                        "https://i.pravatar.cc/150?img=1"
-
-                );
-                g1.setOwner(applicationUser);
-
-                VIPGuest g2 = new VIPGuest(
-                        "Alice Brown",
-                        LocalDate.of(1988,3,22),
-                        "alice@email.com",
-                        "https://i.pravatar.cc/150?img=2",
-                        new BigDecimal("20")
-                );
-                g2.setOwner(admin);
-
-
-                guestRepository.save(g1);
-                guestRepository.save(g2);
+            // Only seed demo guests when the guest table is empty
+            if (guestRepository.count() == 0) {
+                seedDemoGuests(guestRepository, admin, applicationUser);
             }
         };
+    }
+
+    private ApplicationUser findOrCreateUser(SpringDataApplicationUserRepository userRepository,
+                                             PasswordEncoder passwordEncoder,
+                                             String email,
+                                             String rawPassword,
+                                             RoleType role) {
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> userRepository.save(new ApplicationUser(
+                        email,
+                        passwordEncoder.encode(rawPassword),
+                        role
+                )));
+    }
+
+    private void seedDemoGuests(SpringDataGuestRepository guestRepository,
+                                ApplicationUser admin,
+                                ApplicationUser applicationUser) {
+        // Seed a regular guest owned by the normal user
+        Guest g1 = new Guest(
+                "John Smith",
+                LocalDate.of(1990, 5, 10),
+                "john@email.com",
+                "https://i.pravatar.cc/150?img=1"
+        );
+        g1.setOwner(applicationUser);
+
+        // Seed a VIP guest owned by the protected admin
+        VIPGuest g2 = new VIPGuest(
+                "Alice Brown",
+                LocalDate.of(1988, 3, 22),
+                "alice@email.com",
+                "https://i.pravatar.cc/150?img=2",
+                new BigDecimal("20")
+        );
+        g2.setOwner(admin);
+
+        guestRepository.save(g1);
+        guestRepository.save(g2);
     }
 }

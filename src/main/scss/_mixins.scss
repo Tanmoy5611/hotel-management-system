@@ -1,0 +1,19 @@
+@use "variables" as *;
+
+// Reusable hover lift for cards and similar surfaces
+@mixin smooth-lift($distance: -6px) {
+  transition: 0.25s ease-in-out;
+
+  &:hover {
+    transform: translateY($distance);
+    box-shadow: $lifted-shadow;
+  }
+}
+
+// Common image sizing for hotel, room, and guest cards
+@mixin image-cover($height: 240px) {
+  width: 100%;
+  height: $height;
+  object-fit: cover;
+  object-position: center;
+}

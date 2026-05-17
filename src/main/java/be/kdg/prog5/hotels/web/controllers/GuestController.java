@@ -91,7 +91,7 @@ public class GuestController {
     }
 
     /// Delete guest by Admin or Owner (The user)
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("@guestAuthorizationService.canDeleteGuest(#guestId, authentication)")
     @PostMapping("/guests/{guestId}/delete")
     public String deleteGuest(@PathVariable Long guestId) {
         log.debug("Deleting guest {}", guestId);
@@ -166,7 +166,7 @@ public class GuestController {
             }
 
             if (!bindingResult.hasErrors()
-                    && guestForm.getCheckOut().isBefore(guestForm.getCheckIn())) {
+                    && !guestForm.getCheckOut().isAfter(guestForm.getCheckIn())) {
 
                 bindingResult.rejectValue("checkOut", "checkOut.invalid",
                         "Check-out must be after check-in");

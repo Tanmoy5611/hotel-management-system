@@ -4,6 +4,7 @@
       lang="en">
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/bundle-add-hotel.css}">
     <title th:text="#{nav.addHotel}">Add Hotel</title>
 </head>
 
@@ -181,7 +182,7 @@
 <!-- Footer -->
 <div th:replace="~{fragments/footer :: body}"></div>
 
-<script th:src="@{/js/description-word-counter.js}"></script>
+<script defer th:src="@{/js/bundle-add-hotel.js}"></script>
 
 </body>
 </html>

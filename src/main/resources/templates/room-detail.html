@@ -5,7 +5,7 @@
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
     <title th:text="'Room Details - ' + ${room.number}">Room Details</title>
-    <link rel="stylesheet" th:href="@{/css/room-detail.css}">
+    <link rel="stylesheet" th:href="@{/css/bundle-room-detail.css}">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
@@ -460,12 +460,7 @@
 <!-- Footer-->
 <div th:replace="~{fragments/footer :: body}"></div>
 
-<script th:src="@{/js/csrf.js}"></script>
-<script th:src="@{/js/rooms-api.js}" defer></script>
-<script th:src="@{/js/room-create-toast.js}" defer></script>
-<script th:src="@{/js/read-more.js}" defer></script>
-<script th:src="@{/js/room-description-api.js}" defer></script>
-<script th:src="@{/js/description-word-counter.js}" defer></script>
+<script defer th:src="@{/js/bundle-room-detail.js}"></script>
 
 </body>
 </html>
