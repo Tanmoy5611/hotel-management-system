@@ -1,5 +1,8 @@
 package be.kdg.prog5.hotels.web.exceptions;
 
+import be.kdg.prog5.hotels.business.exceptions.BookingNotFoundException;
+import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
+import be.kdg.prog5.hotels.business.exceptions.HotelNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +22,30 @@ public class WebExceptionHandler {
     @ExceptionHandler(RoomNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleRoomNotFound(RoomNotFoundException ex, Model model) {
+        model.addAttribute("message", ex.getMessage());
+        return "error/404";
+    }
+
+    // Shows 404 page when a hotel does not exist
+    @ExceptionHandler(HotelNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleHotelNotFound(HotelNotFoundException ex, Model model) {
+        model.addAttribute("message", ex.getMessage());
+        return "error/404";
+    }
+
+    // Shows 404 page when a guest does not exist
+    @ExceptionHandler(GuestNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleGuestNotFound(GuestNotFoundException ex, Model model) {
+        model.addAttribute("message", ex.getMessage());
+        return "error/404";
+    }
+
+    // Shows 404 page when a booking does not exist
+    @ExceptionHandler(BookingNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleBookingNotFound(BookingNotFoundException ex, Model model) {
         model.addAttribute("message", ex.getMessage());
         return "error/404";
     }
