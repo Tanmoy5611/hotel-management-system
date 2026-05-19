@@ -1,4 +1,5 @@
 package be.kdg.prog5.hotels.web.controllers;
+import be.kdg.prog5.hotels.business.BookingService;
 import be.kdg.prog5.hotels.business.GuestService;
 import be.kdg.prog5.hotels.business.HotelService;
 import be.kdg.prog5.hotels.business.RoomService;
@@ -33,12 +34,17 @@ public class RoomController {
     private final RoomService roomService;   // Injecting RoomService to connect to business logic
     private final HotelService hotelService;
     private final GuestService guestService;
+    private final BookingService bookingService;
 
-    // Constructor injection (Spring automatically provides the service)
-    public RoomController(RoomService roomService, HotelService hotelService, GuestService guestService) {
+    // Constructor injection includes BookingService after moving booking logic out of RoomService
+    public RoomController(RoomService roomService,
+                          HotelService hotelService,
+                          GuestService guestService,
+                          BookingService bookingService) {
         this.roomService = roomService;
         this.hotelService = hotelService;
         this.guestService = guestService;
+        this.bookingService = bookingService;
     }
 
     // shows all rooms, or filter them by type, sea view, or max price in the room page filtering
@@ -179,6 +185,7 @@ public class RoomController {
         return "book-room";
     }
 
+    // Processes a booking through BookingService so RoomService stays focused on rooms
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/{roomId}/book")
     public String processBooking(@PathVariable Long roomId,
@@ -193,7 +200,7 @@ public class RoomController {
 
         // Attempts booking; redirects on success; returns form on failure
         try {
-            roomService.bookRoom(roomId, guestId, checkIn, checkOut);
+            bookingService.bookRoom(roomId, guestId, checkIn, checkOut);
 
             redirectAttributes.addFlashAttribute(
                     "successMessage",

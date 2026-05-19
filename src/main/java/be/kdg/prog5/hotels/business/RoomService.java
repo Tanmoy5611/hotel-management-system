@@ -8,8 +8,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-// Business service for Room aggregate.
-// Controllers must NEVER talk directly to repositories.
+// Business service for Room aggregate
+// Controllers must NEVER talk directly to repositories
 
 public interface RoomService {
 
@@ -35,9 +35,6 @@ public interface RoomService {
 
     // Validation + trimming happens here, then JPA dirty checking updates the entity
     void updateRoomDescription(Long roomId, String description);
-
-    // Aggregate operation: creates Stay via Room
-    void bookRoom(Long roomId, Long guestId, LocalDate checkIn, LocalDate checkOut);
 
     /// For Homepage
     List<Room> getBestValueRooms();

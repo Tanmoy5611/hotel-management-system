@@ -11,6 +11,8 @@ import be.kdg.prog5.hotels.domain.*;
 import be.kdg.prog5.hotels.web.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +37,7 @@ public class GuestServiceImpl implements GuestService {
     private final SecurityService securityService;
     private final SafeActivityLogger safeActivityLogger;
 
-
+    // Injects repositories and services needed to manage guests and their bookings
     public GuestServiceImpl(SpringDataGuestRepository guestRepo,
                             SpringDataRoomRepository roomRepo,
                             SpringDataStayRepository stayRepo,
@@ -50,7 +52,7 @@ public class GuestServiceImpl implements GuestService {
         this.safeActivityLogger = safeActivityLogger;
     }
 
-    /// Read Guests
+    // Reads all guests for the guest overview page
     @Override
     @Transactional(readOnly = true)
     public List<Guest> getAllGuests() {
@@ -59,8 +61,9 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.findAll();
     }
 
-    /// Delete guest
+    // Deletes a guest and clears cached search results because the list changed
     @Override
+    @CacheEvict(value = "guestSearch", allEntries = true)
     public void deleteGuest(Long guestId) {
         log.debug("Deleting guest with id {}", guestId);
 
@@ -84,7 +87,7 @@ public class GuestServiceImpl implements GuestService {
 
     }
 
-    /// Search VIPGuest
+    // Reads all VIP guests from the inheritance query
     @Override
     @Transactional(readOnly = true)
     public List<Guest> getVipGuests() {
@@ -93,9 +96,10 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.findVipGuests();
     }
 
-    /// Search Guests on the All Guests page
+    // Searches guests with caching so repeated terms avoid a second database hit
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "guestSearch", key = "{#query == null ? '' : #query.trim().toLowerCase(), #minRooms == null || #minRooms < 1 ? null : #minRooms}")
     public List<Guest> searchGuests(String query, Integer minRooms) {
         log.debug("Searching guests: query={}, minRooms={}", query, minRooms);
 
@@ -109,8 +113,9 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.searchGuests(cleanedQuery, cleanedMinRooms);
     }
 
-    /// Creates guest with room; persists and associates if applicable
+    // Creates a guest, optionally books a room, and clears cached search results
     @Override
+    @CacheEvict(value = "guestSearch", allEntries = true)
     public Guest createGuestWithRoom(String fullName, LocalDate dob, String email, String avatarUrl,
                                      BigDecimal discountPercentage, Long roomId,
                                      LocalDate checkIn, LocalDate checkOut) {
@@ -166,8 +171,9 @@ public class GuestServiceImpl implements GuestService {
         return savedGuest;
     }
 
-    /// Creates guest from the separate Week 10 Client project
+    // Creates a guest from the Week 10 client and assigns the protected admin owner
     @Override
+    @CacheEvict(value = "guestSearch", allEntries = true)
     public Guest createGuestFromClient(String fullName, LocalDate dob, String email, String avatarUrl,
                                        BigDecimal discountPercentage) {
         log.debug("Creating guest {} from Week 10 client", fullName);
@@ -198,7 +204,7 @@ public class GuestServiceImpl implements GuestService {
         return savedGuest;
     }
 
-    // Get guest with details (Stays)
+    // Loads one guest with stays, rooms, and hotels for the detail page
     @Override
     @Transactional(readOnly = true)
     public Guest getGuestWithDetails(Long guestId) {

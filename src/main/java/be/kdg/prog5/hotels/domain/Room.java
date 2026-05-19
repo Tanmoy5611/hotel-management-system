@@ -45,7 +45,7 @@ public class Room {
     /// many-to-one - Room belongs to Hotel (aggregate boundary)
     // Default for ManyToOne is EAGER; must be changed to LAZY
     @ManyToOne(fetch = FetchType.LAZY, optional = false)    // represents a foreign-key (rooms.hotel_id) relationship where many rooms belong to one hotel
-    @JoinColumn(name = "hotel_id", nullable = false)                          // specifies the foreign key column in the database.
+    @JoinColumn(name = "hotel_id", nullable = false)                          // specifies the foreign key column in the database
     private Hotel hotel;
 
 
@@ -57,7 +57,7 @@ public class Room {
             orphanRemoval = true)
     private Set<Stay> stays = new HashSet<>();
 
-    // Required empty constructor for entity instantiation.
+    // Required empty constructor for entity instantiation
     protected Room() {
     }
 
@@ -176,6 +176,11 @@ public class Room {
 
     public void removeStay(Stay stay) {
         stays.remove(stay);
+    }
+
+    // Removes a booking by Stay id while keeping Stay ownership inside the Room aggregate
+    public boolean removeStayById(Long stayId) {
+        return stays.removeIf(stay -> Objects.equals(stay.getId(), stayId));
     }
 
     @Override
