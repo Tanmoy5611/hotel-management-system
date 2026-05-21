@@ -165,14 +165,14 @@ class RoomServiceUnitTest {
 
         Room availableRoom = createRoom(102);
 
-        when(roomRepo.searchRooms("", null)).thenReturn(List.of(unavailableRoom, availableRoom));
+        when(roomRepo.searchRoomsWithStays("", null)).thenReturn(List.of(unavailableRoom, availableRoom));
 
         // Act
         List<Room> rooms = roomService.searchAvailableRooms(null, null, requestedCheckIn, requestedCheckOut);
 
         // Assert
         assertThat(rooms).containsExactly(availableRoom);
-        verify(roomRepo).searchRooms("", null);
+        verify(roomRepo).searchRoomsWithStays("", null);
     }
 
     /* Test Helper Method
