@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
+    <title th:text="#{users.title}">User Management</title>
+</head>
+
+<body class="bg-light">
+
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<main class="container my-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-semibold text-primary mb-1">
+                <i class="bi bi-people-fill"></i>
+                <span th:text="#{users.management}">User Management</span>
+            </h2>
+            <p class="text-muted mb-0">Review accounts, roles, and protected admin access.</p>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a th:href="@{/admin/users}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a th:href="@{/admin/users/add}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i>
+                <span th:text="#{users.add}">Add User</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+            <input type="text"
+                   id="userSearch"
+                   class="form-control"
+                   th:placeholder="#{users.search}"
+                   placeholder="Search users by email...">
+        </div>
+    </div>
+
+    <!-- Users table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <table class="table table-hover align-middle" id="usersTable">
+                <thead class="table-light">
+                <tr>
+                    <th th:text="#{users.email}">Email</th>
+                    <th th:text="#{users.role}">Role</th>
+                    <th style="width:260px" th:text="#{users.actions}">Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="applicationUser : ${users}">
+                    <td>
+                        <i class="bi bi-person-circle me-2"></i>
+                        <span th:text="${applicationUser.email}"></span>
+                    </td>
+
+                    <td>
+                        <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2"
+                              th:classappend="
+                              ${applicationUser.role.name() == 'ADMIN'} ?
+                              'bg-danger-subtle text-danger border border-danger' :
+                              'bg-primary-subtle text-primary border border-primary'">
+                            <i class="bi"
+                               th:classappend="${applicationUser.role.name() == 'ADMIN'} ? 'bi-shield-lock-fill' : 'bi-person-circle'">
+                            </i>
+                            <span th:text="${applicationUser.role}"></span>
+                        </span>
+                    </td>
+
+                    <td class="d-flex gap-2">
+                        <button type="button"
+                                class="btn btn-warning btn-sm"
+                                th:if="${applicationUser.email != protectedAdminEmail}"
+                                data-bs-toggle="modal"
+                                th:attr="data-bs-target='#roleModal__' + ${applicationUser.id}">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span th:text="#{users.changeRole}">Change Role</span>
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-danger btn-sm"
+                                th:if="${applicationUser.email != protectedAdminEmail}"
+                                data-bs-toggle="modal"
+                                th:attr="data-bs-target='#deleteModal__' + ${applicationUser.id}">
+                            <i class="bi bi-trash"></i>
+                            <span th:text="#{users.delete}">Delete</span>
+                        </button>
+
+                        <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2 bg-success-subtle text-success border border-success"
+                              th:if="${applicationUser.email == protectedAdminEmail}">
+                            <i class="bi bi-lock-fill"></i>
+                            <span th:text="#{users.protected}">PROTECTED</span>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- Change RoleType modals -->
+<div th:each="applicationUser : ${users}">
+    <div class="modal fade"
+         th:id="'roleModal__' + ${applicationUser.id}"
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        th:text="#{users.changeRole}">
+                        Change User Role
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <span th:text="#{users.changeRoleConfirm}">
+                        Change role of
+                    </span>
+
+                    <strong th:text="${applicationUser.email}"></strong> ?
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                            th:text="#{users.cancel}">
+                        Cancel
+                    </button>
+
+                    <form th:action="@{/admin/users/{id}/toggle-role(id=${applicationUser.id})}"
+                          method="post">
+                        <button class="btn btn-warning"
+                                th:text="#{users.confirmRole}">
+                            Yes, Change Role
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete modal -->
+<div th:each="applicationUser : ${users}">
+    <div class="modal fade"
+         th:id="'deleteModal__' + ${applicationUser.id}"
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        th:text="#{users.deleteUser}">
+                        Delete User
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <span th:text="#{users.deleteConfirm}">
+                        Delete user
+                    </span>
+
+                    <strong th:text="${applicationUser.email}"></strong> ?
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                            th:text="#{users.cancel}">
+                        Cancel
+                    </button>
+
+                    <form th:action="@{/admin/users/{id}/delete(id=${applicationUser.id})}"
+                          method="post">
+                        <button class="btn btn-danger"
+                                th:text="#{users.confirmDelete}">
+                            Yes, Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: body}"></div>
+
+<script defer th:src="@{/js/bundle-admin-users.js}"></script>
+
+</body>
+</html>
