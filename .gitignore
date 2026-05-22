@@ -1,6 +1,7 @@
 HELP.md
 .DS_Store
 node_modules/
+.dprint-cache/
 src/main/resources/static/js/
 src/main/resources/static/css/
 src/main/resources/static/fonts/
