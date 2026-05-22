@@ -38,8 +38,10 @@ public class Guest {
     @Column(name = "avatar_url")                         // Maps Java field avatarUrl to database column avatar_url
     private String avatarUrl;
 
+    @Column(name = "discount_percentage", nullable = false)
+    private BigDecimal discountPercentage = BigDecimal.ZERO;
 
-    // Guest is an INDEPENDENT aggregate & it participates in Stay but does NOT own Stay lifecycle.
+    // Guest is an INDEPENDENT aggregate & it participates in Stay but does NOT own Stay lifecycle
     // Therefore: NO cascade, NO orphanRemoval
     @OneToMany(mappedBy = "guest", fetch = FetchType.LAZY)
     private List<Stay> stays = new ArrayList<>();
@@ -76,7 +78,7 @@ public class Guest {
         return avatarUrl;
     }
 
-    //  Return unmodifiable list to prevent direct collection manipulation.
+    //  Return unmodifiable list to prevent direct collection manipulation
     public List<Stay> getStays() {
         return Collections.unmodifiableList(stays);
     }
@@ -101,7 +103,13 @@ public class Guest {
 
     // polymorphism method
     public BigDecimal getDiscountPercentage() {
-        return BigDecimal.ZERO;   // regular guests have no discount
+        return discountPercentage;
+    }
+
+    protected void setDiscountPercentage(BigDecimal discountPercentage) {
+        this.discountPercentage = discountPercentage == null
+                ? BigDecimal.ZERO
+                : discountPercentage;
     }
 
     // Override to string method for guests

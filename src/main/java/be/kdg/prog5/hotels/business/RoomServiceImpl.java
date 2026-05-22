@@ -220,14 +220,12 @@ public class RoomServiceImpl implements RoomService {
             throw new IllegalArgumentException("Check-out must be after check-in");
         }
 
-        // Fetch rooms from database using one flexible query
-        // (query + roomType handled in repository)
-        List<Room> rooms = roomRepo.searchRooms(cleanedQuery, roomType);
-
         // If no dates provided -> just return filtered rooms (no availability check)
         if (checkIn == null || checkOut == null) {
-            return rooms;
+            return roomRepo.searchRooms(cleanedQuery, roomType);
         }
+
+        List<Room> rooms = roomRepo.searchRoomsWithStays(cleanedQuery, roomType);
 
         // Otherwise -> filter manually for availability
         // (kept in service layer because it's domain logic, not DB logic)

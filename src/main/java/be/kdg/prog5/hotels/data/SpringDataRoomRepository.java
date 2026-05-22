@@ -103,17 +103,30 @@ public interface SpringDataRoomRepository extends JpaRepository<Room, Long> {
     // JOIN FETCH avoids N+1 for hotel, and stays are not fetched here because
     // search results do not need full Stay objects
     @Query("""
-    SELECT DISTINCT r
-    FROM Room r
-    JOIN FETCH r.hotel h
-    LEFT JOIN r.stays
-    WHERE (LOWER(h.name) LIKE LOWER(CONCAT('%', :query, '%'))
-           OR LOWER(h.city) LIKE LOWER(CONCAT('%', :query, '%'))
-           OR LOWER(h.country) LIKE LOWER(CONCAT('%', :query, '%')))
-      AND (:roomType IS NULL OR r.type = :roomType)
-""")
+            SELECT DISTINCT r
+            FROM Room r
+            JOIN FETCH r.hotel h
+            WHERE (LOWER(h.name) LIKE LOWER(CONCAT('%', :query, '%'))
+                   OR LOWER(h.city) LIKE LOWER(CONCAT('%', :query, '%'))
+                   OR LOWER(h.country) LIKE LOWER(CONCAT('%', :query, '%')))
+              AND (:roomType IS NULL OR r.type = :roomType)
+            """)
     List<Room> searchRooms(@Param("query") String query,
                            @Param("roomType") RoomType roomType);
+
+    // Availability search needs stays loaded before Room.isAvailable() is called
+    @Query("""
+            SELECT DISTINCT r
+            FROM Room r
+            JOIN FETCH r.hotel h
+            LEFT JOIN FETCH r.stays
+            WHERE (LOWER(h.name) LIKE LOWER(CONCAT('%', :query, '%'))
+                   OR LOWER(h.city) LIKE LOWER(CONCAT('%', :query, '%'))
+                   OR LOWER(h.country) LIKE LOWER(CONCAT('%', :query, '%')))
+              AND (:roomType IS NULL OR r.type = :roomType)
+            """)
+    List<Room> searchRoomsWithStays(@Param("query") String query,
+                                    @Param("roomType") RoomType roomType);
 
     boolean existsByHotelAndNumber(Hotel hotel, int number);
 }

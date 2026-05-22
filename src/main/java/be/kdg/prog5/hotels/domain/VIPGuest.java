@@ -1,6 +1,5 @@
 package be.kdg.prog5.hotels.domain;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
@@ -11,9 +10,6 @@ import java.time.LocalDate;
 @Entity
 @DiscriminatorValue("VIP")    // stored in the guest_type column ➡ JPA knows this row represents a VIPGuest
 public class VIPGuest extends Guest {
-
-    @Column(name = "discount_percentage", nullable = true)
-    private BigDecimal discountPercentage = BigDecimal.ZERO;  //  no null problems
 
     // Required by Hibernate / JPA
     protected VIPGuest() {
@@ -32,15 +28,16 @@ public class VIPGuest extends Guest {
 
             throw new IllegalArgumentException("Discount must be between 0 and 100");
         }
-        this.discountPercentage = discountPercentage;
+        setDiscountPercentage(discountPercentage);
     }
 
     // Method overriding allows polymorphic behavior based on the actual entity type
     @Override
     public BigDecimal getDiscountPercentage() {
-        return this.discountPercentage;
+        return super.getDiscountPercentage();
     }
 
+    @Override
     public void setDiscountPercentage(BigDecimal discountPercentage) {
 
         if (discountPercentage != null &&
@@ -50,13 +47,13 @@ public class VIPGuest extends Guest {
             throw new IllegalArgumentException("Discount must be between 0 and 100");
         }
 
-        this.discountPercentage = discountPercentage;
+        super.setDiscountPercentage(discountPercentage);
     }
 
     @Override
     public String toString() {
         return "VIPGuest{" +
-                "discountPercentage=" + discountPercentage +
+                "discountPercentage=" + getDiscountPercentage() +
                 "} " + super.toString();
     }
 }
