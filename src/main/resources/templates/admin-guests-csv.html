@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
+    <title>Import Guests</title>
+</head>
+
+<body class="bg-light">
+
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<main class="container my-4" sec:authorize="hasRole('ADMIN')">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-semibold text-primary mb-0">
+            <i class="bi bi-file-earmark-arrow-up-fill"></i>
+            <span>Import Guests</span>
+        </h2>
+
+        <a th:href="@{/admin/users}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            <span>Dashboard</span>
+        </a>
+    </div>
+
+    <div th:if="${inProgress}" class="alert alert-success d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>
+            Import started for
+            <strong th:text="${fileName}">guests.csv</strong>.
+            You can keep using the app while the CSV is processed in the background.
+        </span>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${errorMessage}">Upload error</span>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form th:action="@{/admin/guests-csv}"
+                  th:method="post"
+                  enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="guests_csv" class="form-label fw-semibold">
+                        Guest CSV file
+                    </label>
+                    <input class="form-control"
+                           type="file"
+                           name="guests_csv"
+                           id="guests_csv"
+                           accept=".csv,text/csv">
+                    <div class="form-text">
+                        Format: fullName,email,dob,avatarUrl,discountPercentage
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-upload"></i>
+                    <span>Upload CSV</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: body}"></div>
+
+</body>
+</html>
