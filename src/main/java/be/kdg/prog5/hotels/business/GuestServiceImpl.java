@@ -1,5 +1,6 @@
 package be.kdg.prog5.hotels.business;
 
+import be.kdg.prog5.hotels.business.exceptions.GuestAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.config.AppConstants;
@@ -28,6 +29,7 @@ public class GuestServiceImpl implements GuestService {
     private static final Logger log =
             LoggerFactory.getLogger(GuestServiceImpl.class);
 
+    private static final String DEFAULT_GUEST_AVATAR_URL = "/images/guests/guest.jpg";
 
     private final SpringDataGuestRepository guestRepo;
     private final SpringDataRoomRepository roomRepo;
@@ -58,7 +60,7 @@ public class GuestServiceImpl implements GuestService {
     public List<Guest> getAllGuests() {
         log.debug("Getting all guests");
 
-        return guestRepo.findAll();
+        return guestRepo.findAllWithOwner();
     }
 
     // Deletes a guest and clears cached search results because the list changed
@@ -121,12 +123,15 @@ public class GuestServiceImpl implements GuestService {
                                      LocalDate checkIn, LocalDate checkOut) {
         log.debug("Creating guest {} with room {}", fullName, roomId);
 
+        validateUniqueEmail(email);
+        String cleanedAvatarUrl = normalizeAvatarUrl(avatarUrl);
+
         // Domain decision: VIP or regular Guest - belongs in the service
         Guest guest;
         if (discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
-            guest = new VIPGuest(fullName, dob, email, avatarUrl, discountPercentage);
+            guest = new VIPGuest(fullName, dob, email, cleanedAvatarUrl, discountPercentage);
         } else {
-            guest = new Guest(fullName, dob, email, avatarUrl);
+            guest = new Guest(fullName, dob, email, cleanedAvatarUrl);
         }
 
         // get logged-in user (SAFE)
@@ -178,11 +183,14 @@ public class GuestServiceImpl implements GuestService {
                                        BigDecimal discountPercentage) {
         log.debug("Creating guest {} from Week 10 client", fullName);
 
+        validateUniqueEmail(email);
+        String cleanedAvatarUrl = normalizeAvatarUrl(avatarUrl);
+
         Guest guest;
         if (discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
-            guest = new VIPGuest(fullName, dob, email, avatarUrl, discountPercentage);
+            guest = new VIPGuest(fullName, dob, email, cleanedAvatarUrl, discountPercentage);
         } else {
-            guest = new Guest(fullName, dob, email, avatarUrl);
+            guest = new Guest(fullName, dob, email, cleanedAvatarUrl);
         }
 
         // Guests require an owner. Public client-created guests are assigned to the protected admin account
@@ -213,4 +221,19 @@ public class GuestServiceImpl implements GuestService {
                 .orElseThrow(() -> new GuestNotFoundException(guestId));
     }
 
+    // validate unique email
+    private void validateUniqueEmail(String email) {
+        if (email != null && guestRepo.existsByEmailIgnoreCase(email.trim())) {
+            throw new GuestAlreadyExistsException(email.trim());
+        }
+    }
+
+    // normalize avatar url
+    private String normalizeAvatarUrl(String avatarUrl) {
+        if (avatarUrl == null || avatarUrl.isBlank()) {
+            return DEFAULT_GUEST_AVATAR_URL;
+        }
+
+        return avatarUrl.trim();
+    }
 }

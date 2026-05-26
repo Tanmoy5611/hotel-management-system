@@ -49,6 +49,7 @@ public class BookingServiceImpl implements BookingService {
         return stayRepo.findCurrentBookingsWithDetails(LocalDate.now());
     }
 
+
     // Books a room through the Room aggregate and evicts guest search cache because guest stay counts can change
     @Override
     @CacheEvict(value = "guestSearch", allEntries = true)
