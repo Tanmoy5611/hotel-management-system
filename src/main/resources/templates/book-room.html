@@ -29,7 +29,7 @@
                             <div>
                                 <strong>
                                     <i class="bi bi-door-open me-1"></i>
-                                    <span th:text="'Room ' + ${room.number}"></span>
+                                    <span th:text="#{room.numberLabel(${room.number})}"></span>
                                 </strong>
                                 <br>
                                 <small class="text-muted"
@@ -39,7 +39,7 @@
 
                             <div class="text-end">
                 <span class="fw-bold text-success"
-                      th:text="${#numbers.formatDecimal(room.pricePerNight,1,2)} + ' € / night'">
+                      th:text="#{rooms.pricePerNight(${#numbers.formatDecimal(room.pricePerNight,1,2)})}">
                 </span>
                             </div>
 

@@ -51,10 +51,10 @@
 
             <div class="booking-item booking-type form-floating">
                 <select name="roomType" class="form-select booking-input" id="roomType">
-                    <option value="">Any type</option>
-                    <option value="SINGLE">Single</option>
-                    <option value="DOUBLE">Double</option>
-                    <option value="SUITE">Suite</option>
+                    <option value="" th:text="#{search.anyType}">Any type</option>
+                    <option value="SINGLE" th:text="#{room.type.single}">Single</option>
+                    <option value="DOUBLE" th:text="#{room.type.double}">Double</option>
+                    <option value="SUITE" th:text="#{room.type.suite}">Suite</option>
                 </select>
                 <label for="roomType">
                     <i class="bi bi-door-open me-1"></i>
@@ -89,7 +89,7 @@
 
 
     <!-- Featured Hotels -->
-    <h3 class="section-title"><i class="bi bi-fire"></i>
+    <h3 class="section-title section-title--featured"><i class="bi bi-fire"></i>
         <span th:text="#{home.featured.title}">Featured Hotels</span>
     </h3>
     <p class="section-subtitle" th:text="#{home.featured.subtitle}">
@@ -100,7 +100,7 @@
         <div class="col" th:each="h : ${featuredHotels}">
             <div class="card hotel-card h-100">
                 <a th:href="@{/hotels/{id}(id=${h.hotelId})}">
-                    <img th:src="${h.imageUrl}" class="card-img-top" alt="Featured Hotels">
+                    <img th:src="${h.imageUrl}" class="card-img-top" th:alt="#{home.featured.title}">
                     <div class="card-body">
                         <h5 class="fw-bold" th:text="${h.name}"></h5>
                         <p>
@@ -114,7 +114,7 @@
     </div>
 
     <!-- Beach & Spa -->
-    <h3 class="section-title"><i class="bi bi-water"></i>
+    <h3 class="section-title section-title--beach"><i class="bi bi-water"></i>
         <span th:text="#{home.beach.title}">Beach & Spa</span>
     </h3>
     <p class="section-subtitle" th:text="#{home.beach.subtitle}">
@@ -141,7 +141,7 @@
     </div>
 
     <!-- Popular Cities -->
-    <h3 class="section-title"><i class="bi bi-geo-alt"></i>
+    <h3 class="section-title section-title--city"><i class="bi bi-geo-alt"></i>
         <span th:text="#{home.city.title}">Popular Cities</span>
     </h3>
     <p class="section-subtitle" th:text="#{home.city.subtitle}">
@@ -166,7 +166,7 @@
     </div>
 
     <!-- Best Value Rooms -->
-    <h3 class="section-title"><i class="bi bi-cash-coin"></i>
+    <h3 class="section-title section-title--value"><i class="bi bi-cash-coin"></i>
         <span th:text="#{home.bestValue.title}">Best Value Rooms</span>
     </h3>
     <p class="section-subtitle" th:text="#{home.bestValue.subtitle}">
@@ -203,7 +203,7 @@
 
                         <p class="text-muted small">
                             <i class="bi bi-building"></i>
-                            <span th:text="${r.hotel != null ? r.hotel.name : 'Unknown Hotel'}"></span>
+                            <span th:text="${r.hotel != null ? r.hotel.name : #messages.msg('rooms.unknownHotel')}"></span>
                         </p>
                     </div>
 
@@ -213,7 +213,7 @@
     </div>
 
     <!-- Premium Rooms -->
-    <h3 class="section-title"><i class="bi bi-gem"></i>
+    <h3 class="section-title section-title--premium"><i class="bi bi-gem"></i>
         <span th:text="#{home.premium.title}">Premium Rooms</span>
     </h3>
     <p class="section-subtitle" th:text="#{home.premium.subtitle}">
@@ -253,7 +253,7 @@
 
                         <p class="text-muted small">
                             <i class="bi bi-building"></i>
-                            <span th:text="${r.hotel != null ? r.hotel.name : 'Unknown Hotel'}"></span>
+                            <span th:text="${r.hotel != null ? r.hotel.name : #messages.msg('rooms.unknownHotel')}"></span>
                         </p>
 
                     </div>
@@ -263,7 +263,7 @@
     </div>
 
     <!-- Top picks (Most Booked rooms) -->
-    <h3 class="section-title mt-5"><i class="bi bi-trophy"></i>
+    <h3 class="section-title section-title--top-picks mt-5"><i class="bi bi-trophy"></i>
         <span th:text="#{home.topPicks.title}">Top Picks</span>
     </h3>
 
@@ -301,7 +301,7 @@
 
                         <p class="text-muted small">
                             <i class="bi bi-building"></i>
-                            <span th:text="${r.hotel != null ? r.hotel.name : 'Unknown Hotel'}"></span>
+                            <span th:text="${r.hotel != null ? r.hotel.name : #messages.msg('rooms.unknownHotel')}"></span>
                         </p>
 
                     </div>

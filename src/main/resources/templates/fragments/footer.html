@@ -13,8 +13,8 @@
             <!-- left text -->
             <div class="col-md-6 text-md-start mb-2 mb-md-0">
                 <small>
-                    &copy; 2025 <strong>Hotel Management System</strong><br>
-                    Developed by <strong>Tanmoy Das</strong> ~ BASc. in Computer Science @ KdG
+                    &copy; 2025-2026 <strong th:text="#{footer.system}">Hotel Management System</strong><br>
+                    <span th:text="#{footer.developedBy}">Developed by</span> <strong>Tanmoy Das</strong> ~ BASc. in Computer Science @ KdG
                 </small>
             </div>
 
@@ -22,10 +22,12 @@
             <div class="col-md-6 text-md-end">
                 <small>
                     <i class="bi bi-code-slash"></i>
-                    <span class="ms-1">Java • Spring Boot • Thymeleaf • Bootstrap</span><br>
+                    <span class="ms-1" th:text="#{footer.stack}">
+                        Spring Boot • JPA/Hibernate • Security • REST API • Thymeleaf • JavaScript • npm/Webpack
+                    </span><br>
 
                     <i class="bi bi-envelope-at-fill text-info"></i>
-                    <span class="ms-1">Contact: <strong>tanmoy.das@student.kdg.be</strong></span>
+                    <span class="ms-1"><span th:text="#{footer.contact}">Contact:</span> <strong>tanmoy.das@student.kdg.be</strong></span>
                 </small>
             </div>
         </div>

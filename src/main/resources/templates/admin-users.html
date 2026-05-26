@@ -3,7 +3,7 @@
 
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
-    <title>Admin Dashboard</title>
+    <title th:text="#{admin.dashboard.title}">Admin Dashboard</title>
 </head>
 
 <body class="bg-light">
@@ -15,9 +15,9 @@
     <!-- Admin dashboard navigation -->
     <div class="admin-dashboard-header">
         <div>
-            <p class="admin-dashboard-kicker">Admin Panel</p>
-            <h1>Dashboard</h1>
-            <p class="admin-dashboard-subtitle">
+            <p class="admin-dashboard-kicker" th:text="#{admin.dashboard.kicker}">Admin Panel</p>
+            <h1 th:text="#{admin.dashboard.title}">Dashboard</h1>
+            <p class="admin-dashboard-subtitle" th:text="#{admin.dashboard.subtitle}">
                 Manage users, activity, guest imports, and current bookings from one place.
             </p>
         </div>
@@ -28,13 +28,13 @@
         </a>
     </div>
 
-    <div class="admin-dashboard-grid" aria-label="Admin dashboard shortcuts">
+    <div class="admin-dashboard-grid" th:aria-label="#{admin.dashboard.shortcuts}">
         <a th:href="@{/admin/users/manage}" class="admin-feature-card admin-feature-card--users">
             <span class="admin-feature-icon">
                 <i class="bi bi-people-fill"></i>
             </span>
             <h2 th:text="#{users.management}">User Management</h2>
-            <p>Review accounts, roles, and protected admin access.</p>
+            <p th:text="#{users.management.subtitle}">Review accounts, roles, and protected admin access.</p>
         </a>
 
         <a th:href="@{/admin/activity}" class="admin-feature-card admin-feature-card--activity">
@@ -42,7 +42,7 @@
                 <i class="bi bi-activity"></i>
             </span>
             <h2 th:text="#{activity.management}">Activity Management</h2>
-            <p>Track recent admin actions across the system.</p>
+            <p th:text="#{activity.management.subtitle}">Track recent admin actions across the system.</p>
         </a>
 
         <a th:href="@{/admin/users/add}" class="admin-feature-card admin-feature-card--add-user">
@@ -50,23 +50,23 @@
                 <i class="bi bi-person-plus-fill"></i>
             </span>
             <h2 th:text="#{users.add}">Add User</h2>
-            <p>Create a new account with the correct role.</p>
+            <p th:text="#{users.add.subtitle}">Create a new account with the correct role.</p>
         </a>
 
         <a th:href="@{/admin/guests-csv}" class="admin-feature-card admin-feature-card--import">
             <span class="admin-feature-icon">
                 <i class="bi bi-file-earmark-arrow-up-fill"></i>
             </span>
-            <h2>Import Guests</h2>
-            <p>Upload a CSV file and process guests asynchronously.</p>
+            <h2 th:text="#{admin.import.title}">Import Guests</h2>
+            <p th:text="#{admin.import.subtitle}">Upload a CSV file and process guests asynchronously.</p>
         </a>
 
         <a th:href="@{/admin/bookings}" class="admin-feature-card admin-feature-card--bookings">
             <span class="admin-feature-icon">
                 <i class="bi bi-calendar-check-fill"></i>
             </span>
-            <h2>Bookings</h2>
-            <p>View current stays and cancel bookings when needed.</p>
+            <h2 th:text="#{admin.bookings.title}">Bookings</h2>
+            <p th:text="#{admin.bookings.cardSubtitle}">View current stays and cancel bookings when needed.</p>
         </a>
     </div>
 

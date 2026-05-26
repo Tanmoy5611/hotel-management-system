@@ -25,7 +25,7 @@
         <!-- Toggler for mobile -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navMenu"
-                aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="navMenu" aria-expanded="false" th:aria-label="#{nav.toggle}">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -56,35 +56,35 @@
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link" th:href="@{/hotels/add}" th:title="#{nav.addHotel}">
                         <i class="bi bi-plus-circle-fill me-1"></i>
-                        <span>Hotel</span>
+                        <span th:text="#{nav.hotel.short}">Hotel</span>
                     </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link" th:href="@{/rooms/add}" th:title="#{nav.addRoom}">
                         <i class="bi bi-plus-square-fill me-1"></i>
-                        <span>Room</span>
+                        <span th:text="#{nav.room.short}">Room</span>
                     </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','USER')">
                     <a class="nav-link" th:href="@{/guests/add}" th:title="#{nav.addGuest}">
                         <i class="bi bi-person-plus-fill me-1"></i>
-                        <span>Guest</span>
+                        <span th:text="#{nav.guest.short}">Guest</span>
                     </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin/guests-csv}" title="Import Guests">
+                    <a class="nav-link" th:href="@{/admin/guests-csv}" th:title="#{admin.import.title}">
                         <i class="bi bi-file-earmark-arrow-up-fill me-1"></i>
-                        <span>Import</span>
+                        <span th:text="#{nav.import}">Import</span>
                     </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin/users}" title="Admin Panel">
+                    <a class="nav-link" th:href="@{/admin/users}" th:title="#{admin.dashboard.kicker}">
                         <i class="bi bi-shield-lock-fill me-1"></i>
-                        <span>Dashboard</span>
+                        <span th:text="#{admin.dashboard.title}">Dashboard</span>
                     </a>
                 </li>
 
@@ -96,8 +96,8 @@
                     <button class="anonymous-theme-toggle"
                             type="button"
                             data-theme-cycle
-                            aria-label="Change theme"
-                            title="Change theme">
+                            th:aria-label="#{theme.change}"
+                            th:title="#{theme.change}">
                         <i class="bi bi-display"></i>
                     </button>
                 </li>
@@ -109,7 +109,7 @@
                             data-bs-toggle="dropdown"
                             data-bs-auto-close="outside"
                             aria-expanded="false"
-                            aria-label="Open profile menu">
+                            th:aria-label="#{profile.open}">
                         <i class="bi bi-person-fill"></i>
                     </button>
 
@@ -122,10 +122,10 @@
                             </div>
 
                             <div class="profile-summary-text">
-                                <span>Logged in as:</span>
+                                <span th:text="#{profile.loggedInAs}">Logged in as:</span>
                                 <strong class="profile-role" sec:authorize="hasRole('ADMIN')">ADMIN</strong>
                                 <strong class="profile-role" sec:authorize="!hasRole('ADMIN')">USER</strong>
-                                <span class="profile-email-label">Email:</span>
+                                <span class="profile-email-label" th:text="#{profile.email}">Email:</span>
                                 <strong class="profile-email" sec:authentication="name"></strong>
                             </div>
                         </div>
@@ -133,27 +133,27 @@
                         <hr class="profile-divider">
 
                         <section class="profile-section">
-                            <h3>Theme</h3>
-                            <div class="profile-theme-options" role="group" aria-label="Theme">
+                            <h3 th:text="#{theme.title}">Theme</h3>
+                            <div class="profile-theme-options" role="group" th:aria-label="#{theme.title}">
                                 <button class="profile-theme-option"
                                         type="button"
                                         data-theme-option="light">
                                     <i class="bi bi-sun"></i>
-                                    <span>Light</span>
+                                    <span th:text="#{theme.light}">Light</span>
                                 </button>
 
                                 <button class="profile-theme-option"
                                         type="button"
                                         data-theme-option="dark">
                                     <i class="bi bi-moon"></i>
-                                    <span>Dark</span>
+                                    <span th:text="#{theme.dark}">Dark</span>
                                 </button>
 
                                 <button class="profile-theme-option"
                                         type="button"
                                         data-theme-option="system">
                                     <i class="bi bi-display"></i>
-                                    <span>System</span>
+                                    <span th:text="#{theme.system}">System</span>
                                 </button>
                             </div>
                         </section>
@@ -161,7 +161,7 @@
                         <hr class="profile-divider">
 
                         <section class="profile-section">
-                            <h3>Language</h3>
+                            <h3 th:text="#{language.title}">Language</h3>
                             <div class="dropdown profile-language-menu">
                                 <button class="profile-language-button dropdown-toggle"
                                         type="button"
@@ -174,7 +174,7 @@
                                         <span th:case="'bn'">🇧🇩 বাংলা</span>
                                         <span th:case="'fr'">🇫🇷 Français</span>
                                         <span th:case="'de'">🇩🇪 Deutsch</span>
-                                        <span th:case="*">Language</span>
+                                        <span th:case="*" th:text="#{language.title}">Language</span>
                                     </span>
                                 </button>
 
@@ -201,7 +201,7 @@
                         <form th:action="@{/logout}" method="post" class="profile-logout-form">
                             <button type="submit" class="profile-logout-button">
                                 <i class="bi bi-power"></i>
-                                <span>Logout</span>
+                                <span th:text="#{nav.logout}">Logout</span>
                             </button>
                         </form>
                     </div>
@@ -225,7 +225,7 @@
                             <span th:case="'bn'">🇧🇩 বাংলা</span>
                             <span th:case="'fr'">🇫🇷 Français</span>
                             <span th:case="'de'">🇩🇪 Deutsch</span>
-                            <span th:case="*">Language</span>
+                            <span th:case="*" th:text="#{language.title}">Language</span>
                         </span>
                     </a>
 
@@ -275,7 +275,7 @@
                 <li class="nav-item" sec:authorize="isAnonymous()">
                     <a class="btn btn-outline-light d-flex align-items-center px-3" th:href="@{/login}">
                         <i class="bi bi-box-arrow-in-right me-2"></i>
-                        <span>Login</span>
+                        <span th:text="#{login.title}">Login</span>
                     </a>
                 </li>
 

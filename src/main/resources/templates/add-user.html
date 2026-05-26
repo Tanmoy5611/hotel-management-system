@@ -3,7 +3,7 @@
 
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
-    <title>Add User</title>
+    <title th:text="#{users.add}">Add User</title>
 </head>
 
 <body class="bg-light">
@@ -24,7 +24,7 @@
                     <h3 class="mb-4 text-center">
 
                         <i class="bi bi-person-plus"></i>
-                        Add New User
+                        <span th:text="#{users.addNew}">Add New User</span>
 
                     </h3>
 
@@ -42,12 +42,12 @@
 
                         <div class="mb-3">
 
-                            <label class="form-label">Email</label>
+                            <label class="form-label" th:text="#{users.email}">Email</label>
 
                             <input type="email"
                                    th:field="*{email}"
                                    class="form-control"
-                                   placeholder="Enter email"
+                                   th:placeholder="#{users.email.placeholder}"
                                    required>
                         </div>
 
@@ -55,7 +55,7 @@
                         <!-- Password -->
                         <div class="mb-4">
 
-                            <label class="form-label">Password</label>
+                            <label class="form-label" th:text="#{users.password}">Password</label>
 
                             <div class="input-group">
 
@@ -63,7 +63,7 @@
                                        id="registerPasswordField"
                                        th:field="*{password}"
                                        class="form-control"
-                                       placeholder="Enter password"
+                                       th:placeholder="#{users.password.placeholder}"
                                        required>
 
                                 <span class="input-group-text"
@@ -82,14 +82,14 @@
                                     class="btn btn-success">
 
                                 <i class="bi bi-check-circle"></i>
-                                Create User
+                                <span th:text="#{users.create}">Create User</span>
 
                             </button>
 
                             <a th:href="@{/admin/users/manage}"
                                class="btn btn-outline-secondary">
 
-                                Cancel
+                                <span th:text="#{users.cancel}">Cancel</span>
 
                             </a>
 

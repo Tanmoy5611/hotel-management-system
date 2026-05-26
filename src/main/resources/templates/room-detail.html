@@ -4,7 +4,7 @@
       lang="en">
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
-    <title th:text="'Room Details - ' + ${room.number}">Room Details</title>
+    <title th:text="#{room.details.pageTitle(${room.number})}">Room Details</title>
     <link rel="stylesheet" th:href="@{/css/bundle-room-detail.css}">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
@@ -24,7 +24,7 @@
             <div class="col-md-5">
                 <img th:src="${room.photoUrl}"
                      class="img-fluid rounded-start room-detail-img"
-                     th:alt="'Room ' + ${room.number}">
+                     th:alt="#{room.numberLabel(${room.number})}">
             </div>
             <div class="col-md-7">
                 <div class="card-body">
@@ -125,7 +125,7 @@
                                 onclick="toggleText(this)">
 
                             <i class="bi bi-chevron-down me-1"></i>
-                            <span>Read more</span>
+                            <span th:text="#{common.readMore}">Read more</span>
 
                         </button>
 
@@ -190,7 +190,7 @@
             <a th:href="@{/guests/add(roomId=${room.id})}"
                class="btn btn-success btn-sm">
                 <i class="bi bi-plus-circle"></i>
-                <span>Add Guest</span>
+                <span th:text="#{nav.addGuest}">Add Guest</span>
             </a>
         </div>
 
@@ -405,7 +405,7 @@
 
                 <div class="modal-body text-center">
                     <p class="mb-2" th:text="#{modal.delete.roomQuestion}"></p>
-                    <strong th:text="'Room ' + ${room.number}"></strong>
+                    <strong th:text="#{room.numberLabel(${room.number})}"></strong>
                 </div>
 
                 <div class="modal-footer justify-content-between">

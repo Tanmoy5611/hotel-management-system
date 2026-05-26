@@ -5,7 +5,7 @@
 
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
-    <title>Activity Management</title>
+    <title th:text="#{activity.management}">Activity Management</title>
 </head>
 
 <body class="bg-light">
@@ -19,7 +19,7 @@
                 <i class="bi bi-activity"></i>
                 <span th:text="#{activity.management}">Activity Management</span>
             </h2>
-            <p class="text-muted mb-0">Monitor the 10 most recent user and system activities.</p>
+            <p class="text-muted mb-0" th:text="#{activity.subtitle}">Monitor the 10 most recent user and system activities.</p>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
@@ -30,7 +30,7 @@
 
             <a th:href="@{/admin/users}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i>
-                <span>Dashboard</span>
+                <span th:text="#{admin.dashboard.title}">Dashboard</span>
             </a>
         </div>
     </div>
