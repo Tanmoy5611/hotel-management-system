@@ -11,7 +11,8 @@ import java.util.Optional;
 @Entity
 @Table(
         name = "stays",
-        // Improves performance
+        // These indexes speed up joins/filtering when loading bookings by room or by guest
+        // They do not change the data; they help the database find matching Stay rows faster
         indexes = {
                 @Index(name = "idx_stay_room", columnList = "room_id"),
                 @Index(name = "idx_stay_guest", columnList = "guest_id")
@@ -57,7 +58,8 @@ public class Stay {
            throw new IllegalArgumentException("Dates cannot be null");
        }
 
-       if (checkOutDate.isBefore(checkInDate)) {
+       // Same-day checkout would create a zero-night stay, so checkout must be strictly later
+       if (!checkOutDate.isAfter(checkInDate)) {
            throw new IllegalArgumentException("Check-out must be after check-in");
        }
 
@@ -76,15 +78,6 @@ public class Stay {
     public LocalDate getCheckInDate() { return checkInDate; }
     public LocalDate getCheckOutDate() { return checkOutDate; }
 
-
-    // Package-private setters
-    // (prevent external misuse)
-    void setRoom(Room room) {
-        this.room = room;
-    }
-    void setGuest(Guest guest) {
-        this.guest = guest;
-    }
 
     // Stay duration calculation for guest
     // because Duration belongs to Stay

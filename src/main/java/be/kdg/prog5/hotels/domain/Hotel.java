@@ -143,20 +143,6 @@ public class Hotel {
         this.description = description;
     }
 
-    // Aggregate Helper Methods
-
-    // Add Room to this Hotel - Keeps both sides of relationship in sync
-    public void addRoom(Room room) {
-        rooms.add(room);
-        room.setHotel(this);
-    }
-
-    // Remove Room from this Hotel.
-    public void removeRoom(Room room) {
-        rooms.remove(room);
-        room.setHotel(null);
-    }
-
     // Override toString method to print hotel details
     @Override
     public String toString() {

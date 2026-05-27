@@ -13,6 +13,7 @@ import java.util.*;
         uniqueConstraints = @UniqueConstraint(
                 columnNames = {"hotel_id", "number"}
         ),
+        // Speeds up queries that load rooms for one hotel or check room numbers inside a hotel
         indexes = @Index(name = "idx_rooms_hotel_id", columnList = "hotel_id")
 )
 
@@ -172,10 +173,6 @@ public class Room {
 
         Stay stay = new Stay(this, guest, checkIn, checkOut);
         stays.add(stay);
-    }
-
-    public void removeStay(Stay stay) {
-        stays.remove(stay);
     }
 
     // Removes a booking by Stay id while keeping Stay ownership inside the Room aggregate

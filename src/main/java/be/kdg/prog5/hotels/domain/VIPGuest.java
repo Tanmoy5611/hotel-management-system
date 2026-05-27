@@ -21,22 +21,11 @@ public class VIPGuest extends Guest {
 
         super(fullName, dob, email, avatarUrl);  // used to initialize inherited fields from Guest entity
 
-        // discountPercentage is part of VIPGuest’s domain rules, so the entity must enforce its own valid state during creation and updates
-        if (discountPercentage != null &&
-                (discountPercentage.compareTo(BigDecimal.ZERO) < 0 ||
-                        discountPercentage.compareTo(BigDecimal.valueOf(100)) > 0)) {
-
-            throw new IllegalArgumentException("Discount must be between 0 and 100");
-        }
+        // Delegate to the setter so constructor and later updates use one validation rule
         setDiscountPercentage(discountPercentage);
     }
 
-    // Method overriding allows polymorphic behavior based on the actual entity type
-    @Override
-    public BigDecimal getDiscountPercentage() {
-        return super.getDiscountPercentage();
-    }
-
+    // set discount percentage to be between 0 and 100 for VIP guests
     @Override
     public void setDiscountPercentage(BigDecimal discountPercentage) {
 
