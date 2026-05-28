@@ -1,6 +1,7 @@
 package be.kdg.prog5.hotels.web.controllers;
 
 import be.kdg.prog5.hotels.business.ApplicationUserService;
+import be.kdg.prog5.hotels.business.exceptions.ApplicationUserHasGuestsException;
 import be.kdg.prog5.hotels.config.AppConstants;
 import be.kdg.prog5.hotels.viewmodel.RegisterForm;
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin/users")
@@ -74,8 +76,15 @@ public class AdminUserController {
 
     // Deletes a user by id from the management page
     @PostMapping("/{id}/delete")
-    public String deleteUser(@PathVariable Long id) {
-        applicationUserService.deleteUser(id);
+    public String deleteUser(@PathVariable Long id,
+                             RedirectAttributes redirectAttributes) {
+        // Try to delete the user, catching the exception if the user has guests
+        try {
+            applicationUserService.deleteUser(id);
+        } catch (ApplicationUserHasGuestsException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+
         return "redirect:/admin/users/manage";
     }
 

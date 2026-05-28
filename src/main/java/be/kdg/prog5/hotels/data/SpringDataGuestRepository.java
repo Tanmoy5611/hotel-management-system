@@ -44,6 +44,9 @@ public interface SpringDataGuestRepository extends JpaRepository<Guest, Long> {
     // Checks duplicate guest emails during CSV import
     boolean existsByEmailIgnoreCase(String email);
 
+    // Used before deleting an application user, because Guest.owner is mandatory
+    boolean existsByOwner_Id(Long ownerId);
+
     //  Optimized query to load the Guest aggregate with Stays, Rooms, and Hotels
     @Query("""
             SELECT DISTINCT g

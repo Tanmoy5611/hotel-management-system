@@ -17,13 +17,13 @@
                 <i class="bi bi-people-fill"></i>
                 <span th:text="#{users.management}">User Management</span>
             </h2>
-            <p class="text-muted mb-0">Review accounts, roles, and protected admin access.</p>
+            <p class="text-muted mb-0" th:text="#{users.management.subtitle}">Review accounts, roles, and protected admin access.</p>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
             <a th:href="@{/admin/users}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i>
-                <span>Dashboard</span>
+                <span th:text="#{admin.dashboard.title}">Dashboard</span>
             </a>
 
             <a th:href="@{/admin/users/add}" class="btn btn-primary">
@@ -33,14 +33,18 @@
         </div>
     </div>
 
+    <div th:if="${errorMessage}" class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${errorMessage}">User cannot be deleted.</span>
+    </div>
+
     <!-- Search -->
     <div class="card shadow-sm border-0 mb-3">
         <div class="card-body">
             <input type="text"
                    id="userSearch"
                    class="form-control"
-                   th:placeholder="#{users.search}"
-                   placeholder="Search users by email...">
+                   th:placeholder="#{users.search}">
         </div>
     </div>
 
