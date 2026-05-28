@@ -98,9 +98,11 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.findVipGuests();
     }
 
-    // Searches guests with caching so repeated terms avoid a second database hit
+    // Caches guest search results by normalized search text and minimum room count
+    // Repeating the same search can return from cache instead of querying the database again
     @Override
     @Transactional(readOnly = true)
+    // Cache key uses normalized query text and minimum room count so equivalent searches reuse the same result
     @Cacheable(value = "guestSearch", key = "{#query == null ? '' : #query.trim().toLowerCase(), #minRooms == null || #minRooms < 1 ? null : #minRooms}")
     public List<Guest> searchGuests(String query, Integer minRooms) {
         log.debug("Searching guests: query={}, minRooms={}", query, minRooms);
@@ -115,7 +117,8 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.searchGuests(cleanedQuery, cleanedMinRooms);
     }
 
-    // Creates a guest, optionally books a room, and clears cached search results
+    // Creating a guest changes the guest list and may change stay counts
+    // Clear all cached guest searches so the next search reads fresh data
     @Override
     @CacheEvict(value = "guestSearch", allEntries = true)
     public Guest createGuestWithRoom(String fullName, LocalDate dob, String email, String avatarUrl,
@@ -148,8 +151,8 @@ public class GuestServiceImpl implements GuestService {
 
             // Domain (Room.addGuest) already validates dates
 
-            Room room = roomRepo.findByIdWithHotelAndGuests(roomId)
-                    .orElseThrow(() -> new RoomNotFoundException(roomId));
+            // Lock the room before assigning the new guest so concurrent bookings cannot overlap
+            Room room = findRoomWithBookingLock(roomId);
 
             // Room owns Stay -> room creates Stay (aggregate logic)
             room.addGuest(savedGuest, checkIn, checkOut);
@@ -176,7 +179,8 @@ public class GuestServiceImpl implements GuestService {
         return savedGuest;
     }
 
-    // Creates a guest from the Week 10 client and assigns the protected admin owner
+    // Creating a guest from the Week 10 client also changes guest search results
+    // Clear the guest search cache so the new guest appears immediately
     @Override
     @CacheEvict(value = "guestSearch", allEntries = true)
     public Guest createGuestFromClient(String fullName, LocalDate dob, String email, String avatarUrl,
@@ -235,5 +239,15 @@ public class GuestServiceImpl implements GuestService {
         }
 
         return avatarUrl.trim();
+    }
+
+    // First query obtains the database write lock on the room row
+    // Second query reloads the full aggregate needed by Room.addGuest and logging
+    private Room findRoomWithBookingLock(Long roomId) {
+        roomRepo.findByIdForUpdate(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
+
+        return roomRepo.findByIdWithHotelAndGuests(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
     }
 }

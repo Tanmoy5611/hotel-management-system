@@ -3,7 +3,9 @@ package be.kdg.prog5.hotels.data;
 import be.kdg.prog5.hotels.domain.Hotel;
 import be.kdg.prog5.hotels.domain.Room;
 import be.kdg.prog5.hotels.domain.RoomType;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -59,6 +61,17 @@ public interface SpringDataRoomRepository extends JpaRepository<Room, Long> {
             WHERE r.id = :roomId
     """)
     Optional<Room> findByIdWithHotelAndGuests(@Param("roomId") Long roomId);
+
+    // Locks one room (pessimistic) row while a booking/cancellation changes its Stay collection
+    // If two users book the same room at the same time, the first transaction keeps this lock
+    // The second transaction waits, then reloads the stays and lets Room.addGuest reject overlaps
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT r
+            FROM Room r
+            WHERE r.id = :roomId
+    """)
+    Optional<Room> findByIdForUpdate(@Param("roomId") Long roomId);
 
     // Sorted stays - for room detail page (ORDER BY in DB, not in Java)
     @Query("""

@@ -50,7 +50,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
-    // Books a room through the Room aggregate and evicts guest search cache because guest stay counts can change
+    // Booking a room changes how many stays a guest has
+    // Clear guest search cache because filters like minimum rooms depend on stay counts
     @Override
     @CacheEvict(value = "guestSearch", allEntries = true)
     public void bookRoom(Long roomId, Long guestId,
@@ -58,8 +59,8 @@ public class BookingServiceImpl implements BookingService {
                          LocalDate checkOut) {
         log.debug("Booking room {} for guest {}", roomId, guestId);
 
-        Room room = roomRepo.findByIdWithHotelAndGuests(roomId)
-                .orElseThrow(() -> new RoomNotFoundException(roomId));
+        // Lock the room before checking availability so two requests cannot book it at the same time
+        Room room = findRoomWithBookingLock(roomId);
 
         Guest guest = guestRepo.findById(guestId)
                 .orElseThrow(() -> new GuestNotFoundException(guestId));
@@ -74,7 +75,8 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
-    // Cancels a booking by removing the Stay from the managed Room aggregate and logging the admin action
+    // Cancelling a booking also changes guest stay counts
+    // Clear guest search cache so minimum room filters do not use stale results
     @Override
     @CacheEvict(value = "guestSearch", allEntries = true)
     public void cancelBooking(Long stayId) {
@@ -86,8 +88,8 @@ public class BookingServiceImpl implements BookingService {
         String guestName = stay.getGuest().getFullName();
         Long roomId = stay.getRoom().getId();
 
-        Room room = roomRepo.findByIdWithHotelAndGuests(roomId)
-                .orElseThrow(() -> new RoomNotFoundException(roomId));
+        // Lock the owning room before removing a Stay so booking changes stay consistent
+        Room room = findRoomWithBookingLock(roomId);
 
         int roomNumber = room.getNumber();
         String hotelName = room.getHotel().getName();
@@ -100,5 +102,15 @@ public class BookingServiceImpl implements BookingService {
                 ActivityType.DELETE_BOOKING,
                 "Booking for " + guestName + " in room " + roomNumber + " at " + hotelName + " cancelled"
         );
+    }
+
+    // First query obtains the database write lock on the room row
+    // Second query reloads the full aggregate needed by Room.addGuest and logging
+    private Room findRoomWithBookingLock(Long roomId) {
+        roomRepo.findByIdForUpdate(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
+
+        return roomRepo.findByIdWithHotelAndGuests(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
     }
 }
