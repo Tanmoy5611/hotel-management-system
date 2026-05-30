@@ -10,6 +10,7 @@ public enum ActivityType {
     BOOK_ROOM,
     CREATE_GUEST,
     DELETE_GUEST,
+    DELETE_BOOKING,
     CREATE_USER,
     DELETE_USER,
     UPDATE_USER_ROLE

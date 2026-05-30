@@ -35,6 +35,12 @@ class RoomServiceTest {
     private RoomService roomService;
 
     @Autowired
+    private BookingService bookingService;
+
+    @Autowired
+    private GuestService guestService;
+
+    @Autowired
     private SpringDataRoomRepository roomRepository;
 
     @Autowired
@@ -101,9 +107,9 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify that a room can be created correctly through the service layer.
-     BUSINESS RULE: Room must be linked to an existing Hotel.
-     EXPECTATION: Room is saved and correctly associated with the given hotelId.
+     PURPOSE: Verify that a room can be created correctly through the service layer
+     BUSINESS RULE: Room must be linked to an existing Hotel
+     EXPECTATION: Room is saved and correctly associated with the given hotelId
      */
     @Test
     void shouldCreateRoomSuccessfully() {
@@ -128,9 +134,9 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify business validation for duplicate room numbers.
-     BUSINESS RULE: A hotel cannot have two rooms with the same number.
-     IMPORTANT: This validation is done at SERVICE level (before DB), not relying only on database constraints.
+     PURPOSE: Verify business validation for duplicate room numbers
+     BUSINESS RULE: A hotel cannot have two rooms with the same number
+     IMPORTANT: This validation is done at SERVICE level (before DB), not relying only on database constraints
      */
     @Test
     void shouldFailWhenCreatingDuplicateRoom() {
@@ -165,9 +171,9 @@ class RoomServiceTest {
 
 
     /*
-     PURPOSE: Verify fetching a room by ID using service layer.
-     IMPORTANT: Service uses JOIN FETCH -> returns full aggregate (Room + related data).
-     entityManager.clear(): Simulates new request -> avoids cached entity.
+     PURPOSE: Verify fetching a room by ID using service layer
+     IMPORTANT: Service uses JOIN FETCH -> returns full aggregate (Room + related data)
+     entityManager.clear(): Simulates new request -> avoids cached entity
      */
     @Test
     void shouldGetRoomByIdSuccessfully() {
@@ -196,8 +202,8 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify exception handling when room does not exist.
-     EXPECTATION: Service throws RoomNotFoundException.
+     PURPOSE: Verify exception handling when room does not exist
+     EXPECTATION: Service throws RoomNotFoundException
      */
     @Test
     void shouldThrowWhenRoomNotFound() {
@@ -209,8 +215,8 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify deleting a room through service layer.
-     EXPECTATION: Room should be removed from database.
+     PURPOSE: Verify deleting a room through service layer
+     EXPECTATION: Room should be removed from database
      */
     @Test
     void shouldDeleteRoomSuccessfully() {
@@ -236,8 +242,8 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify updating room description using JPA dirty checking.
-     IMPORTANT: No save() is required -> entity is updated automatically inside transaction.
+     PURPOSE: Verify updating room description using JPA dirty checking
+     IMPORTANT: No save() is required -> entity is updated automatically inside transaction
      */
     @Test
     void shouldUpdateRoomDescription() {
@@ -265,9 +271,9 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify booking a room (core aggregate operation).
-     BUSINESS RULE: Room is aggregate root => creates Stay internally.
-     EXPECTATION: Booking creates a new Stay linked to Room and Guest.
+     PURPOSE: Verify booking a room through the booking workflow
+     BUSINESS RULE: Room is aggregate root => creates Stay internally
+     EXPECTATION: Booking creates a new Stay linked to Room and Guest
      */
     @Test
     void shouldBookRoomSuccessfully() {
@@ -285,7 +291,7 @@ class RoomServiceTest {
         Room savedRoom = roomService.createRoom(room, "hotel-1");
 
         // Act
-        roomService.bookRoom(
+        bookingService.bookRoom(
                 savedRoom.getId(),
                 guest.getId(),
                 LocalDate.now(),
@@ -305,9 +311,9 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify filtering logic using optional parameters.
-     DESIGN: Optional is used to avoid null checks in service layer.
-     EXPECTATION: Only rooms matching criteria are returned.
+     PURPOSE: Verify filtering logic using optional parameters
+     DESIGN: Optional is used to avoid null checks in service layer
+     EXPECTATION: Only rooms matching criteria are returned
      */
     @Test
     void shouldFindRoomsWithFilters() {
@@ -339,8 +345,8 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify domain validation when check-out is before check-in.
-     EXPECTATION: Booking should fail with BookingException.
+     PURPOSE: Verify domain validation when check-out is before check-in
+     EXPECTATION: Booking should fail with BookingException
      */
     @Test
     void shouldFailWhenCheckOutBeforeCheckIn() {
@@ -359,7 +365,7 @@ class RoomServiceTest {
 
         // Act + Assert
         assertThatThrownBy(() ->
-                roomService.bookRoom(
+                bookingService.bookRoom(
                         savedRoom.getId(),
                         guest.getId(),
                         LocalDate.now(),
@@ -369,8 +375,8 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify validation when booking with non-existing Guest.
-     EXPECTATION: Service throws GuestNotFoundException.
+     PURPOSE: Verify validation when booking with non-existing Guest
+     EXPECTATION: Service throws GuestNotFoundException
      */
     @Test
     void shouldFailWhenBookingWithNonExistingGuest() {
@@ -391,7 +397,7 @@ class RoomServiceTest {
 
         // Act + Assert
         assertThatThrownBy(() ->
-                roomService.bookRoom(
+                bookingService.bookRoom(
                         savedRoom.getId(),
                         nonExistingGuestId,
                         LocalDate.now(),
@@ -401,8 +407,8 @@ class RoomServiceTest {
     }
 
     /*
-     PURPOSE: Verify validation when booking with non-existing Room.
-     EXPECTATION: Service throws RoomNotFoundException.
+     PURPOSE: Verify validation when booking with non-existing Room
+     EXPECTATION: Service throws RoomNotFoundException
      */
     @Test
     void shouldFailWhenBookingWithNonExistingRoom() {
@@ -412,12 +418,91 @@ class RoomServiceTest {
 
         //  Act + Assert
         assertThatThrownBy(() ->
-                roomService.bookRoom(
+                bookingService.bookRoom(
                         nonExistingRoomId,
                         guest.getId(),
                         LocalDate.now(),
                         LocalDate.now().plusDays(2)
                 )
         ).isInstanceOf(RoomNotFoundException.class);
+    }
+
+    /*
+     PURPOSE: Verify that cached guest search results are refreshed after a booking changes stay counts
+     BUSINESS RULE: Guest search with minRooms depends on Stay data, so booking must evict guestSearch cache
+     */
+    @Test
+    void bookingShouldEvictGuestSearchCache() {
+
+        // Arrange
+        Room room = new Room(
+                400,
+                RoomType.SINGLE,
+                BigDecimal.valueOf(100),
+                false,
+                "photo.jpg",
+                "Room"
+        );
+
+        Room savedRoom = roomService.createRoom(room, "hotel-1");
+
+        // Cache empty result before the guest has any stays
+        assertThat(guestService.searchGuests("john", 1)).isEmpty();
+
+        // Act
+        bookingService.bookRoom(
+                savedRoom.getId(),
+                guest.getId(),
+                LocalDate.now(),
+                LocalDate.now().plusDays(2)
+        );
+
+        // Assert
+        assertThat(guestService.searchGuests("john", 1))
+                .extracting(Guest::getId)
+                .containsExactly(guest.getId());
+    }
+
+    /*
+     PURPOSE: Verify that cancelling a booking also refreshes cached guest search results
+     BUSINESS RULE: minRooms search should not show a guest after their only booking is cancelled
+     */
+    @Test
+    void cancellingBookingShouldEvictGuestSearchCache() {
+
+        // Arrange
+        Room room = new Room(
+                401,
+                RoomType.SINGLE,
+                BigDecimal.valueOf(100),
+                false,
+                "photo.jpg",
+                "Room"
+        );
+
+        Room savedRoom = roomService.createRoom(room, "hotel-1");
+
+        bookingService.bookRoom(
+                savedRoom.getId(),
+                guest.getId(),
+                LocalDate.now(),
+                LocalDate.now().plusDays(2)
+        );
+
+        entityManager.clear();
+
+        Room found = roomService.getRoomById(savedRoom.getId());
+        Long stayId = found.getStays().iterator().next().getId();
+
+        // Cache positive result before cancellation
+        assertThat(guestService.searchGuests("john", 1))
+                .extracting(Guest::getId)
+                .containsExactly(guest.getId());
+
+        // Act
+        bookingService.cancelBooking(stayId);
+
+        // Assert
+        assertThat(guestService.searchGuests("john", 1)).isEmpty();
     }
 }

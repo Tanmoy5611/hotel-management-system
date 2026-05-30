@@ -128,7 +128,7 @@
 
                                 <option th:each="r : ${rooms}"
                                         th:value="${r.id}"
-                                        th:text="'Room ' + ${r.number} + ' (' + ${r.hotel.name} + ')'">
+                                        th:text="#{room.numberWithHotel(${r.number}, ${r.hotel.name})}">
                                 </option>
                             </select>
                         </div>

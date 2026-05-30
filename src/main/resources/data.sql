@@ -158,12 +158,6 @@ VALUES
  'Comfortable single room with modern facilities, ideal for solo travelers seeking quality.',
  (SELECT id FROM hotels WHERE hotel_id = 'pan-pacific'));
 
--- INSERT INTO application_user (id, email, password, role)
--- VALUES
---     (1, 'admin@hotelapp.com', '$2a$10$1wVrS7yhflsS56LIUOOTJ.wpjK2CrDw6DNVtbc9TRYzv5thAyLn9m', 'ADMIN'),
---     (2, 'applicationUser@hotelapp.com', '$2a$10$ij4aqSXWNmAXwt/0VDFaS.5wg/x/PUsMqEQPg9o4OeHvxAtHk7sMK', 'USER');
-
-
 -- guests
 INSERT INTO guests (full_name, dob, email, avatar_url, guest_type, discount_percentage, owner_id)
 VALUES ('Billie Wilson', '1990-04-10', 'billie.wilson93@gmail.com', '/images/guests/billie_wilson.jpg', 'VIP', 15, 1),

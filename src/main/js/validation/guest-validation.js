@@ -22,8 +22,21 @@ const guestSchema = Joi.object({
     'string.empty': 'Date of birth is required.',
     'date.future': 'Date of birth cannot be in the future.',
   }),
-  avatarUrl: Joi.string().trim().uri({ scheme: ['http', 'https'] }).allow('').messages({
-    'string.uri': 'Avatar URL must start with http:// or https://.',
+  avatarUrl: Joi.string().trim().allow('').custom((value, helpers) => {
+    if (value === '' || value.startsWith('/images/')) {
+      return value;
+    }
+
+    try {
+      const url = new URL(value);
+      return ['http:', 'https:'].includes(url.protocol)
+        ? value
+        : helpers.error('avatar.invalidUrl');
+    } catch {
+      return helpers.error('avatar.invalidUrl');
+    }
+  }).messages({
+    'avatar.invalidUrl': 'Avatar URL must be an http(s) URL or a local /images/ path.',
   }),
   discountPercentage: Joi.number().min(0).max(100).allow(null).messages({
     'number.min': 'Discount cannot be negative.',

@@ -83,7 +83,7 @@ public class HotelController {        // All URLs in this controller start with 
 
     /// Add hotel with @PreAuthorize security
     // This method shows the "Add Hotel" form when visits "/hotels/add"
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/add")
     public String addForm(Model model) {
         log.debug("Loading add hotel form");
@@ -96,7 +96,7 @@ public class HotelController {        // All URLs in this controller start with 
 
     /// Save new Hotel with @PreAuthorize security
     // This method processes the HotelForm submission for adding new hotel
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public String addSubmit(@ModelAttribute("hotelForm") @Valid HotelForm hotelForm,
                             BindingResult bindingResult) {

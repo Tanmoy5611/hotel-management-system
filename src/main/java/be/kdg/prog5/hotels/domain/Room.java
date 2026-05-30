@@ -13,6 +13,7 @@ import java.util.*;
         uniqueConstraints = @UniqueConstraint(
                 columnNames = {"hotel_id", "number"}
         ),
+        // Speeds up queries that load rooms for one hotel or check room numbers inside a hotel
         indexes = @Index(name = "idx_rooms_hotel_id", columnList = "hotel_id")
 )
 
@@ -45,7 +46,7 @@ public class Room {
     /// many-to-one - Room belongs to Hotel (aggregate boundary)
     // Default for ManyToOne is EAGER; must be changed to LAZY
     @ManyToOne(fetch = FetchType.LAZY, optional = false)    // represents a foreign-key (rooms.hotel_id) relationship where many rooms belong to one hotel
-    @JoinColumn(name = "hotel_id", nullable = false)                          // specifies the foreign key column in the database.
+    @JoinColumn(name = "hotel_id", nullable = false)                          // specifies the foreign key column in the database
     private Hotel hotel;
 
 
@@ -57,7 +58,7 @@ public class Room {
             orphanRemoval = true)
     private Set<Stay> stays = new HashSet<>();
 
-    // Required empty constructor for entity instantiation.
+    // Required empty constructor for entity instantiation
     protected Room() {
     }
 
@@ -174,8 +175,9 @@ public class Room {
         stays.add(stay);
     }
 
-    public void removeStay(Stay stay) {
-        stays.remove(stay);
+    // Removes a booking by Stay id while keeping Stay ownership inside the Room aggregate
+    public boolean removeStayById(Long stayId) {
+        return stays.removeIf(stay -> Objects.equals(stay.getId(), stayId));
     }
 
     @Override

@@ -151,7 +151,7 @@
 
                         <p class="card-text mb-2">
                             <i class="bi bi-star-fill text-warning"></i>
-                            <span th:text="${h.stars} + ' Stars'"></span>
+                            <span th:text="#{hotels.starsCount(${h.stars})}"></span>
                         </p>
 
                         <p class="card-text mb-2">

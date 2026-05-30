@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
-    <title th:text="#{users.title}">User Management</title>
+    <title th:text="#{admin.dashboard.title}">Admin Dashboard</title>
 </head>
 
 <body class="bg-light">
@@ -14,352 +12,67 @@
 
 <div class="container my-4">
 
-    <!-- Page header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <h2 class="fw-semibold">
-            <i class="bi bi-people"></i>
-            <span th:text="#{users.management}">User Management</span>
-        </h2>
-
+    <!-- Admin dashboard navigation -->
+    <div class="admin-dashboard-header">
         <div>
-
-            <a th:href="@{/home}" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-house"></i>
-                <span th:text="#{users.home}">Home</span>
-            </a>
-
-            <a th:href="@{/admin/users/add}" class="btn btn-primary">
-                <i class="bi bi-person-plus"></i>
-                <span th:text="#{users.add}">Add User</span>
-            </a>
-
+            <p class="admin-dashboard-kicker" th:text="#{admin.dashboard.kicker}">Admin Panel</p>
+            <h1 th:text="#{admin.dashboard.title}">Dashboard</h1>
+            <p class="admin-dashboard-subtitle" th:text="#{admin.dashboard.subtitle}">
+                Manage users, activity, guest imports, and current bookings from one place.
+            </p>
         </div>
 
+        <a th:href="@{/home}" class="btn btn-outline-secondary">
+            <i class="bi bi-house"></i>
+            <span th:text="#{users.home}">Home</span>
+        </a>
     </div>
 
-    <!-- Search -->
-    <div class="card shadow-sm border-0 mb-3">
-        <div class="card-body">
-            <input type="text"
-                   id="userSearch"
-                   class="form-control"
-                   th:placeholder="#{users.search}"
-                   placeholder="Search users by email...">
-        </div>
-    </div>
-
-    <!-- Users table -->
-    <div class="card shadow-sm border-0">
-
-        <div class="card-body">
-
-            <table class="table table-hover align-middle" id="usersTable">
-
-                <thead class="table-light">
-                <tr>
-                    <th th:text="#{users.email}">Email</th>
-                    <th th:text="#{users.role}">Role</th>
-                    <th style="width:260px" th:text="#{users.actions}">Actions</th>
-                </tr>
-                </thead>
-
-                <tbody>
-
-                <tr th:each="applicationUser : ${users}">
-
-                    <td>
-                        <i class="bi bi-person-circle me-2"></i>
-                        <span th:text="${applicationUser.email}"></span>
-                    </td>
-
-                    <td>
-
-                        <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2"
-                              th:classappend="
-                              ${applicationUser.role.name() == 'ADMIN'} ?
-                              'bg-danger-subtle text-danger border border-danger' :
-                              'bg-primary-subtle text-primary border border-primary'">
-                            <i class="bi"
-                               th:classappend="${applicationUser.role.name() == 'ADMIN'} ? 'bi-shield-lock-fill' : 'bi-person-circle'">
-                            </i>
-                            <span th:text="${applicationUser.role}"></span>
-                        </span>
-
-                    </td>
-
-                    <td class="d-flex gap-2">
-
-                        <button type="button"
-                                class="btn btn-warning btn-sm"
-                                th:if="${applicationUser.email != protectedAdminEmail}"
-                                data-bs-toggle="modal"
-                                th:attr="data-bs-target='#roleModal__' + ${applicationUser.id}">
-
-                            <i class="bi bi-arrow-repeat"></i>
-                            <span th:text="#{users.changeRole}">Change Role</span>
-
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-danger btn-sm"
-                                th:if="${applicationUser.email != protectedAdminEmail}"
-                                data-bs-toggle="modal"
-                                th:attr="data-bs-target='#deleteModal__' + ${applicationUser.id}">
-
-                            <i class="bi bi-trash"></i>
-                            <span th:text="#{users.delete}">Delete</span>
-
-                        </button>
-
-                        <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2 bg-success-subtle text-success border border-success"
-                              th:if="${applicationUser.email == protectedAdminEmail}">
-                            <i class="bi bi-lock-fill"></i>
-                            <span th:text="#{users.protected}">PROTECTED</span>
-                        </span>
-
-                    </td>
-
-                </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <!--  Activity Management -->
-    <div class="mt-5" sec:authorize="hasRole('ADMIN')">
-
-        <!-- Section header -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <h2 class="fw-semibold">
-                <i class="bi bi-activity"></i>
-                <span th:text="#{activity.management}">Activity Management</span>
-            </h2>
-
-            <span class="badge bg-secondary"
-                  th:text="${#lists.size(logs)} + ' ' + #{activity.items}">
+    <div class="admin-dashboard-grid" th:aria-label="#{admin.dashboard.shortcuts}">
+        <a th:href="@{/admin/users/manage}" class="admin-feature-card admin-feature-card--users">
+            <span class="admin-feature-icon">
+                <i class="bi bi-people-fill"></i>
             </span>
-
-        </div>
-
-        <!-- Activity table card -->
-        <div class="card shadow-sm border-0">
-
-            <div class="card-body p-0 table-responsive">
-
-                <table class="table table-hover align-middle mb-0">
-
-                    <thead class="table-light">
-                    <tr>
-                        <th th:text="#{activity.action}">Action</th>
-                        <th th:text="#{activity.description}">Description</th>
-                        <th th:text="#{activity.user}">User</th>
-                        <th th:text="#{activity.time}">Time</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-
-                    <!-- Empty state -->
-                    <tr th:if="${#lists.isEmpty(logs)}">
-                        <td colspan="4" class="text-center text-muted py-4">
-                            <i class="bi bi-inbox me-2"></i>
-                            <span th:text="#{activity.empty}">No recent activity</span>
-                        </td>
-                    </tr>
-
-                    <!-- Log items -->
-                    <tr th:each="log : ${logs}">
-
-                        <!-- Action -->
-                        <td>
-                        <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2"
-
-                              th:classappend="
-                                ${log.action.name().contains('DELETE')} ? 'bg-danger' :
-                                (${log.action.name().contains('CREATE')} ? 'bg-success' :
-                                (${log.action.name().contains('BOOK')} ? 'bg-primary' : 'bg-secondary'))">
-
-                            <i class="bi"
-                               th:classappend="
-                                ${log.action.name().contains('DELETE')} ? 'bi-trash' :
-                                (${log.action.name().contains('CREATE')} ? 'bi-plus-circle' :
-                                (${log.action.name().contains('BOOK')} ? 'bi-calendar-check' : 'bi-info-circle'))">
-                            </i>
-
-                            <span th:text="${log.action.name().replace('_', ' ')}">
-                                ACTION
-                            </span>
-
-                        </span>
-                        </td>
-
-                        <!-- Description -->
-                        <td th:text="${log.description}">
-                            Description
-                        </td>
-
-                        <!-- User -->
-                        <td>
-                            <i class="bi bi-person-circle me-1 text-muted"></i>
-                            <span th:text="${log.user.email}"></span>
-                        </td>
-
-                        <!-- Time -->
-                        <td>
-                            <small class="text-muted"
-                                   th:text="${#temporals.format(log.timestamp, 'dd MMM yyyy HH:mm')}">
-                                26 Mar 19:30
-                            </small>
-                        </td>
-
-                    </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
-</div>
-
-<!-- Change RoleType modals -->
-<div th:each="applicationUser : ${users}">
-
-    <div class="modal fade"
-         th:id="'roleModal__' + ${applicationUser.id}"
-         tabindex="-1">
-
-        <div class="modal-dialog modal-dialog-centered">
-
-            <div class="modal-content">
-
-                <div class="modal-header">
-
-                    <h5 class="modal-title"
-                        th:text="#{users.changeRole}">
-                        Change User Role
-                    </h5>
-
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal">
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <span th:text="#{users.changeRoleConfirm}">
-                        Change role of
-                    </span>
-
-                    <strong th:text="${applicationUser.email}"></strong> ?
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                            th:text="#{users.cancel}">
-                        Cancel
-                    </button>
-
-                    <form th:action="@{/admin/users/{id}/toggle-role(id=${applicationUser.id})}"
-                          method="post">
-
-                        <button class="btn btn-warning"
-                                th:text="#{users.confirmRole}">
-                            Yes, Change Role
-                        </button>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- Delete modal -->
-<div th:each="applicationUser : ${users}">
-
-    <div class="modal fade"
-         th:id="'deleteModal__' + ${applicationUser.id}"
-         tabindex="-1">
-
-        <div class="modal-dialog modal-dialog-centered">
-
-            <div class="modal-content">
-
-                <div class="modal-header">
-
-                    <h5 class="modal-title"
-                        th:text="#{users.deleteUser}">
-                        Delete User
-                    </h5>
-
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal">
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <span th:text="#{users.deleteConfirm}">
-                        Delete user
-                    </span>
-
-                    <strong th:text="${applicationUser.email}"></strong> ?
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                            th:text="#{users.cancel}">
-                        Cancel
-                    </button>
-
-                    <form th:action="@{/admin/users/{id}/delete(id=${applicationUser.id})}"
-                          method="post">
-
-                        <button class="btn btn-danger"
-                                th:text="#{users.confirmDelete}">
-                            Yes, Delete
-                        </button>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-        </div>
-
+            <h2 th:text="#{users.management}">User Management</h2>
+            <p th:text="#{users.management.subtitle}">Review accounts, roles, and protected admin access.</p>
+        </a>
+
+        <a th:href="@{/admin/activity}" class="admin-feature-card admin-feature-card--activity">
+            <span class="admin-feature-icon">
+                <i class="bi bi-activity"></i>
+            </span>
+            <h2 th:text="#{activity.management}">Activity Management</h2>
+            <p th:text="#{activity.management.subtitle}">Track recent admin actions across the system.</p>
+        </a>
+
+        <a th:href="@{/admin/users/add}" class="admin-feature-card admin-feature-card--add-user">
+            <span class="admin-feature-icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </span>
+            <h2 th:text="#{users.add}">Add User</h2>
+            <p th:text="#{users.add.subtitle}">Create a new account with the correct role.</p>
+        </a>
+
+        <a th:href="@{/admin/guests-csv}" class="admin-feature-card admin-feature-card--import">
+            <span class="admin-feature-icon">
+                <i class="bi bi-file-earmark-arrow-up-fill"></i>
+            </span>
+            <h2 th:text="#{admin.import.title}">Import Guests</h2>
+            <p th:text="#{admin.import.subtitle}">Upload a CSV file and process guests asynchronously.</p>
+        </a>
+
+        <a th:href="@{/admin/bookings}" class="admin-feature-card admin-feature-card--bookings">
+            <span class="admin-feature-icon">
+                <i class="bi bi-calendar-check-fill"></i>
+            </span>
+            <h2 th:text="#{admin.bookings.title}">Bookings</h2>
+            <p th:text="#{admin.bookings.cardSubtitle}">View current stays and cancel bookings when needed.</p>
+        </a>
     </div>
 
 </div>
 
 <div th:replace="~{fragments/footer :: body}"></div>
-
-<script defer th:src="@{/js/bundle-admin-users.js}"></script>
 
 </body>
 </html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
+    <title th:text="#{admin.bookings.title}">Bookings</title>
+</head>
+
+<body class="bg-light">
+
+<div th:replace="~{fragments/navbar :: body}"></div>
+
+<main class="container my-4" sec:authorize="hasRole('ADMIN')">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-semibold text-primary mb-1">
+                <i class="bi bi-calendar-check-fill"></i>
+                <span th:text="#{admin.bookings.current}">Current Bookings</span>
+            </h2>
+            <p class="text-muted mb-0" th:text="#{admin.bookings.subtitle}">Review and cancel active hotel stays from one admin page.</p>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="badge rounded-pill text-bg-primary px-3 py-2">
+                <i class="bi bi-calendar2-check me-1"></i>
+                <span th:text="#{admin.bookings.count(${#lists.size(bookings)})}">0 bookings</span>
+            </span>
+
+            <a th:href="@{/admin/users}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                <span th:text="#{admin.dashboard.title}">Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-check-circle-fill"></i>
+        <span th:text="${successMessage}">Booking cancelled successfully.</span>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th th:text="#{admin.bookings.guest}">Guest</th>
+                    <th th:text="#{admin.bookings.room}">Room</th>
+                    <th th:text="#{admin.bookings.hotel}">Hotel</th>
+                    <th th:text="#{booking.checkin}">Check-in</th>
+                    <th th:text="#{booking.checkout}">Check-out</th>
+                    <th class="text-end" th:text="#{admin.bookings.total}">Total</th>
+                    <th class="text-end" th:text="#{admin.bookings.final}">Final</th>
+                    <th class="text-end" th:text="#{users.actions}">Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:if="${#lists.isEmpty(bookings)}">
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox me-2"></i>
+                        <span th:text="#{admin.bookings.empty}">No current bookings found.</span>
+                    </td>
+                </tr>
+
+                <tr th:each="booking : ${bookings}">
+                    <td>
+                        <a class="fw-semibold text-decoration-none"
+                           th:href="@{/guests/{id}(id=${booking.guest.id})}"
+                           th:text="${booking.guest.fullName}">
+                            Guest Name
+                        </a>
+                        <div class="small text-muted" th:text="${booking.guest.email}">
+                            guest@example.com
+                        </div>
+                    </td>
+
+                    <td>
+                        <a class="fw-semibold text-decoration-none"
+                           th:href="@{/rooms/{id}(id=${booking.room.id})}"
+                           th:text="#{room.numberLabel(${booking.room.number})}">
+                            Room 101
+                        </a>
+                        <div class="small text-muted" th:text="${booking.room.type}">
+                            SINGLE
+                        </div>
+                    </td>
+
+                    <td>
+                        <a class="text-decoration-none"
+                           th:href="@{/hotels/{hotelId}(hotelId=${booking.room.hotel.hotelId})}"
+                           th:text="${booking.room.hotel.name}">
+                            Hotel Name
+                        </a>
+                        <div class="small text-muted"
+                             th:text="${booking.room.hotel.city} + ', ' + ${booking.room.hotel.country}">
+                            City, Country
+                        </div>
+                    </td>
+
+                    <td th:text="${#temporals.format(booking.checkInDate, 'dd MMM yyyy')}">
+                        01 Jun 2026
+                    </td>
+
+                    <td th:text="${#temporals.format(booking.checkOutDate, 'dd MMM yyyy')}">
+                        04 Jun 2026
+                    </td>
+
+                    <td class="text-end">
+                        <span th:text="${#numbers.formatDecimal(booking.totalPrice, 1, 2)} + ' €'">
+                            0.00 €
+                        </span>
+                    </td>
+
+                    <td class="text-end fw-semibold text-primary">
+                        <span th:text="${#numbers.formatDecimal(booking.finalPrice, 1, 2)} + ' €'">
+                            0.00 €
+                        </span>
+                    </td>
+
+                    <td class="text-end">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cancelBookingModal"
+                                th:data-booking-action="@{/admin/bookings/{id}/cancel(id=${booking.id})}"
+                                th:data-booking-guest="${booking.guest.fullName}"
+                                th:data-booking-room="'Room ' + ${booking.room.number} + ' at ' + ${booking.room.hotel.name}"
+                                th:data-booking-dates="${#temporals.format(booking.checkInDate, 'dd MMM yyyy')} + ' - ' + ${#temporals.format(booking.checkOutDate, 'dd MMM yyyy')}">
+                            <i class="bi bi-x-circle"></i>
+                            <span th:text="#{button.cancel}">Cancel</span>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div class="modal fade"
+     id="cancelBookingModal"
+     tabindex="-1"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span th:text="#{admin.bookings.cancelTitle}">Cancel booking?</span>
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        th:aria-label="#{button.close}"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-2" th:text="#{admin.bookings.cancelText}">This will remove the stay from the room booking list.</p>
+                <div class="small text-muted">
+                    <div>
+                        <strong data-booking-modal-guest>Guest Name</strong>
+                    </div>
+                    <div data-booking-modal-room>Room 101 at Hotel Name</div>
+                    <div data-booking-modal-dates>01 Jun 2026 - 04 Jun 2026</div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
+                    <span th:text="#{admin.bookings.keep}">Keep booking</span>
+                </button>
+                <form data-booking-cancel-form method="post">
+                    <input type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle me-1"></i>
+                        <span th:text="#{admin.bookings.cancelButton}">Cancel booking</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: body}"></div>
+
+<script defer th:src="@{/js/bundle-admin-bookings.js}"></script>
+
+</body>
+</html>

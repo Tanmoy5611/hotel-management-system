@@ -1,8 +1,10 @@
 package be.kdg.prog5.hotels.business;
 
 import be.kdg.prog5.hotels.business.exceptions.ApplicationUserNotFoundException;
+import be.kdg.prog5.hotels.business.exceptions.ApplicationUserHasGuestsException;
 import be.kdg.prog5.hotels.config.AppConstants;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
+import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
 import be.kdg.prog5.hotels.domain.RoleType;
@@ -22,6 +24,7 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
     private static final String PROTECTED_ADMIN_EMAIL = AppConstants.PROTECTED_ADMIN_EMAIL;
 
     private final SpringDataApplicationUserRepository userRepository;
+    private final SpringDataGuestRepository guestRepository;
 
     private final SafeActivityLogger safeActivityLogger;
 
@@ -29,9 +32,11 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
     private final PasswordEncoder passwordEncoder;
 
     public ApplicationUserServiceImpl(SpringDataApplicationUserRepository userRepository,
+                                      SpringDataGuestRepository guestRepository,
                                       SafeActivityLogger safeActivityLogger,
                                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.guestRepository = guestRepository;
         this.safeActivityLogger = safeActivityLogger;
         this.passwordEncoder = passwordEncoder;
     }
@@ -83,6 +88,12 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
         /// prevent deletion of the main admin account
         if (applicationUser.getEmail().equals(PROTECTED_ADMIN_EMAIL)) {
             return;
+        }
+
+        // Guests must always have an owner, so deleting a user with guests would violate the FK
+        // Block the delete explicitly instead of letting the database fail with a vague error
+        if (guestRepository.existsByOwner_Id(id)) {
+            throw new ApplicationUserHasGuestsException(applicationUser.getEmail());
         }
 
         // capture email before delete (safe logging after entity removal)

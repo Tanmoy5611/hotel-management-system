@@ -1,5 +1,6 @@
 package be.kdg.prog5.hotels.webapi.exception;
 
+import be.kdg.prog5.hotels.business.exceptions.GuestAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 
 // Handles exceptions for REST API requests and returns JSON error responses
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "be.kdg.prog5.hotels.webapi")
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiExceptionHandler {
 
@@ -81,6 +82,25 @@ public class ApiExceptionHandler {
     @ExceptionHandler(RoomAlreadyExistsException.class)
     public ResponseEntity<ApiError> handleRoomAlreadyExists(
             RoomAlreadyExistsException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
+
+    // Returns 409 JSON when a guest email is already used
+    @ExceptionHandler(GuestAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleGuestAlreadyExists(
+            GuestAlreadyExistsException ex,
             HttpServletRequest request) {
 
         ApiError error = new ApiError(

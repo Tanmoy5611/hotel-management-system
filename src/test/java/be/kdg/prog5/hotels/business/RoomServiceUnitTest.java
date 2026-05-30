@@ -1,7 +1,6 @@
 package be.kdg.prog5.hotels.business;
 
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
-import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;
@@ -40,11 +39,6 @@ class RoomServiceUnitTest {
     @MockBean
     private SpringDataHotelRepository hotelRepo;
 
-    // Required by the RoomServiceImpl constructor
-    // These tests do not call bookRoom(), so we verify that this dependency is not used
-    @MockBean
-    private SpringDataGuestRepository guestRepo;
-
     // Mocked so tests can verify activity logging without depending on the security context
     @MockBean
     private SafeActivityLogger safeActivityLogger;
@@ -80,7 +74,6 @@ class RoomServiceUnitTest {
                 ActivityType.CREATE_ROOM,
                 "Room 101 created in hotel api-test-hotel"
         );
-        verifyNoInteractions(guestRepo);
     }
 
     /* PURPOSE: Verify duplicate room number protection
@@ -100,7 +93,6 @@ class RoomServiceUnitTest {
 
         verify(roomRepo, never()).save(room);
         verifyNoInteractions(safeActivityLogger);
-        verifyNoInteractions(guestRepo);
     }
 
     /* PURPOSE: Verify missing hotel behavior
@@ -120,7 +112,6 @@ class RoomServiceUnitTest {
         verify(roomRepo, never()).existsByHotelAndNumber(null, 101);
         verify(roomRepo, never()).save(room);
         verifyNoInteractions(safeActivityLogger);
-        verifyNoInteractions(guestRepo);
     }
 
     /* PURPOSE: Verify search input sanitization when no dates are selected
@@ -137,7 +128,6 @@ class RoomServiceUnitTest {
         // Assert
         assertThat(rooms).containsExactly(room);
         verify(roomRepo).searchRooms("brussels", RoomType.DOUBLE);
-        verifyNoInteractions(guestRepo);
     }
 
     /* PURPOSE: Verify invalid date validation
@@ -154,7 +144,6 @@ class RoomServiceUnitTest {
                 .hasMessage("Check-out must be after check-in");
 
         verifyNoInteractions(roomRepo);
-        verifyNoInteractions(guestRepo);
     }
 
     /* PURPOSE: Verify availability filtering for overlapping bookings
@@ -176,15 +165,14 @@ class RoomServiceUnitTest {
 
         Room availableRoom = createRoom(102);
 
-        when(roomRepo.searchRooms("", null)).thenReturn(List.of(unavailableRoom, availableRoom));
+        when(roomRepo.searchRoomsWithStays("", null)).thenReturn(List.of(unavailableRoom, availableRoom));
 
         // Act
         List<Room> rooms = roomService.searchAvailableRooms(null, null, requestedCheckIn, requestedCheckOut);
 
         // Assert
         assertThat(rooms).containsExactly(availableRoom);
-        verify(roomRepo).searchRooms("", null);
-        verifyNoInteractions(guestRepo);
+        verify(roomRepo).searchRoomsWithStays("", null);
     }
 
     /* Test Helper Method

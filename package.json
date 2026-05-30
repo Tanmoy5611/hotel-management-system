@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack",
     "lint": "eslint src/main/js webpack.config.js",
-    "format": "dprint fmt"
+    "format": "DPRINT_CACHE_DIR=$PWD/.dprint-cache dprint check",
+    "format:fix": "DPRINT_CACHE_DIR=$PWD/.dprint-cache dprint fmt"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",

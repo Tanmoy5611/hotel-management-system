@@ -3,7 +3,7 @@
 
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
-    <title>Login</title>
+    <title th:text="#{login.title}">Login</title>
 </head>
 
 <body class="bg-light">
@@ -22,7 +22,7 @@
 
                     <h3 class="text-center mb-4">
                         <i class="bi bi-box-arrow-in-right"></i>
-                        Login
+                        <span th:text="#{login.title}">Login</span>
                     </h3>
 
                     <!-- Login form -->
@@ -30,19 +30,19 @@
 
                         <!-- Email -->
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Email</label>
+                            <label class="form-label fw-semibold" th:text="#{users.email}">Email</label>
                             <input type="email"
                                    name="username"
                                    autocomplete="username"
                                    class="form-control"
-                                   placeholder="Enter your email"
+                                   th:placeholder="#{login.email.placeholder}"
                                    required>
                         </div>
 
                         <!-- Password with toggle -->
                         <div class="mb-3">
 
-                            <label class="form-label fw-semibold">Password</label>
+                            <label class="form-label fw-semibold" th:text="#{users.password}">Password</label>
 
                             <div class="input-group">
 
@@ -51,7 +51,7 @@
                                        name="password"
                                        autocomplete="current-password"
                                        class="form-control"
-                                       placeholder="Enter your password"
+                                       th:placeholder="#{login.password.placeholder}"
                                        required>
 
                                 <button class="btn btn-outline-secondary"
@@ -67,23 +67,23 @@
                         <!-- Login button -->
                         <div class="d-grid mb-3">
                             <button type="submit" class="btn btn-primary">
-                                Login
+                                <span th:text="#{login.title}">Login</span>
                             </button>
                         </div>
 
                     </form>
 
-                    <div class="alert alert-info text-center mt-3">
+                    <div class="alert alert-info text-center mt-3" th:utext="#{login.adminHint}">
                         To create new users and access all management features, please log in as <strong>Admin</strong>!
                     </div>
 
                     <!-- Login error -->
-                    <div th:if="${param.error}" class="alert alert-danger mt-3 text-center">
+                    <div th:if="${param.error}" class="alert alert-danger mt-3 text-center" th:text="#{login.invalid}">
                         Invalid email or password
                     </div>
 
                     <!-- Logout message -->
-                    <div th:if="${param.logout}" class="alert alert-success mt-3 text-center">
+                    <div th:if="${param.logout}" class="alert alert-success mt-3 text-center" th:text="#{login.loggedOut}">
                         You have been logged out successfully
                     </div>
 
@@ -96,17 +96,17 @@
 
                     <h6 class="mb-3">
                         <i class="bi bi-person-check"></i>
-                        Test Users
+                        <span th:text="#{login.testUsers}">Test Users</span>
                     </h6>
 
                     <small class="text-muted">
 
-                        <strong>Admin</strong><br>
+                        <strong th:text="#{login.admin}">Admin</strong><br>
                         admin@hotelapp.com / admin123
 
                         <hr>
 
-                        <strong>User</strong><br>
+                        <strong th:text="#{login.user}">User</strong><br>
                         applicationUser@hotelapp.com / user123
 
                     </small>

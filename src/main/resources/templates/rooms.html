@@ -103,12 +103,12 @@
 
                     <img th:src="${r.photoUrl}"
                          class="card-img-top room-img"
-                         alt="Room photo">
+                         th:alt="#{rooms.photoAlt}">
 
                     <div class="card-body">
 
                         <h5 class="card-title text-center fw-bold mb-3"
-                            th:text="'Room ' + ${r.number}">
+                            th:text="#{room.numberLabel(${r.number})}">
                         </h5>
 
                         <p class="card-text mb-2">
@@ -132,7 +132,7 @@
 
                         <p class="text-muted small">
                             <i class="bi bi-building"></i>
-                            <span th:text="${r.hotel != null ? r.hotel.name : 'Unknown Hotel'}"></span>
+                            <span th:text="${r.hotel != null ? r.hotel.name : #messages.msg('rooms.unknownHotel')}"></span>
                         </p>
 
                     </div>
@@ -177,7 +177,7 @@
 
                         <div class="modal-body text-center">
                             <p th:text="#{modal.delete.question}"></p>
-                            <strong th:text="'Room ' + ${r.number}"></strong>
+                            <strong th:text="#{room.numberLabel(${r.number})}"></strong>
                         </div>
 
                         <div class="modal-footer justify-content-between">

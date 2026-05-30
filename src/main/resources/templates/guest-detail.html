@@ -4,7 +4,7 @@
       lang="en">
 <head>
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
-    <title th:text="'Guest - ' + ${guest.fullName}">Guest Detail</title>
+    <title th:text="#{guest.details.pageTitle(${guest.fullName})}">Guest Detail</title>
 </head>
 
 <body class="bg-light">

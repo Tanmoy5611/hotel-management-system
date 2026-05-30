@@ -1,5 +1,6 @@
 package be.kdg.prog5.hotels.business;
 
+import be.kdg.prog5.hotels.business.exceptions.GuestAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.config.AppConstants;
@@ -11,6 +12,8 @@ import be.kdg.prog5.hotels.domain.*;
 import be.kdg.prog5.hotels.web.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,7 @@ public class GuestServiceImpl implements GuestService {
     private static final Logger log =
             LoggerFactory.getLogger(GuestServiceImpl.class);
 
+    private static final String DEFAULT_GUEST_AVATAR_URL = "/images/guests/guest.jpg";
 
     private final SpringDataGuestRepository guestRepo;
     private final SpringDataRoomRepository roomRepo;
@@ -35,7 +39,7 @@ public class GuestServiceImpl implements GuestService {
     private final SecurityService securityService;
     private final SafeActivityLogger safeActivityLogger;
 
-
+    // Injects repositories and services needed to manage guests and their bookings
     public GuestServiceImpl(SpringDataGuestRepository guestRepo,
                             SpringDataRoomRepository roomRepo,
                             SpringDataStayRepository stayRepo,
@@ -50,17 +54,18 @@ public class GuestServiceImpl implements GuestService {
         this.safeActivityLogger = safeActivityLogger;
     }
 
-    /// Read Guests
+    // Reads all guests for the guest overview page
     @Override
     @Transactional(readOnly = true)
     public List<Guest> getAllGuests() {
         log.debug("Getting all guests");
 
-        return guestRepo.findAll();
+        return guestRepo.findAllWithOwner();
     }
 
-    /// Delete guest
+    // Deletes a guest and clears cached search results because the list changed
     @Override
+    @CacheEvict(value = "guestSearch", allEntries = true)
     public void deleteGuest(Long guestId) {
         log.debug("Deleting guest with id {}", guestId);
 
@@ -84,7 +89,7 @@ public class GuestServiceImpl implements GuestService {
 
     }
 
-    /// Search VIPGuest
+    // Reads all VIP guests from the inheritance query
     @Override
     @Transactional(readOnly = true)
     public List<Guest> getVipGuests() {
@@ -93,9 +98,12 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.findVipGuests();
     }
 
-    /// Search Guests on the All Guests page
+    // Caches guest search results by normalized search text and minimum room count
+    // Repeating the same search can return from cache instead of querying the database again
     @Override
     @Transactional(readOnly = true)
+    // Cache key uses normalized query text and minimum room count so equivalent searches reuse the same result
+    @Cacheable(value = "guestSearch", key = "{#query == null ? '' : #query.trim().toLowerCase(), #minRooms == null || #minRooms < 1 ? null : #minRooms}")
     public List<Guest> searchGuests(String query, Integer minRooms) {
         log.debug("Searching guests: query={}, minRooms={}", query, minRooms);
 
@@ -109,19 +117,24 @@ public class GuestServiceImpl implements GuestService {
         return guestRepo.searchGuests(cleanedQuery, cleanedMinRooms);
     }
 
-    /// Creates guest with room; persists and associates if applicable
+    // Creating a guest changes the guest list and may change stay counts
+    // Clear all cached guest searches so the next search reads fresh data
     @Override
+    @CacheEvict(value = "guestSearch", allEntries = true)
     public Guest createGuestWithRoom(String fullName, LocalDate dob, String email, String avatarUrl,
                                      BigDecimal discountPercentage, Long roomId,
                                      LocalDate checkIn, LocalDate checkOut) {
         log.debug("Creating guest {} with room {}", fullName, roomId);
 
+        validateUniqueEmail(email);
+        String cleanedAvatarUrl = normalizeAvatarUrl(avatarUrl);
+
         // Domain decision: VIP or regular Guest - belongs in the service
         Guest guest;
         if (discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
-            guest = new VIPGuest(fullName, dob, email, avatarUrl, discountPercentage);
+            guest = new VIPGuest(fullName, dob, email, cleanedAvatarUrl, discountPercentage);
         } else {
-            guest = new Guest(fullName, dob, email, avatarUrl);
+            guest = new Guest(fullName, dob, email, cleanedAvatarUrl);
         }
 
         // get logged-in user (SAFE)
@@ -138,8 +151,8 @@ public class GuestServiceImpl implements GuestService {
 
             // Domain (Room.addGuest) already validates dates
 
-            Room room = roomRepo.findByIdWithHotelAndGuests(roomId)
-                    .orElseThrow(() -> new RoomNotFoundException(roomId));
+            // Lock the room before assigning the new guest so concurrent bookings cannot overlap
+            Room room = findRoomWithBookingLock(roomId);
 
             // Room owns Stay -> room creates Stay (aggregate logic)
             room.addGuest(savedGuest, checkIn, checkOut);
@@ -166,17 +179,22 @@ public class GuestServiceImpl implements GuestService {
         return savedGuest;
     }
 
-    /// Creates guest from the separate Week 10 Client project
+    // Creating a guest from the Week 10 client also changes guest search results
+    // Clear the guest search cache so the new guest appears immediately
     @Override
+    @CacheEvict(value = "guestSearch", allEntries = true)
     public Guest createGuestFromClient(String fullName, LocalDate dob, String email, String avatarUrl,
                                        BigDecimal discountPercentage) {
         log.debug("Creating guest {} from Week 10 client", fullName);
 
+        validateUniqueEmail(email);
+        String cleanedAvatarUrl = normalizeAvatarUrl(avatarUrl);
+
         Guest guest;
         if (discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
-            guest = new VIPGuest(fullName, dob, email, avatarUrl, discountPercentage);
+            guest = new VIPGuest(fullName, dob, email, cleanedAvatarUrl, discountPercentage);
         } else {
-            guest = new Guest(fullName, dob, email, avatarUrl);
+            guest = new Guest(fullName, dob, email, cleanedAvatarUrl);
         }
 
         // Guests require an owner. Public client-created guests are assigned to the protected admin account
@@ -198,7 +216,7 @@ public class GuestServiceImpl implements GuestService {
         return savedGuest;
     }
 
-    // Get guest with details (Stays)
+    // Loads one guest with stays, rooms, and hotels for the detail page
     @Override
     @Transactional(readOnly = true)
     public Guest getGuestWithDetails(Long guestId) {
@@ -207,4 +225,29 @@ public class GuestServiceImpl implements GuestService {
                 .orElseThrow(() -> new GuestNotFoundException(guestId));
     }
 
+    // validate unique email
+    private void validateUniqueEmail(String email) {
+        if (email != null && guestRepo.existsByEmailIgnoreCase(email.trim())) {
+            throw new GuestAlreadyExistsException(email.trim());
+        }
+    }
+
+    // normalize avatar url
+    private String normalizeAvatarUrl(String avatarUrl) {
+        if (avatarUrl == null || avatarUrl.isBlank()) {
+            return DEFAULT_GUEST_AVATAR_URL;
+        }
+
+        return avatarUrl.trim();
+    }
+
+    // First query obtains the database write lock on the room row
+    // Second query reloads the full aggregate needed by Room.addGuest and logging
+    private Room findRoomWithBookingLock(Long roomId) {
+        roomRepo.findByIdForUpdate(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
+
+        return roomRepo.findByIdWithHotelAndGuests(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
+    }
 }

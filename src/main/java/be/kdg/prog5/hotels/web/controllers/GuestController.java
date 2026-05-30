@@ -1,6 +1,7 @@
 package be.kdg.prog5.hotels.web.controllers;
 
 import be.kdg.prog5.hotels.business.GuestService;
+import be.kdg.prog5.hotels.business.exceptions.GuestAlreadyExistsException;
 import be.kdg.prog5.hotels.business.RoomService;
 import be.kdg.prog5.hotels.domain.Guest;
 import be.kdg.prog5.hotels.domain.Room;
@@ -180,17 +181,24 @@ public class GuestController {
             return "add-guest";
         }
 
-        // Controller passes raw form data - service decides Guest vs VIPGuest
-        guestService.createGuestWithRoom(
-                guestForm.getFullName(),
-                guestForm.getDob(),
-                guestForm.getEmail(),
-                guestForm.getAvatarUrl(),
-                guestForm.getDiscountPercentage(),
-                guestForm.getRoomId(),
-                guestForm.getCheckIn(),
-                guestForm.getCheckOut()
-        );
+        try {
+            // Controller passes raw form data - service decides Guest vs VIPGuest
+            guestService.createGuestWithRoom(
+                    guestForm.getFullName(),
+                    guestForm.getDob(),
+                    guestForm.getEmail(),
+                    guestForm.getAvatarUrl(),
+                    guestForm.getDiscountPercentage(),
+                    guestForm.getRoomId(),
+                    guestForm.getCheckIn(),
+                    guestForm.getCheckOut()
+            );
+        } catch (GuestAlreadyExistsException ex) {
+            bindingResult.rejectValue("email", "email.duplicate", ex.getMessage());
+            model.addAttribute("guestForm", guestForm);
+            model.addAttribute("rooms", roomService.getAllRooms());
+            return "add-guest";
+        }
 
         return "redirect:/guests";
     }
