@@ -40,8 +40,10 @@ The system follows:
 - Room management with add, delete, filtering, booking, and editable descriptions
 - Guest management with regular and VIP guests
 - Booking system using `Stay` as the link between `Room` and `Guest`
+- Concurrent booking protection with pessimistic room locking
 - User ownership for guests
 - Admin dashboard for users, activity logs, CSV import, and current bookings
+- Cached guest search with cache eviction after guest, booking, and CSV changes
 - Week 10 guest REST API for the separate Client project
 - Webpack/npm frontend pipeline with Bootstrap, Bootstrap Icons, Sass, Joi validation, Luxon, and Anime.js
 - Spring Security with ADMIN and USER roles
@@ -1023,7 +1025,7 @@ Accessible without authentication:
 **Example staff page:**
 [http://localhost:8080/guests/add](http://localhost:8080/guests/add)
 
-**Example admin page:** 
+**Example admin page:**
 [http://localhost:8080/admin/users](http://localhost:8080/admin/users)
 
 ## Summary
