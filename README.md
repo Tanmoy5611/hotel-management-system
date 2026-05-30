@@ -3,8 +3,9 @@
 ## Course Information
 
 - **Course Name:** Programming 5
-- **Academic Year:** 2025–2026
+- **Academic Year:** 2025-2026
 - **Group:** ACS201
+- **Teacher:** Raoul Van den Berge
 
 ## Student Information
 
@@ -27,6 +28,70 @@ The system follows:
 - Proper cascading and orphan removal for aggregates
 - JPA best practices
 - N+1 problems solved
+
+---
+
+## Final Submission Snapshot
+
+### Main Functional Areas
+
+- Public hotel, room, and search pages
+- Hotel management with add, delete, filters, sorting, and editable descriptions
+- Room management with add, delete, filtering, booking, and editable descriptions
+- Guest management with regular and VIP guests
+- Booking system using `Stay` as the link between `Room` and `Guest`
+- User ownership for guests
+- Admin dashboard for users, activity logs, CSV import, and current bookings
+- Week 10 guest REST API for the separate Client project
+- Webpack/npm frontend pipeline with Bootstrap, Bootstrap Icons, Sass, Joi validation, Luxon, and Anime.js
+- Spring Security with ADMIN and USER roles
+- i18n support for English, Dutch, French, German, and Bangla
+
+### Quick Run Commands
+
+Start the PostgreSQL databases from the Spring backend project root:
+
+```bash
+docker compose up -d
+```
+
+Run the Spring Boot backend:
+
+```bash
+./gradlew bootRun
+```
+
+Or run the project from IntelliJ IDEA:
+
+```text
+Run HotelsApplication
+```
+
+Then open:
+
+```text
+http://localhost:8080
+```
+
+Run the Week 10 Client from the separate `Client` repository:
+
+```bash
+npm install
+npm run start
+```
+
+Then open the client URL printed by webpack-dev-server:
+
+```text
+http://localhost:9000
+```
+
+### Seeded Login Accounts
+
+| Role  | Email                          | Password   | Notes                     |
+| :---- | :----------------------------- | :--------- | :------------------------ |
+| ADMIN | `admin@hotelapp.com`           | `admin123` | Protected main admin      |
+| USER  | `applicationUser@hotelapp.com` | `user123`  | Normal staff/user account |
 
 ---
 
@@ -73,13 +138,15 @@ The domain model consists of the following entities:
 - email
 - dob
 - avatarUrl
+- discountPercentage (BigDecimal, stored on the base guest table)
+- ManyToOne → ApplicationUser (owner)
 - OneToMany → Stay
 
 ### 4. VIPGuest (Inheritance)
 
 - Extends Guest
-- discountPercentage (BigDecimal)
-- Uses discountPercentage > 0
+- Uses the inherited discountPercentage value
+- A guest is treated as VIP when discountPercentage > 0
 
 ### 5. Stay (Link Entity – Room <-> Guest)
 
@@ -134,6 +201,7 @@ CREATE_ROOM,
 UPDATE_ROOM,
 DELETE_ROOM,
 BOOK_ROOM,
+DELETE_BOOKING,
 CREATE_GUEST,
 DELETE_GUEST,
 CREATE_USER,
@@ -188,6 +256,27 @@ The application follows a layered architecture: `Controller → Service → Repo
 - Enforces domain rules.
 - Coordinates aggregates.
 - Ensures clean separation between web and persistence.
+
+### Booking Service Organization
+
+Booking use cases are handled by `BookingService` instead of `RoomService`.
+
+Important reason:
+
+- `RoomService` manages room CRUD, filters, and room descriptions.
+- `BookingService` manages booking and cancellation use cases.
+- the domain rule still remains inside `Room.addGuest(...)`.
+- `Room` still owns `Stay` through cascade and orphan removal.
+
+Important methods:
+
+| Method                              | Purpose                                                                                     |
+| :---------------------------------- | :------------------------------------------------------------------------------------------ |
+| `BookingService.bookRoom(...)`      | coordinates room lookup, guest lookup, domain booking, cache eviction, and activity logging |
+| `BookingService.cancelBooking(...)` | removes a stay from the owning room and logs `DELETE_BOOKING`                               |
+| `Room.removeStayById(...)`          | keeps cancellation inside the Room aggregate boundary                                       |
+
+This keeps room management and booking workflows separated while preserving the aggregate boundary around `Room` and `Stay`.
 
 ### Repository Layer
 
@@ -296,28 +385,36 @@ http://localhost:8080
 
 ### Notes
 
-    •	The application uses Spring Data JPA.
-    •	The database schema is generated automatically.
-    •	Monetary values use BigDecimal.
-    •	Aggregate boundaries are respected (Room owns Stay).
-    •	Deletions follow proper cascading rules.
+- The application uses Spring Data JPA.
+- The database schema is generated automatically/updated by Hibernate.
+- Monetary values use BigDecimal.
+- Aggregate boundaries are respected.
+- Room owns Stay with cascade and orphan removal.
+- Guest has a required owner.
+- Guest avatar URLs are normalized when blank.
+- Duplicate guest emails are rejected.
 
 ---
 
 ### Features Implemented
 
-    •	Hotel management (CRUD)
-    •	Room management (CRUD + filtering)
-    •	Guest management (CRUD + VIP logic)
-    •	Booking system (Stay entity)
-    •	Discount calculation
-    •	Top-picked rooms query
-    •	Filtering & sorting
-    •	Add Hotel, Room & Guest via UI (with descriptions)
-    •	Real-world booking Home page
-    •	Multi-language support (i18n) - EN, NL, FR, DE, BN
-    •	Thymeleaf UI with Bootstrap
-    •	Dark / Light theme
+- Hotel management (CRUD)
+- Room management (CRUD + filtering)
+- Guest management (CRUD + VIP logic)
+- Booking system (Stay entity)
+- Discount calculation
+- Top-picked rooms query
+- Filtering and sorting
+- Add Hotel, Room, and Guest via UI
+- Real-world booking home page
+- Admin booking management page
+- Admin CSV guest import using Spring `@Async`
+- Cached guest search using Spring `@Cacheable`
+- Cache eviction after guest, booking, and CSV import changes
+- Standalone admin dashboard cards for users, activity, imports, and bookings
+- Multi-language support (i18n): EN, NL, FR, DE, BN
+- Thymeleaf UI with Bootstrap
+- Dark/light theme
 
 ---
 
@@ -457,9 +554,9 @@ This scenario occurs when a client requests a resource using an identifier that 
 ### Internal Implementation Flow
 
 1. **Exception Trigger:** When the service layer cannot find the record, it throws a custom RoomNotFoundException.
-2. **Global Catch:** The request is intercepted by the Global Exception Handler.
-3. **Class:** ApiExceptionHandler
-4. **Annotation:** @RestControllerAdvice
+2. **Global Catch:** The request is intercepted by the API exception handler.
+3. **Class:** `ApiExceptionHandler`
+4. **Annotation:** `@RestControllerAdvice(basePackages = "be.kdg.prog5.hotels.webapi")`
 5. **Response Wrapper:** The handler maps the exception details into a standardized ApiError object and returns it with a 404 status code.
 
 ### 4. DELETE - Delete Room (204 No Content)
@@ -517,11 +614,11 @@ To maintain a clean separation between the database layer and the API layer, the
 
 ## Exception Handling
 
-Centralized error management is implemented using a **Global Exception Handler** to ensure consistent API responses across the entire application.
+Centralized error management is implemented using an API exception handler to ensure consistent JSON responses for REST API requests.
 
-- **Annotation:** `@RestControllerAdvice`
+- **Annotation:** `@RestControllerAdvice(basePackages = "be.kdg.prog5.hotels.webapi")`
 - **Target Class:** `ApiExceptionHandler`
-- **Handled Exceptions:** `RoomNotFoundException`
+- **Handled Exceptions:** `RoomNotFoundException`, `GuestNotFoundException`, `RoomAlreadyExistsException`, `GuestAlreadyExistsException`, validation errors, access denied errors, data conflicts, and generic API errors
 - **Result:** Returns a structured JSON object (`ApiError`) containing a timestamp, status code, and descriptive message.
 
 ---
@@ -543,7 +640,7 @@ The API was rigorously tested using the `rooms-api.http` file included in the pr
 The `DELETE` functionality is fully integrated with the frontend using the JavaScript **Fetch API**. This fulfills the requirement for dynamic UI updates without page reloads.
 
 - **Success (204):** The room is removed from the DOM immediately.
-- **Failure (404):** An error message is displayed to the applicationUser via a notification or alert.
+- **Failure (404):** An error message is displayed to the user via a notification or alert.
 
 ---
 
@@ -800,7 +897,11 @@ Admins have all staff permissions plus management functionality.
 
 **Admin pages include:**
 
-- `/admin/users`
+- `/admin/users` - admin dashboard cards
+- `/admin/users/manage` - user management
+- `/admin/activity` - activity management
+- `/admin/guests-csv` - asynchronous guest CSV import
+- `/admin/bookings` - current bookings and cancellation
 - `/hotels/add`
 - `/rooms/add`
 
@@ -810,8 +911,62 @@ Admins have all staff permissions plus management functionality.
 - creating new users
 - deleting users
 - switching roles (**USER ↔ ADMIN**)
+- viewing recent activity logs
+- importing guests from CSV without blocking the browser
+- viewing and cancelling current bookings
 
 > The main admin account cannot be deleted.
+
+### Admin Dashboard Organization
+
+The admin dashboard is a navigation hub:
+
+```text
+http://localhost:8080/admin/users
+```
+
+Dashboard cards:
+
+| Card                | URL                   |
+| :------------------ | :-------------------- |
+| User Management     | `/admin/users/manage` |
+| Activity Management | `/admin/activity`     |
+| Add User            | `/admin/users/add`    |
+| Import Guests       | `/admin/guests-csv`   |
+| Bookings            | `/admin/bookings`     |
+
+Each management area has its own page:
+
+- `admin-users.html` is the dashboard card page
+- `admin-users-manage.html` contains the user table and user modals
+- `admin-activity.html` contains the activity log table
+- `admin-bookings.html` contains current bookings and cancellation
+- `admin-guests-csv.html` contains the CSV upload form
+
+### Admin Booking Page
+
+Admins can view and cancel current bookings from:
+
+```text
+http://localhost:8080/admin/bookings
+```
+
+The page shows:
+
+- guest name and email
+- room number and room type
+- hotel name and location
+- check-in and check-out dates
+- total price and final price
+- cancel booking button
+
+Cancellation behavior:
+
+- the cancel form sends `POST /admin/bookings/{stayId}/cancel`
+- CSRF token is included in the modal form
+- the booking is removed through `BookingService.cancelBooking(...)`
+- `DELETE_BOOKING` is written to Activity Management
+- guest search cache is evicted
 
 ### Different Behavior for Logged-In Users
 
@@ -868,7 +1023,8 @@ Accessible without authentication:
 **Example staff page:**
 [http://localhost:8080/guests/add](http://localhost:8080/guests/add)
 
-## **Example admin page:** [http://localhost:8080/admin/users](http://localhost:8080/admin/users)
+**Example admin page:** 
+[http://localhost:8080/admin/users](http://localhost:8080/admin/users)
 
 ## Summary
 
@@ -971,7 +1127,7 @@ Administrators have full access.
 - Manage users
 - Delete any guest (even if not owner)
 - Switch between USER and ADMIN roles
-- Admin Dashboard to manage users and view recent activity logs
+- Use Admin Dashboard cards to open user management, activity, add user, import guests, and bookings
 
 Example: http://localhost:8080/admin/users
 
@@ -1883,6 +2039,13 @@ In this week, I added unit tests with mocks and continuous integration:
 **Result:** The project now has both realistic integration tests and focused unit tests, and all tests can run locally or in GitLab CI with PostgreSQL.
 
 ---
+## Latest Code Coverage
+
+The following screenshot shows IntelliJ IDEA coverage results after executing all tests:
+<p align="center">
+<img src="images/test-screenshots/test_coverage6.png" width="800">
+</p>
+---
 
 # Week 10 - Separate Client REST Integration
 
@@ -1909,6 +2072,14 @@ The guest API is implemented in `GuestApiController`.
 | `POST /api/guests`  | Create a guest from JSON client | Public for the Week 10 client use |
 
 `POST /api/guests` creates a guest without a room booking. Because every guest requires an owner, client-created guests are assigned to the protected admin account.
+
+Final client behavior:
+
+- successful guest creation returns `201 Created`
+- duplicate email returns `409 Conflict`
+- validation errors return `400 Bad Request`
+- blank or whitespace avatar URLs are saved as `/images/guests/guest.jpg`
+- regular guests are saved with `discountPercentage = 0`
 
 ## Security Note
 
@@ -1978,10 +2149,16 @@ Run JavaScript linting:
 npm run lint
 ```
 
-Run dprint formatting:
+Check dprint formatting:
 
 ```bash
 npm run format
+```
+
+Apply dprint formatting:
+
+```bash
+npm run format:fix
 ```
 
 Build webpack bundles directly:
@@ -1989,6 +2166,89 @@ Build webpack bundles directly:
 ```bash
 npm run build
 ```
+
+---
+
+# Week 12 - File Uploads, Async Processing, and Caching
+
+Week 12 focuses on the required course features for file uploads, asynchronous processing, and caching.
+
+## Asynchronous CSV Guest Import
+
+Admins can upload a CSV file from:
+
+```text
+http://localhost:8080/admin/guests-csv
+```
+
+The upload page is admin-only and uses a normal Spring MVC form with `MultipartFile`.
+
+Important classes:
+
+| Responsibility           | File                                   |
+| :----------------------- | :------------------------------------- |
+| Upload controller        | `AdminGuestCsvController`              |
+| Async CSV processing     | `GuestCsvImportService`                |
+| Async and caching config | `ApplicationConfig`                    |
+| Sample CSV               | `src/main/resources/sample-guests.csv` |
+
+CSV format:
+
+```csv
+fullName,email,dob,avatarUrl,discountPercentage
+Seleny Lees,seleny.lees@example.com,1991-04-12,/images/guests/guest.jpg,0
+Arixon Ben,arixon.ben@example.com,1988-11-03,/images/guests/guest.jpg,15
+```
+
+Implementation details:
+
+- `AdminGuestCsvController.uploadGuestsCsv(...)` receives the file and immediately calls the import service
+- `GuestCsvImportService.importGuests(...)` is annotated with `@Async`
+- the CSV parsing and database inserts happen on a different thread
+- the browser receives a response as soon as processing starts
+- duplicate guest emails are skipped using `existsByEmailIgnoreCase`
+- imported guests are assigned to the admin who uploaded the CSV
+- positive discount values create a `VIPGuest`
+- import completion is logged in Activity Management
+
+This satisfies the requirement that the browser must not wait until all CSV rows are processed.
+
+## Cached Guest Search
+
+Guest search is cached in:
+
+```text
+GuestServiceImpl.searchGuests(...)
+```
+
+Important files:
+
+| Responsibility                          | File                                          |
+| :-------------------------------------- | :-------------------------------------------- |
+| Cache enablement                        | `ApplicationConfig`                           |
+| Cached service method                   | `GuestServiceImpl.searchGuests(...)`          |
+| Search query                            | `SpringDataGuestRepository.searchGuests(...)` |
+| Cache eviction on guest create/delete   | `GuestServiceImpl`                            |
+| Cache eviction on booking create/cancel | `BookingServiceImpl`                          |
+
+Cache behavior:
+
+- cache name is `guestSearch`
+- cache key uses the cleaned search term and cleaned minimum room count
+- repeated searches with the same values reuse cached results
+- creating a guest evicts the cache
+- deleting a guest evicts the cache
+- booking a room evicts the cache because guest stay counts can change
+- cancelling a booking evicts the cache for the same reason
+- CSV import evicts the cache before and after processing
+
+This satisfies the requirement that the same search term should not hit the database twice unless related data changes.
+
+---
+
+## Acknowledgement
+
+I would like to thank **Raoul Van den Berge** for the teaching, guidance, and feedback throughout the Programming 5 course. The course helped me improve my understanding of Spring Boot, testing, security, REST APIs, frontend integration, and clean project structure.
 
 ---
 
