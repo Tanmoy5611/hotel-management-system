@@ -1,0 +1,99 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Compile application and tests
+        run: ./gradlew --no-daemon --build-cache classes testClasses
+
+      - name: Upload compiled build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-build
+          path: |
+            build/classes/
+            build/resources/
+          if-no-files-found: error
+          retention-days: 7
+
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18.1-alpine
+        env:
+          POSTGRES_DB: hotels_test
+          POSTGRES_USER: spring
+          POSTGRES_PASSWORD: spring
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U spring -d hotels_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/hotels_test
+      SPRING_DATASOURCE_USERNAME: spring
+      SPRING_DATASOURCE_PASSWORD: spring
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_SQL_INIT_MODE: never
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Download compiled build outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-build
+          path: build
+
+      - name: Run tests
+        run: ./gradlew --no-daemon --build-cache test
+
+      - name: Upload JUnit XML and HTML test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: |
+            build/test-results/test/
+            build/reports/tests/test/
+          if-no-files-found: warn
+          retention-days: 7
