@@ -8,6 +8,7 @@ import be.kdg.prog5.hotels.webapi.mapper.GuestMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -74,5 +75,13 @@ public class GuestApiController {
         return ResponseEntity
                 .created(URI.create("/api/guests/" + dto.getId()))
                 .body(dto);
+    }
+
+    // Week 10 Client delete endpoint: deletes a guest
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGuest(@PathVariable Long id) {
+        // The service checks whether the current user owns this guest or is an admin
+        guestService.deleteGuest(id);
+        return ResponseEntity.noContent().build();
     }
 }
