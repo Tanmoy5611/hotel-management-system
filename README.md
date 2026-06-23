@@ -480,12 +480,14 @@ This endpoint fetches the complete list of available rooms from the database, tr
 **Example Response Body:**
 
 ```json
-{
-  "id": 1,
-  "number": 101,
-  "pricePerNight": 120.00,
-  "hotelName": "Hilton"
-}
+[
+  {
+    "id": 1,
+    "number": 101,
+    "pricePerNight": 120.00,
+    "hotelName": "Hilton Old Town, Antwerp"
+  }
+]
 ```
 
 ### Internal Implementation Flow
@@ -646,11 +648,121 @@ The `DELETE` functionality is fully integrated with the frontend using the JavaS
 
 ---
 
+## Complete HTTP Messages
+
+For state-changing requests, first log in as an ADMIN and replace the cookie and CSRF token placeholders. The same requests are in `rooms-api.http`.
+
+### Fetching all rooms - OK
+
+```http
+GET http://localhost:8080/api/rooms
+Accept: application/json
+```
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[{"id":1,"number":101,"pricePerNight":150.00,"hotelName":"Hotel Plaza Athénée, Paris"}]
+```
+
+### Fetching all rooms - No Content
+
+```http
+GET http://localhost:8080/api/rooms
+Accept: application/json
+```
+
+```http
+HTTP/1.1 204 No Content
+```
+
+### Fetching one room - OK
+
+```http
+GET http://localhost:8080/api/rooms/1
+Accept: application/json
+```
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"id":1,"number":101,"pricePerNight":150.00,"hotelName":"Hotel Plaza Athénée, Paris"}
+```
+
+### Fetching one room - Bad Request
+
+```http
+GET http://localhost:8080/api/rooms/not-a-number
+Accept: application/json
+```
+
+```http
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+```
+
+### Fetching one room - Not Found
+
+```http
+GET http://localhost:8080/api/rooms/99999
+Accept: application/json
+```
+
+```http
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+```
+
+### Deleting one room - No Content
+
+```http
+DELETE http://localhost:8080/api/rooms/1
+Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
+```
+
+```http
+HTTP/1.1 204 No Content
+```
+
+### Deleting one room - Bad Request
+
+```http
+DELETE http://localhost:8080/api/rooms/not-a-number
+Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
+```
+
+```http
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+```
+
+### Deleting one room - Not Found
+
+```http
+DELETE http://localhost:8080/api/rooms/99999
+Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
+```
+
+```http
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+```
+
 # Week 3
 
 During week 3, two additional REST operations were implemented for the Room API. The new endpoints allow creating a room (**POST**) and updating the room description (**PATCH**).
 
 ## All endpoints were tested using the `rooms-api.http` file included in the project.
+
+For POST and PATCH requests, use an authenticated ADMIN session and CSRF token as shown in `rooms-api.http`.
 
 ### Creating a room - Created (201)
 
@@ -660,9 +772,12 @@ During week 3, two additional REST operations were implemented for the Room API.
 POST http://localhost:8080/api/rooms
 Content-Type: application/json
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
   "number": 501,
+  "type": "DOUBLE",
   "pricePerNight": 199.99,
   "hotelId": "hilton-old-town"
 }
@@ -670,7 +785,13 @@ Accept: application/json
 
 ### Response
 
-- 201 Created
+```http
+HTTP/1.1 201 Created
+Location: /api/rooms/42
+Content-Type: application/json
+
+{"id":42,"number":501,"pricePerNight":199.99,"hotelName":"Hilton Old Town, Antwerp"}
+```
 
 ### Creating a room - Bad Request (400)
 
@@ -680,9 +801,12 @@ Accept: application/json
 POST http://localhost:8080/api/rooms
 Content-Type: application/json
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
   "number": -5,
+  "type": null,
   "pricePerNight": -100,
   "hotelId": null
 }
@@ -690,7 +814,10 @@ Accept: application/json
 
 ### Response
 
-- 400 Bad Request
+```http
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+```
 
 ### Creating a room - Conflict (409)
 
@@ -700,9 +827,12 @@ Accept: application/json
 POST http://localhost:8080/api/rooms
 Content-Type: application/json
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
   "number": 101,
+  "type": "SINGLE",
   "pricePerNight": 150,
   "hotelId": "hilton-old-town"
 }
@@ -710,7 +840,10 @@ Accept: application/json
 
 ### Response
 
-- 409 Conflict
+```http
+HTTP/1.1 409 Conflict
+Content-Type: application/json
+```
 
 ### Updating room description - No Content (204)
 
@@ -720,6 +853,8 @@ Accept: application/json
 PATCH http://localhost:8080/api/rooms/1/description
 Content-Type: application/json
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
   "description": "Updated modern deluxe room"
@@ -728,7 +863,9 @@ Accept: application/json
 
 ### Response
 
-- 204 No Content
+```http
+HTTP/1.1 204 No Content
+```
 
 ### Updating room description - Bad Request (400)
 
@@ -738,6 +875,8 @@ Accept: application/json
 PATCH http://localhost:8080/api/rooms/1/description
 Content-Type: application/json
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
   "description": ""
@@ -746,7 +885,10 @@ Accept: application/json
 
 ### Response
 
-- 400 Bad Request
+```http
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+```
 
 ### Updating room description - Not Found (404)
 
@@ -756,6 +898,8 @@ Accept: application/json
 PATCH http://localhost:8080/api/rooms/99999/description
 Content-Type: application/json
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
   "description": "This room does not exist"
@@ -764,7 +908,10 @@ Accept: application/json
 
 ### Response
 
-- 404 Not Found
+```http
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+```
 
 # Week 4 - Spring Security
 

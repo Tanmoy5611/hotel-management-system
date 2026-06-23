@@ -1,87 +1,205 @@
+###
+# First log in through the browser as an ADMIN user. Copy the JSESSIONID cookie
+# and the CSRF token from the page source into the variables below.
+@adminSession = replace-with-admin-session-id
+@csrfToken = replace-with-csrf-token
+
 ### GET all rooms - 200 OK
 GET http://localhost:8080/api/rooms
 Accept: application/json
 
+### GET all rooms - 204 No Content
+# Run this against an empty database.
+GET http://localhost:8080/api/rooms
+Accept: application/json
 
 ### GET one room - 200 OK
 GET http://localhost:8080/api/rooms/1
 Accept: application/json
 
+### GET one room - 400 Bad Request
+GET http://localhost:8080/api/rooms/not-a-number
+Accept: application/json
 
 ### GET one room - 404 Not Found
 GET http://localhost:8080/api/rooms/99999
 Accept: application/json
 
-
 ### DELETE one room - 204 No Content
 DELETE http://localhost:8080/api/rooms/1
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
+### DELETE one room - 400 Bad Request
+DELETE http://localhost:8080/api/rooms/not-a-number
+Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 ### DELETE one room - 404 Not Found
 DELETE http://localhost:8080/api/rooms/99999
 Accept: application/json
-
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 ### POST create room - 201 Created
 POST http://localhost:8080/api/rooms
 Content-Type: application/json
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
-  "number": 501,
+  "number": 701,
+  "type": "DOUBLE",
   "pricePerNight": 199.99,
+  "seaView": false,
+  "photoUrl": "/images/rooms/room.jpg",
+  "description": "Room created through the REST API.",
   "hotelId": "hilton-old-town"
 }
 
-
-### POST create room - 400 Bad Request (Validation Error)
+### POST create room - 400 Bad Request
 POST http://localhost:8080/api/rooms
 Content-Type: application/json
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
   "number": -5,
+  "type": null,
   "pricePerNight": -100,
   "hotelId": null
 }
 
-### POST create duplicate room – 409 Conflict
+### POST create duplicate room - 409 Conflict
 POST http://localhost:8080/api/rooms
 Content-Type: application/json
 Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
   "number": 101,
+  "type": "SINGLE",
   "pricePerNight": 150,
   "hotelId": "hilton-old-town"
 }
 
-
-### PATCH update room description – 204 No Content
+### PATCH update room description - 204 No Content
 PATCH http://localhost:8080/api/rooms/1/description
 Content-Type: application/json
-Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
-  "description": "Updated modern deluxe room"
+  "description": "Updated modern deluxe room."
 }
 
-### PATCH update room description – 400 Bad Request
+### PATCH update room description - 400 Bad Request
 PATCH http://localhost:8080/api/rooms/1/description
 Content-Type: application/json
-Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
 
 {
   "description": ""
 }
 
-
-### PATCH update room description – 404 Not Found
+### PATCH update room description - 404 Not Found
 PATCH http://localhost:8080/api/rooms/99999/description
+Content-Type: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
+
+{
+  "description": "This room does not exist."
+}
+
+### GET all hotels - 200 OK
+GET http://localhost:8080/api/hotels
+Accept: application/json
+
+### GET one hotel - 200 OK
+GET http://localhost:8080/api/hotels/hilton-old-town
+Accept: application/json
+
+### GET one hotel - 404 Not Found
+GET http://localhost:8080/api/hotels/unknown-hotel
+Accept: application/json
+
+### POST create hotel - 201 Created
+POST http://localhost:8080/api/hotels
+Content-Type: application/json
+Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
+
+{
+  "name": "API Hotel",
+  "city": "Ghent",
+  "country": "Belgium",
+  "openedOn": "2024-01-01",
+  "stars": 4,
+  "hasSpa": true,
+  "description": "Hotel created through the REST API."
+}
+
+### POST create hotel - 400 Bad Request
+POST http://localhost:8080/api/hotels
+Content-Type: application/json
+Accept: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
+
+{
+  "name": "",
+  "city": "",
+  "country": "Belgium",
+  "openedOn": "2030-01-01",
+  "stars": 8
+}
+
+### PATCH update hotel description - 204 No Content
+PATCH http://localhost:8080/api/hotels/hilton-old-town/description
+Content-Type: application/json
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
+
+{
+  "description": "Updated through the REST API."
+}
+
+### DELETE hotel - 204 No Content
+DELETE http://localhost:8080/api/hotels/hilton-old-town
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
+
+### GET guests - 200 OK
+GET http://localhost:8080/api/guests?query=john
+Accept: application/json
+
+### GET one guest - 200 OK
+GET http://localhost:8080/api/guests/1
+Accept: application/json
+
+### POST create guest from the client - 201 Created
+# This endpoint is public and CSRF-exempt for the separate Week 10 client.
+POST http://localhost:8080/api/guests
 Content-Type: application/json
 Accept: application/json
 
 {
-  "description": "This room does not exist"
+  "fullName": "API Guest",
+  "dob": "1995-05-20",
+  "email": "api.guest@example.com",
+  "discountPercentage": 10
 }
+
+### DELETE guest - 204 No Content
+# An ADMIN may delete any guest. A normal user may delete only their own guest.
+DELETE http://localhost:8080/api/guests/1
+Cookie: JSESSIONID={{adminSession}}
+X-CSRF-TOKEN: {{csrfToken}}
