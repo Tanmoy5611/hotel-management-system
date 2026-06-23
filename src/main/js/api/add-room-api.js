@@ -41,8 +41,12 @@ export function initAddRoomForm() {
       });
 
       if (response.status === 201) {
-        const createdRoom = await response.json();
-        window.location.href = `/rooms/${createdRoom.id}?created=true`;
+        // Load the response resource through its Location header
+        const location = response.headers.get('Location');
+        const createdRoom = await loadCreatedRoom(location);
+
+        showCreatedRoom(createdRoom);
+        form.reset();
       } else if (response.status === 400) {
         const errorBody = await response.json();
         alert(errorBody.message || 'Validation failed.');
@@ -60,4 +64,33 @@ export function initAddRoomForm() {
       alert('Could not connect to server.');
     }
   });
+}
+
+async function loadCreatedRoom(location) {
+  if (!location) {
+    throw new Error('Created room location is missing.');
+  }
+
+  const response = await fetch(location, {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (response.status !== 200) {
+    throw new Error('Could not load the created room.');
+  }
+
+  return response.json();
+}
+
+function showCreatedRoom(room) {
+  const result = document.getElementById('createdRoom');
+  const message = document.getElementById('createdRoomMessage');
+  const link = document.getElementById('createdRoomLink');
+
+  // Use the API response to update the page without a navigation
+  message.textContent = `Room ${room.number} at ${room.hotelName} was created.`;
+  link.href = `/rooms/${room.id}`;
+  result.classList.remove('d-none');
 }

@@ -7,6 +7,7 @@ import be.kdg.prog5.hotels.webapi.dto.RoomDto;
 import be.kdg.prog5.hotels.webapi.dto.UpdateRoomDescriptionDto;
 import be.kdg.prog5.hotels.webapi.mapper.RoomMapper;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class RoomApiController {
     }
 
     // GET all rooms
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<RoomDto>> getAllRooms() {
         List<RoomDto> rooms = roomService.getAllRooms()
                 .stream()
@@ -42,7 +43,7 @@ public class RoomApiController {
     }
 
     // GET one room
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoomDto> getRoom(@PathVariable Long id) {
         Room room = roomService.getRoomById(id);
         return ResponseEntity.ok(roomMapper.toDto(room));
@@ -58,15 +59,21 @@ public class RoomApiController {
 
     /// Create a new room by Admin
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoomDto> createRoom(
             @RequestBody @Valid NewRoomDto newRoomDto) {
 
-        // DTO to Entity
-        Room room = roomMapper.toEntity(newRoomDto);
-
-        // Service handles aggregate
-        Room savedRoom = roomService.createRoom(room, newRoomDto.getHotelId());
+        // The service creates the entity and applies hotel rules
+        Room savedRoom = roomService.createRoom(
+                newRoomDto.getNumber(),
+                newRoomDto.getType(),
+                newRoomDto.getPricePerNight(),
+                newRoomDto.isSeaView(),
+                newRoomDto.getPhotoUrl(),
+                newRoomDto.getDescription(),
+                newRoomDto.getHotelId()
+        );
 
         // Entity to DTO
         RoomDto dto = roomMapper.toDto(savedRoom);
@@ -78,7 +85,7 @@ public class RoomApiController {
 
     /// Update room description by admin
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{id}/description")
+    @PatchMapping(value = "/{id}/description", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateRoomDescription(
             @PathVariable Long id,
             @RequestBody @Valid UpdateRoomDescriptionDto dto) {
