@@ -10,7 +10,7 @@ import java.util.*;
 
 // Attributes of Guest class
 @Entity                         // Marks this class as a JPA entity - it will be stored in a database table
-@Table(name = "guests")         // Explicitly maps this entity to the "guests" table in the database.
+@Table(name = "guests")         // Explicitly maps this entity to the "guests" table in the database
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)   // One table for Guest + VIPGuest
 @DiscriminatorColumn(name = "guest_type")               // "guest_type" column that decides subtype
 @DiscriminatorValue("GUEST")                            // Value for normal Guest
@@ -24,7 +24,7 @@ public class Guest {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     private ApplicationUser owner;
 

@@ -54,7 +54,7 @@ public class Room {
     // Room owns Stay lifecycle
     @OneToMany(mappedBy = "room",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
             orphanRemoval = true)
     private Set<Stay> stays = new HashSet<>();
 

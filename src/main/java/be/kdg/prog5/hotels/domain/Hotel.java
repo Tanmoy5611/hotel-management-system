@@ -53,7 +53,7 @@ public class Hotel {
     @OneToMany(
             mappedBy = "hotel",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
             orphanRemoval = true
     )
     private Set<Room> rooms = new HashSet<>();  //  This removes MultipleBagFetchException

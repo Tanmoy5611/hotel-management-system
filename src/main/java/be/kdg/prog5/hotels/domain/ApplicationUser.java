@@ -32,7 +32,7 @@ public class ApplicationUser {
 
     // ApplicationUser owns Guest
     // ApplicationUser (1) <--> (many) Guest
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private List<Guest> guests = new ArrayList<>();
 
 
