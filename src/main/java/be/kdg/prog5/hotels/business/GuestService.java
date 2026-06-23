@@ -30,4 +30,7 @@ public interface GuestService {
                                 BigDecimal discountPercentage);
 
     Guest getGuestWithDetails(Long guestId);
+
+    // Returns guest data already prepared for the detail page
+    GuestDetails getGuestDetails(Long guestId);
 }

@@ -1,11 +1,10 @@
 package be.kdg.prog5.hotels.web.controllers;
 
 import be.kdg.prog5.hotels.business.GuestService;
+import be.kdg.prog5.hotels.business.exceptions.BookingException;
 import be.kdg.prog5.hotels.business.exceptions.GuestAlreadyExistsException;
 import be.kdg.prog5.hotels.business.RoomService;
 import be.kdg.prog5.hotels.domain.Guest;
-import be.kdg.prog5.hotels.domain.Room;
-import be.kdg.prog5.hotels.domain.Stay;
 import be.kdg.prog5.hotels.viewmodel.GuestForm;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -16,11 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 // Controllers handle HTTP requests and delegate all business logic to services
 @Controller        // Marks this class as a Spring MVC controller
@@ -55,38 +50,11 @@ public class GuestController {
     public String showGuestDetails(@PathVariable Long guestId, Model model) {
         log.debug("Loading guest {}", guestId);
 
-        // Load guest by ID using JPA repository
-        // Single database hit fetches everything optimized
-        Guest guest = guestService.getGuestWithDetails(guestId);
-        // Build the room rows directly from the guest's stays (In-memory)
-        List<Map<String, Object>> roomRows = new ArrayList<>();
-
-        // Builds list of room details with discounts
-        for (Stay stay : guest.getStays()) {
-
-            Room room = stay.getRoom();
-
-            Map<String, Object> row = new HashMap<>();
-
-            BigDecimal discount = stay.getGuest().getDiscountPercentage();
-            BigDecimal totalPrice = stay.getTotalPrice();   // Price before discount
-            BigDecimal finalPrice = stay.getFinalPrice();   // Price after discount
-
-
-            row.put("room", room);
-            row.put("checkIn", stay.getCheckInDate());
-            row.put("checkOut", stay.getCheckOutDate());
-            row.put("nights", stay.getNumberOfNights());
-            row.put("discount", discount);
-            row.put("totalPrice", totalPrice);
-            row.put("finalPrice", finalPrice);
-
-            roomRows.add(row);
-        }
+        var guestDetails = guestService.getGuestDetails(guestId);
 
         // Add to model
-        model.addAttribute("guest", guest);
-        model.addAttribute("roomRows", roomRows);
+        model.addAttribute("guest", guestDetails.guest());
+        model.addAttribute("roomRows", guestDetails.stays());
 
         return "guest-detail";
     }
@@ -155,25 +123,6 @@ public class GuestController {
             BindingResult bindingResult,
             Model model) {
 
-        // If room selected -> dates required
-        if (guestForm.getRoomId() != null) {
-
-            if (guestForm.getCheckIn() == null) {
-                bindingResult.rejectValue("checkIn", "checkIn.required", "Check-in date is required");
-            }
-
-            if (guestForm.getCheckOut() == null) {
-                bindingResult.rejectValue("checkOut", "checkOut.required", "Check-out date is required");
-            }
-
-            if (!bindingResult.hasErrors()
-                    && !guestForm.getCheckOut().isAfter(guestForm.getCheckIn())) {
-
-                bindingResult.rejectValue("checkOut", "checkOut.invalid",
-                        "Check-out must be after check-in");
-            }
-        }
-
         if (bindingResult.hasErrors()) {
             model.addAttribute("guestForm", guestForm);
             model.addAttribute("rooms", roomService.getAllRooms());
@@ -195,6 +144,11 @@ public class GuestController {
             );
         } catch (GuestAlreadyExistsException ex) {
             bindingResult.rejectValue("email", "email.duplicate", ex.getMessage());
+            model.addAttribute("guestForm", guestForm);
+            model.addAttribute("rooms", roomService.getAllRooms());
+            return "add-guest";
+        } catch (BookingException ex) {
+            bindingResult.reject("booking.invalid", ex.getCode());
             model.addAttribute("guestForm", guestForm);
             model.addAttribute("rooms", roomService.getAllRooms());
             return "add-guest";

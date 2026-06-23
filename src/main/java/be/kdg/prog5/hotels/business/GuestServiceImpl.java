@@ -2,6 +2,7 @@ package be.kdg.prog5.hotels.business;
 
 import be.kdg.prog5.hotels.business.exceptions.GuestAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
+import be.kdg.prog5.hotels.business.exceptions.BookingException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.config.AppConstants;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
@@ -65,7 +66,8 @@ public class GuestServiceImpl implements GuestService {
 
     // Deletes a guest and clears cached search results because the list changed
     @Override
-    @CacheEvict(value = "guestSearch", allEntries = true)
+    // Removing a guest also frees any rooms from that guest's stays
+    @CacheEvict(value = {"guestSearch", "roomSearch"}, allEntries = true)
     public void deleteGuest(Long guestId) {
         log.debug("Deleting guest with id {}", guestId);
 
@@ -120,13 +122,15 @@ public class GuestServiceImpl implements GuestService {
     // Creating a guest changes the guest list and may change stay counts
     // Clear all cached guest searches so the next search reads fresh data
     @Override
-    @CacheEvict(value = "guestSearch", allEntries = true)
+    // A guest created with a room changes both guest and availability searches
+    @CacheEvict(value = {"guestSearch", "roomSearch"}, allEntries = true)
     public Guest createGuestWithRoom(String fullName, LocalDate dob, String email, String avatarUrl,
                                      BigDecimal discountPercentage, Long roomId,
                                      LocalDate checkIn, LocalDate checkOut) {
         log.debug("Creating guest {} with room {}", fullName, roomId);
 
         validateUniqueEmail(email);
+        validateBookingDates(roomId, checkIn, checkOut);
         String cleanedAvatarUrl = normalizeAvatarUrl(avatarUrl);
 
         // Domain decision: VIP or regular Guest - belongs in the service
@@ -225,10 +229,45 @@ public class GuestServiceImpl implements GuestService {
                 .orElseThrow(() -> new GuestNotFoundException(guestId));
     }
 
+    // Loads guest details for the guest overview page
+    @Override
+    @Transactional(readOnly = true)
+    public GuestDetails getGuestDetails(Long guestId) {
+        // Load stays once so the controller does not prepare domain data
+        Guest guest = getGuestWithDetails(guestId);
+        List<GuestDetails.StayDetails> stays = guest.getStays().stream()
+                .map(stay -> new GuestDetails.StayDetails(
+                        stay.getRoom(),
+                        stay.getCheckInDate(),
+                        stay.getCheckOutDate(),
+                        stay.getNumberOfNights(),
+                        stay.getGuest().getDiscountPercentage(),
+                        stay.getTotalPrice(),
+                        stay.getFinalPrice()))
+                .toList();
+        return new GuestDetails(guest, stays);
+    }
+
     // validate unique email
     private void validateUniqueEmail(String email) {
         if (email != null && guestRepo.existsByEmailIgnoreCase(email.trim())) {
             throw new GuestAlreadyExistsException(email.trim());
+        }
+    }
+
+    // validate booking dates
+    private void validateBookingDates(Long roomId, LocalDate checkIn, LocalDate checkOut) {
+        // A guest without a selected room does not need booking dates
+        if (roomId == null) {
+            return;
+        }
+
+        if (checkIn == null || checkOut == null) {
+            throw new BookingException("booking.dates.required");
+        }
+
+        if (!checkOut.isAfter(checkIn)) {
+            throw new BookingException("booking.checkout.after.checkin");
         }
     }
 
