@@ -5,6 +5,8 @@ import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.domain.*;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +53,30 @@ public class RoomServiceImpl implements RoomService {
         return roomRepo.findAllWithHotel();
     }
 
+    // Reads rooms for the room overview page
+    @Override
+    @Transactional(readOnly = true)
+    // Equivalent overview filters reuse the same cached room list
+    @Cacheable(value = "roomOverviewSearch", key = "{#roomNumber, #type == null ? '' : #type.trim().toLowerCase(), #seaView, #maxPrice}")
+    public List<Room> findRoomsForOverview(Integer roomNumber, String type, Boolean seaView, BigDecimal maxPrice) {
+        // A room number search takes priority over the optional filters
+        if (roomNumber != null && roomNumber > 0) {
+            return getRoomsByNumber(roomNumber);
+        }
+
+        RoomType roomType = null;
+        if (type != null && !type.isBlank()) {
+            try {
+                roomType = RoomType.valueOf(type.trim().toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                log.warn("Ignoring invalid room type filter: {}", type);
+            }
+        }
+
+        BigDecimal validMaxPrice = maxPrice != null && maxPrice.signum() < 0 ? null : maxPrice;
+        return findRooms(Optional.ofNullable(roomType), Optional.ofNullable(seaView), Optional.ofNullable(validMaxPrice));
+    }
+
     // Filters rooms by optional type, sea view, and maximum price
     @Override
     @Transactional(readOnly = true)
@@ -69,6 +95,7 @@ public class RoomServiceImpl implements RoomService {
 
     // Creates a room inside the selected hotel aggregate
     @Override
+    @CacheEvict(value = {"roomSearch", "roomOverviewSearch"}, allEntries = true)
     public Room createRoom(Room room, String hotelId) {
         log.debug("Creating room {} for hotel {}", room.getNumber(), hotelId);
 
@@ -95,6 +122,15 @@ public class RoomServiceImpl implements RoomService {
         );
 
         return savedRoom;
+    }
+
+    // Convenience method for creating a room with default values
+    @Override
+    @CacheEvict(value = {"roomSearch", "roomOverviewSearch"}, allEntries = true)
+    public Room createRoom(int number, RoomType type, BigDecimal pricePerNight, boolean seaView,
+                           String photoUrl, String description, String hotelId) {
+        Room room = new Room(number, type, pricePerNight, seaView, photoUrl, description);
+        return createRoom(room, hotelId);
     }
 
     // Looks up rooms by room number and fails when none exist
@@ -125,6 +161,7 @@ public class RoomServiceImpl implements RoomService {
 
     // Deletes a room and relies on Room ownership to remove related stays
     @Override
+    @CacheEvict(value = {"roomSearch", "roomOverviewSearch", "guestSearch"}, allEntries = true)
     public void deleteRoom(Long roomId) {
         log.debug("Deleting room {}", roomId);
 
@@ -148,6 +185,7 @@ public class RoomServiceImpl implements RoomService {
     // Updates the room description through dirty checking
     @Override
     @Transactional
+    @CacheEvict(value = {"roomSearch", "roomOverviewSearch"}, allEntries = true)
     public void updateRoomDescription(Long roomId, String description) {
         log.debug("Updating room description for room {}", roomId);
 
@@ -204,10 +242,14 @@ public class RoomServiceImpl implements RoomService {
     // Searches available rooms from the home page filters
     @Override
     @Transactional(readOnly = true)
+    // Dates are part of the key because availability depends on the booking period
+    @Cacheable(value = "roomSearch", key = "{#query == null ? '' : #query.trim().toLowerCase(), #roomType == null ? '' : #roomType.trim().toLowerCase(), #checkIn, #checkOut}")
     public List<Room> searchAvailableRooms(String query,
-                                           RoomType roomType,
+                                           String roomTypeValue,
                                            LocalDate checkIn,
                                            LocalDate checkOut) {
+
+        RoomType roomType = parseRoomType(roomTypeValue);
 
         log.debug("Searching rooms: query={}, roomType={}, checkIn={}, checkOut={}",
                 query, roomType, checkIn, checkOut);
@@ -242,5 +284,19 @@ public class RoomServiceImpl implements RoomService {
 
         // Return only the rooms that passed the availability check
         return availableRooms;
+    }
+
+    // Parses the room type value from the UI
+    private RoomType parseRoomType(String roomTypeValue) {
+        // API and search pages pass the raw room type value to the service
+        if (roomTypeValue == null || roomTypeValue.isBlank()) {
+            return null;
+        }
+
+        try {
+            return RoomType.valueOf(roomTypeValue.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Invalid room type selected");
+        }
     }
 }

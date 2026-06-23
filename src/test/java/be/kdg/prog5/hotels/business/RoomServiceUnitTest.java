@@ -9,9 +9,10 @@ import be.kdg.prog5.hotels.domain.Hotel;
 import be.kdg.prog5.hotels.domain.Room;
 import be.kdg.prog5.hotels.domain.RoomType;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,23 +29,20 @@ import static org.mockito.Mockito.when;
 /* Unit Test Class
    PURPOSE: Test RoomServiceImpl with mocked repositories and mocked logging
    This keeps the test focused on service/business logic only */
-@SpringBootTest(classes = RoomServiceImpl.class)
+@ExtendWith(MockitoExtension.class)
 class RoomServiceUnitTest {
 
-    // Mocked because this unit test should not use the real database
-    @MockBean
+    @Mock
     private SpringDataRoomRepository roomRepo;
 
-    // Mocked because createRoom needs to look up the Hotel by business id
-    @MockBean
+    @Mock
     private SpringDataHotelRepository hotelRepo;
 
-    // Mocked so tests can verify activity logging without depending on the security context
-    @MockBean
+    @Mock
     private SafeActivityLogger safeActivityLogger;
 
-    // Real service bean under test; Spring injects the mocks above into its constructor
-    @Autowired
+    // Mockito creates the service and injects the mocked constructor dependencies
+    @InjectMocks
     private RoomServiceImpl roomService;
 
     /* PURPOSE: Verify successful room creation
@@ -123,7 +121,7 @@ class RoomServiceUnitTest {
         when(roomRepo.searchRooms("brussels", RoomType.DOUBLE)).thenReturn(List.of(room));
 
         // Act
-        List<Room> rooms = roomService.searchAvailableRooms("  brussels  ", RoomType.DOUBLE, null, null);
+        List<Room> rooms = roomService.searchAvailableRooms("  brussels  ", "double", null, null);
 
         // Assert
         assertThat(rooms).containsExactly(room);
@@ -142,6 +140,15 @@ class RoomServiceUnitTest {
         assertThatThrownBy(() -> roomService.searchAvailableRooms("brussels", null, checkIn, checkOut))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Check-out must be after check-in");
+
+        verifyNoInteractions(roomRepo);
+    }
+
+    @Test
+    void searchAvailableRoomsShouldRejectAnInvalidRoomTypeBeforeCallingRepository() {
+        assertThatThrownBy(() -> roomService.searchAvailableRooms("brussels", "penthouse", null, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Invalid room type selected");
 
         verifyNoInteractions(roomRepo);
     }

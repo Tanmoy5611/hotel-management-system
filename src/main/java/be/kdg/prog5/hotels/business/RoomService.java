@@ -15,6 +15,9 @@ public interface RoomService {
 
     List<Room> getAllRooms();      // List all rooms (rooms overview page)
 
+    // Converts overview filter input before querying rooms
+    List<Room> findRoomsForOverview(Integer roomNumber, String type, Boolean seaView, BigDecimal maxPrice);
+
     // Filter rooms (type, sea view, max price)
     List<Room> findRooms(Optional<RoomType> type,
                          Optional<Boolean> seaView,
@@ -22,6 +25,10 @@ public interface RoomService {
 
     // Create new room (belongs to a hotel)
     Room createRoom(Room room, String hotelId);
+
+    // Builds the Room inside the service before assigning its hotel
+    Room createRoom(int number, RoomType type, BigDecimal pricePerNight, boolean seaView,
+                    String photoUrl, String description, String hotelId);
 
     // Search rooms by room number
     List<Room> getRoomsByNumber(int roomNumber);
@@ -43,7 +50,7 @@ public interface RoomService {
 
     // Search rooms from the home page
     List<Room> searchAvailableRooms(String query,
-                                    RoomType roomType,
+                                    String roomType,
                                     LocalDate checkIn,
                                     LocalDate checkOut);
 }

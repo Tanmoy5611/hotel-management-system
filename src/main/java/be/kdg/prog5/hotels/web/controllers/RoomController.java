@@ -22,7 +22,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 // Controller for handling all requests related to Rooms
 @Controller
@@ -56,35 +55,7 @@ public class RoomController {
             @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
             Model model) {
 
-        if (roomNumber != null && roomNumber < 0) {
-            log.debug("Ignoring negative room number filter {}", roomNumber);
-            roomNumber = null;
-        }
-
-        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
-            log.debug("Ignoring negative max price filter {}", maxPrice);
-            maxPrice = null;
-        }
-
-        List<Room> rooms;
-
-        // If a room number is provided : direct lookup
-        if (roomNumber != null && roomNumber > 0) {
-            log.debug("Filtering rooms by number {}", roomNumber);
-
-            rooms = roomService.getRoomsByNumber(roomNumber);
-        } else {
-            // Convert incoming query parameters to Optional values
-            // safe enum parsing
-            Optional<RoomType> t = parseRoomType(type);
-            Optional<Boolean> v = Optional.ofNullable(sea);
-            Optional<BigDecimal> p = Optional.ofNullable(maxPrice);
-
-            // Debug log for filter inputs
-            log.debug("Listing rooms with filters type={}, sea={}, maxPrice={}", type, sea, maxPrice);
-
-            rooms = roomService.findRooms(t, v, p);
-        }
+        List<Room> rooms = roomService.findRoomsForOverview(roomNumber, type, sea, maxPrice);
 
         // Add filtered results and other attributes to Model (to display on HTML)
         model.addAttribute("rooms", rooms);
@@ -129,19 +100,9 @@ public class RoomController {
             return "add-room";
         }
 
-        // using full constructor because JPA no-args constructor is protected
-        Room room = new Room(
-                roomForm.getNumber(),
-                roomForm.getType(),
-                roomForm.getPricePerNight(),
-                roomForm.isSeaView(),
-                roomForm.getPhotoUrl(),
-                roomForm.getDescription()
-        );
-
-        // Log and save new room data using the service layer
-        log.debug("Creating new room: {}", room);
-        roomService.createRoom(room, roomForm.getHotelId());
+        roomService.createRoom(
+                roomForm.getNumber(), roomForm.getType(), roomForm.getPricePerNight(), roomForm.isSeaView(),
+                roomForm.getPhotoUrl(), roomForm.getDescription(), roomForm.getHotelId());
 
 
         return "redirect:/rooms";   // Redirect back to list of rooms after successful submission
@@ -273,17 +234,4 @@ public class RoomController {
         return "error/404";
     }
 
-    // private helper for safe enum parsing from the HTTP request
-    private Optional<RoomType> parseRoomType(String type) {
-        if (type == null || type.isBlank()) {
-            return Optional.empty();
-        }
-
-        try {
-            return Optional.of(RoomType.valueOf(type.toUpperCase()));
-        } catch (IllegalArgumentException ex) {
-            log.warn("Invalid room type filter: {}", type);
-            return Optional.empty();
-        }
-    }
 }
