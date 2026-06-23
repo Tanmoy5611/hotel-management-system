@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -13,6 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /* REST API Integration Test Class
@@ -31,13 +35,39 @@ class RoomApiControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    /*  PURPOSE: Verify that requesting all rooms through the API succeeds
-        ENDPOINT: GET /api/rooms
-        EXPECTATION: HTTP 200 OK */
+    /* PURPOSE: Verify the GET-all API contract with JSON room fields
+       EXPECTATION: HTTP 200 with a JSON array */
     @Test
     void shouldGetAllRooms() throws Exception {
-        mockMvc.perform(get("/api/rooms"))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/rooms")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].number").value(101))
+                .andExpect(jsonPath("$[0].hotelName").value("API Test Hotel"));
+    }
+
+    /* PURPOSE: Verify anonymous API writes do not redirect to login
+       EXPECTATION: HTTP 403 */
+    @Test
+    void anonymousApiRequestShouldReturnForbiddenInsteadOfRedirectingToLogin() throws Exception {
+        mockMvc.perform(post("/api/rooms")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isForbidden());
+    }
+
+    /* PURPOSE: Verify malformed path ids are handled as client errors
+       EXPECTATION: HTTP 400 JSON instead of HTTP 500 */
+    @Test
+    void invalidRoomIdShouldReturnBadRequestAsJson() throws Exception {
+        mockMvc.perform(get("/api/rooms/not-a-number")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
     }
 
     /* PURPOSE: Verify that an ADMIN user may update a room description

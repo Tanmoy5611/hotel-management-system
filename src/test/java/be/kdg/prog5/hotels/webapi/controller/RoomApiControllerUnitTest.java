@@ -44,7 +44,7 @@ class RoomApiControllerUnitTest {
     @MockBean
     private RoomService roomService;
 
-    // Mocked so the test controls DTO/entity conversion behavior
+    // Mocked so the test controls the API response mapping
     @MockBean
     private RoomMapper roomMapper;
 
@@ -53,12 +53,14 @@ class RoomApiControllerUnitTest {
     @Test
     void createRoomShouldReturnCreatedRoomDto() throws Exception {
         // Arrange
-        Room roomFromDto = new Room(101, RoomType.DOUBLE, BigDecimal.valueOf(120), true, "room.jpg", "Nice room");
-        Room savedRoom = new Room(101, RoomType.DOUBLE, BigDecimal.valueOf(120), true, "room.jpg", "Nice room");
-        RoomDto responseDto = new RoomDto(7L, 101, BigDecimal.valueOf(120), "API Test Hotel");
+        Room savedRoom = new Room(101, RoomType.DOUBLE,
+                new BigDecimal("120.00"), true, "room.jpg", "Nice room");
+        RoomDto responseDto = new RoomDto(7L, 101, "DOUBLE", new BigDecimal("120.00"), true,
+                "room.jpg", "Nice room", "api-test-hotel", "API Test Hotel");
 
-        when(roomMapper.toEntity(any())).thenReturn(roomFromDto);
-        when(roomService.createRoom(roomFromDto, "api-test-hotel")).thenReturn(savedRoom);
+        when(roomService.createRoom(101, RoomType.DOUBLE,
+                new BigDecimal("120.00"), true, "room.jpg", "Nice room", "api-test-hotel"))
+                .thenReturn(savedRoom);
         when(roomMapper.toDto(savedRoom)).thenReturn(responseDto);
 
         // Act + Assert
@@ -82,8 +84,8 @@ class RoomApiControllerUnitTest {
                 .andExpect(jsonPath("$.hotelName").value("API Test Hotel"));
 
         // Verify important controller interactions with mocked dependencies
-        verify(roomMapper).toEntity(any());
-        verify(roomService).createRoom(roomFromDto, "api-test-hotel");
+        verify(roomService).createRoom(101, RoomType.DOUBLE,
+                new BigDecimal("120.00"), true, "room.jpg", "Nice room", "api-test-hotel");
         verify(roomMapper).toDto(savedRoom);
     }
 
@@ -108,15 +110,34 @@ class RoomApiControllerUnitTest {
         verifyNoInteractions(roomMapper);
     }
 
+    /* PURPOSE: Verify invalid enum JSON is handled before the service runs
+      EXPECTATION: HTTP 400 and no dependency interaction */
+    @Test
+    void createRoomShouldReturnBadRequestForAnInvalidRoomType() throws Exception {
+        mockMvc.perform(post("/api/rooms")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "number": 101,
+                                  "pricePerNight": 120.00,
+                                  "type": "PENTHOUSE",
+                                  "hotelId": "api-test-hotel"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
+
+        verifyNoInteractions(roomService);
+        verifyNoInteractions(roomMapper);
+    }
+
     /* PURPOSE: Verify duplicate room handling from the service layer
        EXPECTATION: HTTP 409 Conflict and no DTO response mapping */
     @Test
     void createRoomShouldReturnConflictWhenRoomAlreadyExists() throws Exception {
         // Arrange
-        Room roomFromDto = new Room(101, RoomType.DOUBLE, BigDecimal.valueOf(120), true, "room.jpg", "Nice room");
-
-        when(roomMapper.toEntity(any())).thenReturn(roomFromDto);
-        when(roomService.createRoom(roomFromDto, "api-test-hotel"))
+        when(roomService.createRoom(101, RoomType.DOUBLE,
+                new BigDecimal("120.00"), true, "room.jpg", "Nice room", "api-test-hotel"))
                 .thenThrow(new RoomAlreadyExistsException(101, "api-test-hotel"));
 
         // Act + Assert
@@ -138,8 +159,8 @@ class RoomApiControllerUnitTest {
                 .andExpect(jsonPath("$.message").value("Room number 101 already exists in hotel api-test-hotel"));
 
         // Service was called, but no success DTO should be created after the exception
-        verify(roomMapper).toEntity(any());
-        verify(roomService).createRoom(roomFromDto, "api-test-hotel");
+        verify(roomService).createRoom(101, RoomType.DOUBLE,
+                new BigDecimal("120.00"), true, "room.jpg", "Nice room", "api-test-hotel");
         verify(roomMapper, never()).toDto(any());
     }
 }

@@ -3,6 +3,7 @@ package be.kdg.prog5.hotels.web.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -82,6 +83,17 @@ public class SecurityConfig {
                         // after login redirect to home
                         .defaultSuccessUrl("/home", true)
                         .permitAll()
+                )
+
+                // API clients need a status code instead of an HTML login-page redirect
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, exception) -> {
+                            if (request.getRequestURI().startsWith(request.getContextPath() + "/api/")) {
+                                response.setStatus(HttpStatus.FORBIDDEN.value());
+                            } else {
+                                response.sendRedirect(request.getContextPath() + "/login");
+                            }
+                        })
                 )
 
                 // Week 10: CSRF is ignored only for this endpoint because it is called by the separate Client project
