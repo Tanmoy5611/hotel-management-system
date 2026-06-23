@@ -6,6 +6,8 @@
     <th:block th:replace="~{fragments/styles :: commonHead}"></th:block>
     <link rel="stylesheet" th:href="@{/css/bundle-add-hotel.css}">
     <title th:text="#{nav.addHotel}">Add Hotel</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <body class="bg-light d-flex flex-column min-vh-100">
@@ -23,6 +25,18 @@
             <span th:text="#{nav.addHotel}">Add Hotel</span>
         </h2>
 
+        <div id="formError"
+             class="alert alert-danger alert-dismissible fade show d-none"
+             role="alert">
+            <span id="formErrorMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div id="createdHotel" class="alert alert-success d-none" role="status">
+            <span id="createdHotelMessage"></span>
+            <a id="createdHotelLink" class="alert-link ms-2">View hotel</a>
+        </div>
+
         <!-- Wide centered form -->
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
@@ -35,7 +49,8 @@
                 <!-- Admin only form -->
                 <div sec:authorize="hasRole('ADMIN')">
 
-                    <form th:action="@{/hotels/add}"
+                    <form id="add-hotel-form"
+                          th:action="@{/hotels/add}"
                           th:object="${hotelForm}"
                           method="post"
                           class="card p-4 shadow-sm needs-validation"
@@ -51,6 +66,7 @@
                                 </label>
                                 <input type="text"
                                        th:field="*{name}"
+                                       required
                                        class="form-control">
                                 <div class="text-danger small mt-1"
                                      th:errors="*{name}"></div>
@@ -59,14 +75,14 @@
                             <!-- City -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold" th:text="#{hotels.table.city}"></label>
-                                <input type="text" th:field="*{city}" class="form-control">
+                                <input type="text" th:field="*{city}" required class="form-control">
                                 <div class="text-danger small" th:errors="*{city}"></div>
                             </div>
 
                             <!-- Country -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold" th:text="#{hotels.table.country}"></label>
-                                <input type="text" th:field="*{country}" class="form-control">
+                                <input type="text" th:field="*{country}" required class="form-control">
                                 <div class="text-danger small" th:errors="*{country}"></div>
                             </div>
 
@@ -78,6 +94,7 @@
                                 </label>
                                 <input type="date"
                                        th:field="*{openedOn}"
+                                       required
                                        class="form-control">
                                 <div class="text-danger small mt-1"
                                      th:errors="*{openedOn}"></div>
@@ -92,6 +109,7 @@
                                 <input type="number"
                                        min="1"
                                        max="5"
+                                       required
                                        th:field="*{stars}"
                                        class="form-control">
                                 <div class="text-danger small mt-1"

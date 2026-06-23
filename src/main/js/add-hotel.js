@@ -1,7 +1,9 @@
 import '../scss/edit-description.scss';
+import { initAddHotelForm } from './api/add-hotel-api.js';
 import { initDescriptionCounter } from './ui/description-word-counter.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Page entry for the Add Hotel description counter
+  // Starts the counter and REST form behavior for this page
   initDescriptionCounter();
+  initAddHotelForm();
 });
