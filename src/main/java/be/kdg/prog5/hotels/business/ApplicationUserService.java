@@ -11,9 +11,11 @@ public interface ApplicationUserService {
     // get all users for admin panel
     List<ApplicationUser> getAllUsers();
 
+    // Used by Spring Security while a user logs in
+    Optional<ApplicationUser> findByEmail(String email);
+
     // create a new user from the register form
-    // Returns an error message if creation fails, empty if successful
-    Optional<String> createUser(RegisterForm form);
+    void createUser(RegisterForm form);
 
     // delete a user by id
     void deleteUser(Long id);

@@ -2,6 +2,7 @@ package be.kdg.prog5.hotels.business;
 
 import be.kdg.prog5.hotels.business.exceptions.ApplicationUserNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.ApplicationUserHasGuestsException;
+import be.kdg.prog5.hotels.business.exceptions.ApplicationUserAlreadyExistsException;
 import be.kdg.prog5.hotels.config.AppConstants;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
@@ -48,13 +49,20 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
         return userRepository.findAll();
     }
 
+    // return user by email
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ApplicationUser> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     // create a new user with validation
     @Override
-    public Optional<String> createUser(RegisterForm form) {
+    public void createUser(RegisterForm form) {
 
         // check if an applicationUser with the same email already exists
         if (userRepository.findByEmail(form.getEmail()).isPresent()) {
-            return Optional.of("A applicationUser with this email already exists");
+            throw new ApplicationUserAlreadyExistsException(form.getEmail());
         }
 
         // create new applicationUser and encode the password
@@ -73,8 +81,6 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
                 "User " + applicationUser.getEmail() + " created"
         );
 
-        // return empty Optional if creation succeeded
-        return Optional.empty();
     }
 
     // delete user but protect the main admin

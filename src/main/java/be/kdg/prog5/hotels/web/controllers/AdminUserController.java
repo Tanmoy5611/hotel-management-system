@@ -1,6 +1,7 @@
 package be.kdg.prog5.hotels.web.controllers;
 
 import be.kdg.prog5.hotels.business.ApplicationUserService;
+import be.kdg.prog5.hotels.business.exceptions.ApplicationUserAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.ApplicationUserHasGuestsException;
 import be.kdg.prog5.hotels.config.AppConstants;
 import be.kdg.prog5.hotels.viewmodel.RegisterForm;
@@ -60,18 +61,14 @@ public class AdminUserController {
             return "add-user";
         }
 
-        // Try to create the user
-        var error = applicationUserService.createUser(registerForm);
-
-        // If business validation error occurs, return to the form
-        if (error.isPresent()) {
-            model.addAttribute("errorMessage", error.get());
+        try {
+            applicationUserService.createUser(registerForm);
+            return "redirect:/admin/users/manage";
+        } catch (ApplicationUserAlreadyExistsException ex) {
+            model.addAttribute("errorMessage", ex.getMessage());
             model.addAttribute("registerForm", registerForm);
             return "add-user";
         }
-
-        // Redirect to user list after successful creation
-        return "redirect:/admin/users/manage";
     }
 
     // Deletes a user by id from the management page

@@ -1,6 +1,6 @@
 package be.kdg.prog5.hotels.web.security;
 
-import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
+import be.kdg.prog5.hotels.business.ApplicationUserService;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,11 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    // repository to fetch users from the DB
-    private final SpringDataApplicationUserRepository userRepository;
+    private final ApplicationUserService applicationUserService;
 
-    public CustomUserDetailsService(SpringDataApplicationUserRepository userRepository) {
-        this.userRepository = userRepository;
+    public CustomUserDetailsService(ApplicationUserService applicationUserService) {
+        this.applicationUserService = applicationUserService;
     }
 
     // Spring Security calls this method during login
@@ -23,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         // find the applicationUser by email
-        ApplicationUser applicationUser = userRepository.findByEmail(email)
+        ApplicationUser applicationUser = applicationUserService.findByEmail(email)
                 // if applicationUser not found then throw exception
                 .orElseThrow(() -> new UsernameNotFoundException("ApplicationUser not found"));
 
