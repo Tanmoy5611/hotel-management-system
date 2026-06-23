@@ -14,6 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -23,7 +25,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -41,13 +45,19 @@ class RoomServiceTest {
     private GuestService guestService;
 
     @Autowired
+    private HotelService hotelService;
+
+    @SpyBean
     private SpringDataRoomRepository roomRepository;
 
-    @Autowired
+    @SpyBean
     private SpringDataHotelRepository hotelRepository;
 
-    @Autowired
+    @SpyBean
     private SpringDataGuestRepository guestRepository;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @Autowired
     private EntityManager entityManager;
@@ -63,6 +73,9 @@ class RoomServiceTest {
 
     @BeforeEach
     void setup() {
+
+        // Repository setup bypasses services so clear caches between test cases
+        cacheManager.getCacheNames().forEach(cacheName -> cacheManager.getCache(cacheName).clear());
 
         // Arrange (global)
         // Clean database before each test -> ensures isolation
@@ -104,6 +117,39 @@ class RoomServiceTest {
 
         guest.setOwner(user);
         guestRepository.saveAndFlush(guest);
+
+        clearInvocations(roomRepository, hotelRepository, guestRepository);
+    }
+
+    /*
+     PURPOSE: Verify repeated normalized searches reuse cached results
+     EXPECTATION: Each repository search method is called once
+     */
+    @Test
+    void searchesShouldUseCachedResultsForRepeatedInput() {
+        Room room = new Room(
+                500,
+                RoomType.DOUBLE,
+                BigDecimal.valueOf(150),
+                false,
+                "photo.jpg",
+                "Cached room"
+        );
+        roomService.createRoom(room, "hotel-1");
+        clearInvocations(roomRepository, hotelRepository, guestRepository);
+
+        // Each service call is repeated with the same logical search input
+        hotelService.findHotels(null, null, "Test", null);
+        hotelService.findHotels(null, null, " test ", null);
+        roomService.searchAvailableRooms("Antwerp", null, null, null);
+        roomService.searchAvailableRooms(" antwerp ", null, null, null);
+        guestService.searchGuests("john", null);
+        guestService.searchGuests(" john ", null);
+
+        // Only the first call of each matching search reaches its repository
+        verify(hotelRepository, times(1)).findByNameContainingIgnoreCase("Test");
+        verify(roomRepository, times(1)).searchRooms("Antwerp", null);
+        verify(guestRepository, times(1)).searchGuests("john", null);
     }
 
     /*

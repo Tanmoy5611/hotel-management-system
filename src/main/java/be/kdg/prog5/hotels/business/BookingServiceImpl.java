@@ -53,7 +53,8 @@ public class BookingServiceImpl implements BookingService {
     // Booking a room changes how many stays a guest has
     // Clear guest search cache because filters like minimum rooms depend on stay counts
     @Override
-    @CacheEvict(value = "guestSearch", allEntries = true)
+    // A new stay changes guest stay counts and room availability
+    @CacheEvict(value = {"guestSearch", "roomSearch"}, allEntries = true)
     public void bookRoom(Long roomId, Long guestId,
                          LocalDate checkIn,
                          LocalDate checkOut) {
@@ -78,7 +79,8 @@ public class BookingServiceImpl implements BookingService {
     // Cancelling a booking also changes guest stay counts
     // Clear guest search cache so minimum room filters do not use stale results
     @Override
-    @CacheEvict(value = "guestSearch", allEntries = true)
+    // Removing a stay changes guest stay counts and room availability
+    @CacheEvict(value = {"guestSearch", "roomSearch"}, allEntries = true)
     public void cancelBooking(Long stayId) {
         log.debug("Cancelling booking {}", stayId);
 

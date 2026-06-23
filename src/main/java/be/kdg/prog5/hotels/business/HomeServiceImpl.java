@@ -5,12 +5,14 @@ import be.kdg.prog5.hotels.domain.Room;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
 // For Home page dashboard
 @Service
+@Transactional(readOnly = true)
 public class HomeServiceImpl implements HomeService {
 
     private static final Logger log =
