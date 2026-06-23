@@ -4,6 +4,8 @@ import be.kdg.prog5.hotels.business.exceptions.HotelNotFoundException;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;
 import be.kdg.prog5.hotels.domain.Hotel;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,7 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import be.kdg.prog5.hotels.domain.Guest;
+import be.kdg.prog5.hotels.domain.Room;
 
 @Service
 @Transactional
@@ -41,6 +49,26 @@ public class HotelServiceImpl implements HotelService {
         return hotelRepo.findAll();
     }
 
+    // Search hotels by name, stars, or sort
+    @Override
+    @Transactional(readOnly = true)
+    // Equivalent filter values reuse the same cached hotel list
+    @Cacheable(value = "hotelSearch", key = "{#minStars, #openedAfter, #name == null ? '' : #name.trim().toLowerCase(), #sort == null ? '' : #sort.trim().toLowerCase()}")
+    public List<Hotel> findHotels(Integer minStars, LocalDate openedAfter, String name, String sort) {
+        List<Hotel> hotels;
+
+        if (name != null && !name.isBlank()) {
+            hotels = searchByName(name);
+        } else if (minStars != null) {
+            hotels = getHotelsByMinStarsAndOpenedAfter(minStars, openedAfter);
+        } else {
+            hotels = getAllHotels();
+        }
+
+        return sortHotels(hotels, sort);
+    }
+
+    // Get hotels by minimum stars and opened after
     @Override
     @Transactional(readOnly = true)
     public List<Hotel> getHotelsByMinStarsAndOpenedAfter(int minStars, LocalDate openedAfter) {
@@ -53,6 +81,7 @@ public class HotelServiceImpl implements HotelService {
 
     }
 
+    // Get hotel by ID
     @Override
     @Transactional(readOnly = true)
     public Hotel getHotelByHotelId(String hotelId) {
@@ -60,6 +89,29 @@ public class HotelServiceImpl implements HotelService {
 
         return hotelRepo.findByHotelIdWithAggregate(hotelId)
                 .orElseThrow(() -> new HotelNotFoundException(hotelId));
+    }
+
+    // Get hotel details
+    @Override
+    @Transactional(readOnly = true)
+    public HotelDetails getHotelDetails(String hotelId) {
+        // Prepare room and guest information before returning to the controller
+        Hotel hotel = getHotelByHotelId(hotelId);
+        Set<Room> rooms = hotel.getRooms();
+        Map<Long, List<Guest>> guestsPerRoom = new LinkedHashMap<>();
+
+        for (Room room : rooms) {
+            List<Guest> guests = room.getStays().stream()
+                    .map(stay -> stay.getGuest())
+                    .toList();
+            guestsPerRoom.put(room.getId(), guests);
+        }
+
+        int totalGuests = guestsPerRoom.values().stream()
+                .mapToInt(List::size)
+                .sum();
+
+        return new HotelDetails(hotel, rooms, guestsPerRoom, totalGuests);
     }
 
     @Override
@@ -71,7 +123,10 @@ public class HotelServiceImpl implements HotelService {
 
     /// Create hotel
     @Override
-    public Hotel createHotel(Hotel hotel) {
+    @CacheEvict(value = "hotelSearch", allEntries = true)
+    public Hotel createHotel(String name, String city, String country, LocalDate openedOn,
+                              int stars, boolean hasSpa, String imageUrl, String description) {
+        Hotel hotel = new Hotel(null, name, city, country, openedOn, stars, hasSpa, imageUrl, description);
         log.debug("Creating hotel {}", hotel);
 
         // Generates normalized hotel ID if missing
@@ -111,6 +166,8 @@ public class HotelServiceImpl implements HotelService {
 
     /// Delete hotel
     @Override
+    // Deleting a hotel also removes its rooms and their stays
+    @CacheEvict(value = {"hotelSearch", "roomSearch", "roomOverviewSearch", "guestSearch"}, allEntries = true)
     public void deleteHotelByHotelId(String hotelId) {
         log.debug("Deleting hotel with business id {}", hotelId);
 
@@ -175,6 +232,7 @@ public class HotelServiceImpl implements HotelService {
     /// Update hotel description
     @Override
     @Transactional
+    @CacheEvict(value = "hotelSearch", allEntries = true)
     public void updateHotelDescription(String hotelId, String description) {
         log.debug("Updating description for hotel {}", hotelId);
 
@@ -197,6 +255,7 @@ public class HotelServiceImpl implements HotelService {
     }
 
     /// Home Page
+    // 4 hotels with the highest stars
     @Override
     @Transactional(readOnly = true)
     public List<Hotel> getFeaturedHotels() {
@@ -205,6 +264,7 @@ public class HotelServiceImpl implements HotelService {
         return hotelRepo.findTop4ByOrderByStarsDesc();
     }
 
+    // 4 hotels with spa facilities
     @Override
     @Transactional(readOnly = true)
     public List<Hotel> getBeachSpaHotels() {
@@ -213,6 +273,7 @@ public class HotelServiceImpl implements HotelService {
         return hotelRepo.findTop4ByHasSpaTrue();
     }
 
+    // 4 hotels opened after a certain date
     @Override
     @Transactional(readOnly = true)
     public List<Hotel> getCityHotels(LocalDate openedAfter) {

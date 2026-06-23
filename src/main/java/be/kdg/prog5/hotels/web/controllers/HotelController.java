@@ -1,9 +1,7 @@
 package be.kdg.prog5.hotels.web.controllers;
 
 import be.kdg.prog5.hotels.business.HotelService;
-import be.kdg.prog5.hotels.domain.Guest;
 import be.kdg.prog5.hotels.domain.Hotel;
-import be.kdg.prog5.hotels.domain.Room;
 import be.kdg.prog5.hotels.viewmodel.HotelForm;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -16,7 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
 
 // this controller handles all web requests for the hotels page
 @Controller
@@ -35,7 +33,7 @@ public class HotelController {        // All URLs in this controller start with 
 
     /// List hotels + filters
     // method of showing all Hotels (list) + filter them based on: minStars + opened date
-    // The controller only orchestrates which business method to call based on user input.
+    // The controller only orchestrates which business method to call based on user input
     @GetMapping
     public String list(@RequestParam(name = "minStars", required = false) Integer minStars,
                        @RequestParam(name = "opened", required = false)
@@ -47,25 +45,7 @@ public class HotelController {        // All URLs in this controller start with 
         log.debug("Listing hotels with filters: minStars={}, opened={}, name='{}', sort={}",
                 minStars, opened, name, sort);
 
-        List<Hotel> hotels;
-
-        // if user typed a hotel name then search by name (Spring Data or fallback)
-        if (name != null && !name.isBlank()) {
-            hotels = hotelService.searchByName(name);
-        }
-
-        // filter by minimum stars (and optional opened date) (uses @Query)
-        else if (minStars != null) {
-            hotels = hotelService.getHotelsByMinStarsAndOpenedAfter(minStars, opened);
-        }
-
-        // no filters at all: show all hotels (Default)
-        else {
-            hotels = hotelService.getAllHotels();
-        }
-
-        // Optional sorting delegated to service
-        hotels = hotelService.sortHotels(hotels, sort);
+        List<Hotel> hotels = hotelService.findHotels(minStars, opened, name, sort);
 
         // Add data to model for Thymeleaf template
         model.addAttribute("hotels", hotels);
@@ -109,23 +89,9 @@ public class HotelController {        // All URLs in this controller start with 
             return "add-hotel";
         }
 
-        // JPA - Using full constructor because no-args is protected
-        Hotel hotel = new Hotel(
-                null,                /// Hotel ID auto-generated in service layer
-                hotelForm.getName(),
-                hotelForm.getCity(),
-                hotelForm.getCountry(),
-                hotelForm.getOpenedOn(),
-                hotelForm.getStars(),
-                hotelForm.isHasSpa(),
-                hotelForm.getImageUrl(),
-                hotelForm.getDescription()
-        );
-
-        // Log and save the new hotel through the service layer
-        log.debug("Creating new hotel: {}", hotel);
-
-        hotelService.createHotel(hotel);  // Save via business layer
+        hotelService.createHotel(
+                hotelForm.getName(), hotelForm.getCity(), hotelForm.getCountry(), hotelForm.getOpenedOn(),
+                hotelForm.getStars(), hotelForm.isHasSpa(), hotelForm.getImageUrl(), hotelForm.getDescription());
 
         // Redirect to /hotels after successfully adding a new hotel
         return "redirect:/hotels?created";
@@ -137,37 +103,13 @@ public class HotelController {        // All URLs in this controller start with 
     public String showHotelDetails(@PathVariable String hotelId, Model model) {
         log.debug("Loading hotel details for hotel {}", hotelId);
 
-        //  Load hotel from DB using business service
-        Hotel hotel = hotelService.getHotelByHotelId(hotelId);
-
-        // defensive null-safe
-        Set<Room> rooms = Optional.ofNullable(hotel.getRooms())
-                .orElse(Collections.emptySet());
-
-        // Map guests PER ROOM using ROOM ID
-        // For each room, load guests (Many-to-Many room - guest)
-        Map<Long, List<Guest>> guestsPerRoom = new HashMap<>();
-
-        // Maps guests to rooms by ID using streams
-        for (Room room : rooms) {
-            List<Guest> guests = room.getStays()
-                    .stream()
-                    .map(stay -> stay.getGuest())
-                    .toList();
-
-            guestsPerRoom.put(room.getId(), guests);
-        }
-
-        // Calculate total number of guests staying in this hotel
-        int totalGuests = guestsPerRoom.values().stream()
-                .mapToInt(List::size)
-                .sum();
+        var hotelDetails = hotelService.getHotelDetails(hotelId);
 
         // Add the found hotel to the model so Thymeleaf can display it
-        model.addAttribute("hotel", hotel);
-        model.addAttribute("rooms", rooms);
-        model.addAttribute("guestsPerRoom", guestsPerRoom);
-        model.addAttribute("totalGuests", totalGuests);
+        model.addAttribute("hotel", hotelDetails.hotel());
+        model.addAttribute("rooms", hotelDetails.rooms());
+        model.addAttribute("guestsPerRoom", hotelDetails.guestsPerRoom());
+        model.addAttribute("totalGuests", hotelDetails.totalGuests());
 
         return "hotel-detail";            // hotel-detail.html
     }
