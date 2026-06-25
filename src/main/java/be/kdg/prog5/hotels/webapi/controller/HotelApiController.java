@@ -1,6 +1,6 @@
 package be.kdg.prog5.hotels.webapi.controller;
 
-import be.kdg.prog5.hotels.business.HotelService;
+import be.kdg.prog5.hotels.business.hotel.HotelService;
 import be.kdg.prog5.hotels.domain.Hotel;
 import be.kdg.prog5.hotels.webapi.dto.HotelDto;
 import be.kdg.prog5.hotels.webapi.dto.NewHotelDto;
