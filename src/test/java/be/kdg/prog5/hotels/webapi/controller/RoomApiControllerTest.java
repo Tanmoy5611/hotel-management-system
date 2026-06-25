@@ -94,7 +94,7 @@ class RoomApiControllerTest {
        SECURITY RULE: USER role is forbidden from performing admin-only updates
        NOTE: CSRF token is included so the failure is caused by authorization, not by missing CSRF protection */
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = "STAFF")
     void userShouldNotUpdateDescription() throws Exception {
         mockMvc.perform(patch("/api/rooms/1/description")
                         .with(csrf())

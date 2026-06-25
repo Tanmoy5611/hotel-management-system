@@ -50,7 +50,7 @@ class GuestRepositoryTest {
         user = new ApplicationUser(
                 "test@test.com",
                 "password",
-                RoleType.USER
+                RoleType.STAFF
         );
 
         // saveAndFlush ensures immediate DB sync (avoids delayed constraint failures later)
@@ -190,14 +190,8 @@ class GuestRepositoryTest {
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
-    /*
-     PURPOSE: Verify NOT NULL foreign key constraint on Guest.owner.
-     EXPECTATION: Guest must always have an associated ApplicationUser.
-     WHY IMPORTANT: This enforces domain rule: every Guest must have an owner.
-     RESULT: DB rejects null FK => DataIntegrityViolationException.
-     */
     @Test
-    void creatingGuestWithoutOwnerShouldFail() {
+    void creatingGuestWithoutOwnerShouldSucceed() {
 
         // Arrange
         Guest guest = new Guest(
@@ -207,11 +201,13 @@ class GuestRepositoryTest {
                 "avatar.jpg"
         );
 
-        // No owner set -> violates NOT NULL FK constraint
+        // Customer profiles are also guests and do not need an ApplicationUser owner
 
-        // Act + Assert
-        assertThatThrownBy(() -> {
-            guestRepository.saveAndFlush(guest);
-        })        .isInstanceOf(DataIntegrityViolationException.class);
+        // Act
+        Guest savedGuest = guestRepository.saveAndFlush(guest);
+
+        // Assert
+        assertThat(savedGuest.getId()).isNotNull();
+        assertThat(savedGuest.getOwner()).isNull();
     }
 }

@@ -58,7 +58,7 @@ class RoomRepositoryTest {
         user = new ApplicationUser(
                 "test@test.com",
                 "password",
-                RoleType.USER
+                RoleType.STAFF
         );
 
         // saveAndFlush -> immediately writes to DB (not just persistence context)

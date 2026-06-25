@@ -53,7 +53,7 @@ class GuestApiControllerTest {
                 .andExpect(jsonPath("$.email").value("guest@example.com"));
     }
 
-    /* PURPOSE: Verify the separate client can create a guest from JSON
+    /* PURPOSE: Verify the separate client can create a regular guest from JSON
      EXPECTATION: HTTP 201 without login or CSRF */
     @Test
     void clientShouldCreateGuestFromDto() throws Exception {
@@ -71,7 +71,8 @@ class GuestApiControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().string(HttpHeaders.LOCATION, "/api/guests/2"))
                 .andExpect(jsonPath("$.fullName").value("New API Guest"))
-                .andExpect(jsonPath("$.vip").value(true));
+                .andExpect(jsonPath("$.discountPercentage").value(0))
+                .andExpect(jsonPath("$.vip").value(false));
     }
 
     /* PURPOSE: Verify an admin can delete a guest

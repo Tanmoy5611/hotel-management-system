@@ -1,5 +1,6 @@
 package be.kdg.prog5.hotels.business;
 
+import be.kdg.prog5.hotels.business.guest.GuestService;
 import be.kdg.prog5.hotels.data.SpringDataActivityLogRepository;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
@@ -67,11 +68,11 @@ class SecurityAuthorizationTest {
      SECURITY RULE: Owner is allowed
      */
     @Test
-    @WithMockUser(username = "owner@test.com", roles = "USER")
+    @WithMockUser(username = "owner@test.com", roles = "STAFF")
     void ownerShouldDeleteOwnGuest() {
 
         // Arrange
-        Guest guest = createGuestOwnedBy("owner@test.com", RoleType.USER);
+        Guest guest = createGuestOwnedBy("owner@test.com", RoleType.STAFF);
         // Act
         guestService.deleteGuest(guest.getId());
         // Assert
@@ -83,12 +84,12 @@ class SecurityAuthorizationTest {
      SECURITY RULE: Non-owner USER is blocked
      */
     @Test
-    @WithMockUser(username = "other@test.com", roles = "USER")
+    @WithMockUser(username = "other@test.com", roles = "STAFF")
     void otherUserShouldNotDeleteGuest() {
 
         // Arrange
-        Guest guest = createGuestOwnedBy("owner@test.com", RoleType.USER);
-        createUser("other@test.com", RoleType.USER);
+        Guest guest = createGuestOwnedBy("owner@test.com", RoleType.STAFF);
+        createUser("other@test.com", RoleType.STAFF);
         // Act + Assert
         assertThatThrownBy(() -> guestService.deleteGuest(guest.getId()))
                 .isInstanceOf(AccessDeniedException.class);
@@ -106,7 +107,7 @@ class SecurityAuthorizationTest {
 
         // Arrange
         createUser("admin@test.com", RoleType.ADMIN);
-        Guest guest = createGuestOwnedBy("owner@test.com", RoleType.USER);
+        Guest guest = createGuestOwnedBy("owner@test.com", RoleType.STAFF);
         // Act
         guestService.deleteGuest(guest.getId());
         // Assert
@@ -122,7 +123,7 @@ class SecurityAuthorizationTest {
     void anonymousUserShouldNotDeleteGuest() {
 
         // Arrange
-        Guest guest = createGuestOwnedBy("owner@test.com", RoleType.USER);
+        Guest guest = createGuestOwnedBy("owner@test.com", RoleType.STAFF);
         // Act + Assert
         assertThatThrownBy(() -> guestService.deleteGuest(guest.getId()))
                 .isInstanceOf(AccessDeniedException.class);

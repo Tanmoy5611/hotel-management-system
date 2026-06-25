@@ -2,10 +2,12 @@ package be.kdg.prog5.hotels.web.controllers;
 
 import be.kdg.prog5.hotels.data.SpringDataActivityLogRepository;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
+import be.kdg.prog5.hotels.data.SpringDataCustomerRepository;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.data.SpringDataStayRepository;
+import be.kdg.prog5.hotels.domain.ActivityLog;
 import be.kdg.prog5.hotels.domain.ActivityType;
 import be.kdg.prog5.hotels.domain.Hotel;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
@@ -25,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -66,15 +69,33 @@ class HotelControllerMvcTest {
     @Autowired
     private SpringDataApplicationUserRepository userRepository;
 
+    @Autowired
+    private SpringDataCustomerRepository customerRepository;
+
     @BeforeEach
     void setup() {
         // Clean database before each MVC test so the model data is predictable
         activityLogRepository.deleteAll();
+        customerRepository.deleteAll();
         stayRepository.deleteAll();
         roomRepository.deleteAll();
         guestRepository.deleteAll();
         hotelRepository.deleteAll();
         userRepository.deleteAll();
+    }
+
+    @Test
+    void customerRegistrationShouldCreateASeparateCustomerAndGuestProfile() throws Exception {
+        mockMvc.perform(post("/register")
+                        .with(csrf())
+                        .param("fullName", "Customer Profile")
+                        .param("email", "customer@example.com")
+                        .param("dob", "1995-06-15")
+                        .param("password", "secure-password"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+
+        assertThat(customerRepository.findByProfileEmail("customer@example.com")).isPresent();
     }
 
     /* PURPOSE: Verify that the hotels overview page loads correctly
@@ -143,6 +164,21 @@ class HotelControllerMvcTest {
                 .andExpect(content().string(containsString("name=\"_csrf\"")));
     }
 
+    @Test
+    @WithMockUser(username = "admin@hotelapp.com", roles = "ADMIN")
+    void adminBookingsPageShouldSearchByGuestAndRoomNumber() throws Exception {
+        createBooking();
+
+        mockMvc.perform(get("/admin/bookings").param("q", "Booking Guest"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("bookingPage"))
+                .andExpect(content().string(containsString("Booking Guest")));
+
+        mockMvc.perform(get("/admin/bookings").param("q", "701"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Booking Guest")));
+    }
+
     /* PURPOSE: Verify that past bookings are hidden from the active bookings overview
        BUSINESS CASE: Administrator should only see current/upcoming bookings
        EXPECTATION: Active booking is visible, past booking is excluded from the page */
@@ -193,6 +229,47 @@ class HotelControllerMvcTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("DELETE BOOKING")))
                 .andExpect(content().string(containsString("Booking for Booking Guest")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@hotelapp.com", roles = "ADMIN")
+    void adminActivityPageShouldPaginateLogs() throws Exception {
+        ApplicationUser admin = userRepository.save(new ApplicationUser(
+                "admin@hotelapp.com",
+                "encoded-password",
+                RoleType.ADMIN
+        ));
+
+        for (int index = 1; index <= 11; index++) {
+            activityLogRepository.save(new ActivityLog(
+                    ActivityType.CREATE_GUEST,
+                    "Activity " + index,
+                    LocalDateTime.now().plusMinutes(index),
+                    admin
+            ));
+        }
+        activityLogRepository.flush();
+
+        mockMvc.perform(get("/admin/activity"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("activityPage"))
+                .andExpect(content().string(containsString("11 items")))
+                .andExpect(content().string(containsString("Activity 11")))
+                .andExpect(content().string(not(containsString("Activity 1</td>"))))
+                .andExpect(content().string(containsString("Page 1 of 2")))
+                .andExpect(content().string(containsString("/admin/activity?page=1")));
+
+        mockMvc.perform(get("/admin/activity").param("page", "1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Activity 1")))
+                .andExpect(content().string(not(containsString("Activity 11"))))
+                .andExpect(content().string(containsString("Page 2 of 2")))
+                .andExpect(content().string(containsString("/admin/activity?page=0")));
+
+        mockMvc.perform(get("/admin/activity").param("page", "99"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Activity 1")))
+                .andExpect(content().string(containsString("Page 2 of 2")));
     }
 
     private Long createBooking() {

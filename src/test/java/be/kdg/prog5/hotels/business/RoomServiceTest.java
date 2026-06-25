@@ -4,6 +4,10 @@ import be.kdg.prog5.hotels.business.exceptions.BookingException;
 import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
+import be.kdg.prog5.hotels.business.booking.BookingService;
+import be.kdg.prog5.hotels.business.guest.GuestService;
+import be.kdg.prog5.hotels.business.hotel.HotelService;
+import be.kdg.prog5.hotels.business.room.RoomService;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
@@ -88,7 +92,7 @@ class RoomServiceTest {
         user = new ApplicationUser(
                 "test@test.com",
                 "password",
-                RoleType.USER
+                RoleType.STAFF
         );
         userRepository.saveAndFlush(user);
 

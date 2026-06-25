@@ -1,6 +1,6 @@
 package be.kdg.prog5.hotels.webapi.controller;
 
-import be.kdg.prog5.hotels.business.RoomService;
+import be.kdg.prog5.hotels.business.room.RoomService;
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.domain.Room;
 import be.kdg.prog5.hotels.domain.RoomType;
