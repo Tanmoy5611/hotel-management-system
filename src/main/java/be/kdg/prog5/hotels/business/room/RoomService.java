@@ -1,4 +1,4 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.room;
 
 import be.kdg.prog5.hotels.domain.Room;
 import be.kdg.prog5.hotels.domain.RoomType;
@@ -37,6 +37,9 @@ public interface RoomService {
     // Stays are already sorted by check-in date for the detail page
     Room getRoomById(Long roomId);
 
+    // Loads room details and applies customer visibility rules
+    RoomDetails getRoomDetailsForCurrentUser(Long roomId);
+
     // Delete room (Room aggregate root handles Stay cascade)
     void deleteRoom(Long roomId);
 
@@ -53,4 +56,14 @@ public interface RoomService {
                                     String roomType,
                                     LocalDate checkIn,
                                     LocalDate checkOut);
+
+    SearchResults searchRoomsForPage(String query,
+                                     String roomType,
+                                     LocalDate checkIn,
+                                     LocalDate checkOut);
+
+    SearchResults emptySearchResults(String query,
+                                     String roomType,
+                                     LocalDate checkIn,
+                                     LocalDate checkOut);
 }

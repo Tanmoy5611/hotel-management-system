@@ -1,10 +1,13 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.room;
 
+import be.kdg.prog5.hotels.business.activity.SafeActivityLogger;
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
+import be.kdg.prog5.hotels.data.SpringDataCustomerRepository;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.domain.*;
+import be.kdg.prog5.hotels.business.security.SecurityService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.slf4j.Logger;
@@ -30,6 +33,8 @@ public class RoomServiceImpl implements RoomService {
 
     private final SpringDataRoomRepository roomRepo;
     private final SpringDataHotelRepository hotelRepo;
+    private final SpringDataCustomerRepository customerRepo;
+    private final SecurityService securityService;
 
     // logging is a business concern
     private final SafeActivityLogger safeActivityLogger;
@@ -38,9 +43,13 @@ public class RoomServiceImpl implements RoomService {
     // Injects room dependencies after booking logic was moved to BookingService
     public RoomServiceImpl(SpringDataRoomRepository roomRepo,
                            SpringDataHotelRepository hotelRepo,
+                           SpringDataCustomerRepository customerRepo,
+                           SecurityService securityService,
                            SafeActivityLogger safeActivityLogger) {
         this.roomRepo = roomRepo;
         this.hotelRepo = hotelRepo;
+        this.customerRepo = customerRepo;
+        this.securityService = securityService;
         this.safeActivityLogger = safeActivityLogger;
     }
 
@@ -157,6 +166,41 @@ public class RoomServiceImpl implements RoomService {
         // Sorting is handled in DB using ORDER BY check-in date
         return roomRepo.findByIdWithHotelAndGuestsSortedByCheckIn(roomId)
                 .orElseThrow(() -> new RoomNotFoundException(roomId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RoomDetails getRoomDetailsForCurrentUser(Long roomId) {
+        // Start from all stays and then remove what the current user cannot see
+        Room room = getRoomById(roomId);
+        List<Stay> stays = new ArrayList<>(room.getStays());
+        boolean customer = securityService.isCustomer();
+
+        // A customer may only see stays connected to their own Guest profile
+        if (customer) {
+            Long profileId = customerRepo.findByProfileEmail(securityService.getLoggedInUsername())
+                    .orElseThrow(() -> new IllegalArgumentException("Customer account not found."))
+                    .getProfile()
+                    .getId();
+
+            stays = stays.stream()
+                    .filter(stay -> stay.getGuest().getId().equals(profileId))
+                    .toList();
+        }
+
+        // Anonymous users should not see the internal booking table
+        if (!customer && !securityService.isStaffOrAdmin()) {
+            stays = List.of();
+        }
+
+        // The view only shows the table when the user has permission or owns a stay
+        return new RoomDetails(
+                room,
+                stays,
+                customer,
+                securityService.isStaffOrAdmin() || !stays.isEmpty(),
+                LocalDate.now()
+        );
     }
 
     // Deletes a room and relies on Room ownership to remove related stays
@@ -286,6 +330,36 @@ public class RoomServiceImpl implements RoomService {
         return availableRooms;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public SearchResults searchRoomsForPage(String query,
+                                            String roomType,
+                                            LocalDate checkIn,
+                                            LocalDate checkOut) {
+        boolean emptySearch = isBlank(query) && isBlank(roomType) && checkIn == null && checkOut == null;
+        if (emptySearch) {
+            return new SearchResults(List.of(), query, roomType, checkIn, checkOut, RoomType.values(), true);
+        }
+
+        return new SearchResults(
+                searchAvailableRooms(query, roomType, checkIn, checkOut),
+                query,
+                roomType,
+                checkIn,
+                checkOut,
+                RoomType.values(),
+                false
+        );
+    }
+
+    @Override
+    public SearchResults emptySearchResults(String query,
+                                            String roomType,
+                                            LocalDate checkIn,
+                                            LocalDate checkOut) {
+        return new SearchResults(List.of(), query, roomType, checkIn, checkOut, RoomType.values(), false);
+    }
+
     // Parses the room type value from the UI
     private RoomType parseRoomType(String roomTypeValue) {
         // API and search pages pass the raw room type value to the service
@@ -298,5 +372,9 @@ public class RoomServiceImpl implements RoomService {
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("Invalid room type selected");
         }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 }
