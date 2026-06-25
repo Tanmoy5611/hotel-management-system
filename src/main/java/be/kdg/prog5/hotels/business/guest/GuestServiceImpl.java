@@ -1,5 +1,6 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.guest;
 
+import be.kdg.prog5.hotels.business.activity.SafeActivityLogger;
 import be.kdg.prog5.hotels.business.exceptions.GuestAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.BookingException;
@@ -10,7 +11,7 @@ import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.data.SpringDataRoomRepository;
 import be.kdg.prog5.hotels.data.SpringDataStayRepository;
 import be.kdg.prog5.hotels.domain.*;
-import be.kdg.prog5.hotels.web.security.SecurityService;
+import be.kdg.prog5.hotels.business.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -132,18 +133,25 @@ public class GuestServiceImpl implements GuestService {
         validateUniqueEmail(email);
         validateBookingDates(roomId, checkIn, checkOut);
         String cleanedAvatarUrl = normalizeAvatarUrl(avatarUrl);
+        ApplicationUser user = findLoggedInUser();
+
+        boolean createsVipGuest = discountPercentage != null
+                && discountPercentage.compareTo(BigDecimal.ZERO) > 0;
+        if (createsVipGuest && (user == null || user.getRole() != RoleType.ADMIN)) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Only administrators can create VIP guests."
+            );
+        }
 
         // Domain decision: VIP or regular Guest - belongs in the service
         Guest guest;
-        if (discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+        if (createsVipGuest) {
             guest = new VIPGuest(fullName, dob, email, cleanedAvatarUrl, discountPercentage);
         } else {
             guest = new Guest(fullName, dob, email, cleanedAvatarUrl);
         }
 
         // get logged-in user (SAFE)
-        ApplicationUser user = securityService.getLoggedInUserSafe();
-
         // assign owner ONLY if user exists (tests safe)
         if (user != null) {
             guest.setOwner(user);
@@ -194,12 +202,8 @@ public class GuestServiceImpl implements GuestService {
         validateUniqueEmail(email);
         String cleanedAvatarUrl = normalizeAvatarUrl(avatarUrl);
 
-        Guest guest;
-        if (discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
-            guest = new VIPGuest(fullName, dob, email, cleanedAvatarUrl, discountPercentage);
-        } else {
-            guest = new Guest(fullName, dob, email, cleanedAvatarUrl);
-        }
+        // The public client must never be able to assign VIP status or a discount
+        Guest guest = new Guest(fullName, dob, email, cleanedAvatarUrl);
 
         // Guests require an owner. Public client-created guests are assigned to the protected admin account
         ApplicationUser owner = userRepo.findByEmail(AppConstants.PROTECTED_ADMIN_EMAIL)
@@ -288,5 +292,14 @@ public class GuestServiceImpl implements GuestService {
 
         return roomRepo.findByIdWithHotelAndGuests(roomId)
                 .orElseThrow(() -> new RoomNotFoundException(roomId));
+    }
+
+    private ApplicationUser findLoggedInUser() {
+        String email = securityService.getLoggedInUsername();
+        if (email == null) {
+            return null;
+        }
+
+        return userRepo.findByEmail(email).orElse(null);
     }
 }

@@ -1,5 +1,6 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.guest;
 
+import be.kdg.prog5.hotels.business.activity.SafeActivityLogger;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;
@@ -24,9 +25,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 @Service
-public class GuestCsvImportService {
+public class GuestCsvImportWorker {
 
-    private static final Logger log = LoggerFactory.getLogger(GuestCsvImportService.class);
+    private static final Logger log = LoggerFactory.getLogger(GuestCsvImportWorker.class);
     private static final String DEFAULT_GUEST_AVATAR_URL = "/images/guests/guest.jpg";
 
     private final SpringDataGuestRepository guestRepo;
@@ -34,9 +35,9 @@ public class GuestCsvImportService {
     private final SafeActivityLogger safeActivityLogger;
 
     // Injects repositories and logger needed by the asynchronous CSV import
-    public GuestCsvImportService(SpringDataGuestRepository guestRepo,
-                                 SpringDataApplicationUserRepository userRepo,
-                                 SafeActivityLogger safeActivityLogger) {
+    public GuestCsvImportWorker(SpringDataGuestRepository guestRepo,
+                                SpringDataApplicationUserRepository userRepo,
+                                SafeActivityLogger safeActivityLogger) {
         this.guestRepo = guestRepo;
         this.userRepo = userRepo;
         this.safeActivityLogger = safeActivityLogger;
@@ -55,6 +56,7 @@ public class GuestCsvImportService {
         ApplicationUser owner = userRepo.findByEmail(ownerEmail)
                 .orElseThrow(() -> new IllegalArgumentException("CSV import owner not found: " + ownerEmail));
 
+        // Counters are used for the final activity log
         int created = 0;
         int skipped = 0;
 
@@ -67,6 +69,7 @@ public class GuestCsvImportService {
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
 
+                // Ignore empty lines and the common header row
                 if (line.isBlank() || lineNumber == 1 && line.toLowerCase().startsWith("fullname,")) {
                     continue;
                 }
@@ -80,6 +83,7 @@ public class GuestCsvImportService {
                         continue;
                     }
 
+                    // Imported guests belong to the admin who started the upload
                     guest.setOwner(owner);
                     guestRepo.save(guest);
                     created++;

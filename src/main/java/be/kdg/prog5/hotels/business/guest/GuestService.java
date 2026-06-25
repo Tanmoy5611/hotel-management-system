@@ -1,4 +1,4 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.guest;
 
 import be.kdg.prog5.hotels.domain.Guest;
 import org.springframework.security.access.prepost.PreAuthorize;
