@@ -49,7 +49,7 @@
                     <a class="nav-link" th:href="@{/rooms}" th:text="#{nav.rooms}">All Rooms</a>
                 </li>
 
-                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','USER')">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','STAFF')">
                     <a class="nav-link" th:href="@{/guests}" th:text="#{nav.guests}">All Guests</a>
                 </li>
 
@@ -67,7 +67,7 @@
                     </a>
                 </li>
 
-                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','USER')">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','STAFF')">
                     <a class="nav-link" th:href="@{/guests/add}" th:title="#{nav.addGuest}">
                         <i class="bi bi-person-plus-fill me-1"></i>
                         <span th:text="#{nav.guest.short}">Guest</span>
@@ -102,6 +102,13 @@
                     </button>
                 </li>
 
+                <li class="nav-item" sec:authorize="hasRole('CUSTOMER')">
+                    <a class="btn btn-outline-light d-flex align-items-center px-3" th:href="@{/my}">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        <span>My bookings</span>
+                    </a>
+                </li>
+
                 <li class="nav-item dropdown profile-menu" sec:authorize="isAuthenticated()">
                     <button class="profile-avatar"
                             id="profileDropdown"
@@ -124,7 +131,8 @@
                             <div class="profile-summary-text">
                                 <span th:text="#{profile.loggedInAs}">Logged in as:</span>
                                 <strong class="profile-role" sec:authorize="hasRole('ADMIN')">ADMIN</strong>
-                                <strong class="profile-role" sec:authorize="!hasRole('ADMIN')">USER</strong>
+                                <strong class="profile-role" sec:authorize="hasRole('STAFF')">STAFF</strong>
+                                <strong class="profile-role" sec:authorize="hasRole('CUSTOMER')">CUSTOMER</strong>
                                 <span class="profile-email-label" th:text="#{profile.email}">Email:</span>
                                 <strong class="profile-email" sec:authentication="name"></strong>
                             </div>
