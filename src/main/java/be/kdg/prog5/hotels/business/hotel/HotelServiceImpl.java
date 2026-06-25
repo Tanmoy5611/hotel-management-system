@@ -1,5 +1,6 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.hotel;
 
+import be.kdg.prog5.hotels.business.activity.SafeActivityLogger;
 import be.kdg.prog5.hotels.business.exceptions.HotelNotFoundException;
 import be.kdg.prog5.hotels.data.SpringDataHotelRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;

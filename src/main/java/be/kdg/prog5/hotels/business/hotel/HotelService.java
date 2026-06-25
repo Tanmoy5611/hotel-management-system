@@ -1,4 +1,4 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.hotel;
 
 import be.kdg.prog5.hotels.domain.Hotel;
 
