@@ -1,9 +1,9 @@
 package be.kdg.prog5.hotels.web.controllers;
 
-import be.kdg.prog5.hotels.business.ApplicationUserService;
+import be.kdg.prog5.hotels.business.user.ApplicationUserService;
+import be.kdg.prog5.hotels.business.customer.CustomerService;
 import be.kdg.prog5.hotels.business.exceptions.ApplicationUserAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.ApplicationUserHasGuestsException;
-import be.kdg.prog5.hotels.config.AppConstants;
 import be.kdg.prog5.hotels.viewmodel.RegisterForm;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,10 +19,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AdminUserController {
 
     private final ApplicationUserService applicationUserService;
+    private final CustomerService customerService;
 
     // Injects user service for admin dashboard and user management actions
-    public AdminUserController(ApplicationUserService applicationUserService) {
+    public AdminUserController(ApplicationUserService applicationUserService,
+                               CustomerService customerService) {
         this.applicationUserService = applicationUserService;
+        this.customerService = customerService;
     }
 
     // Shows the clean admin dashboard with navigation cards only
@@ -34,11 +37,7 @@ public class AdminUserController {
     // Shows the standalone user management table
     @GetMapping("/manage")
     public String showUsers(Model model) {
-        model.addAttribute("users", applicationUserService.getAllUsers());
-
-        // protected admin email is used by the view to hide delete/role actions
-        model.addAttribute("protectedAdminEmail", AppConstants.PROTECTED_ADMIN_EMAIL);
-
+        model.addAttribute("accounts", applicationUserService.getAccountsForAdminPage());
         return "admin-users-manage";
     }
 
@@ -85,10 +84,17 @@ public class AdminUserController {
         return "redirect:/admin/users/manage";
     }
 
-    // Toggles a user role between USER and ADMIN
+    // Toggles a user role between STAFF and ADMIN
     @PostMapping("/{id}/toggle-role")
     public String toggleRole(@PathVariable Long id) {
         applicationUserService.toggleUserRole(id);
+        return "redirect:/admin/users/manage";
+    }
+
+    @PostMapping("/customers/{id}/toggle-active")
+    public String toggleCustomerActive(@PathVariable Long id) {
+        // Customers do not change roles, admin only toggles active status
+        customerService.toggleCustomerActive(id);
         return "redirect:/admin/users/manage";
     }
 }

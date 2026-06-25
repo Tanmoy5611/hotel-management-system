@@ -41,10 +41,24 @@
     <!-- Search -->
     <div class="card shadow-sm border-0 mb-3">
         <div class="card-body">
-            <input type="text"
-                   id="userSearch"
-                   class="form-control"
-                   th:placeholder="#{users.search}">
+            <div class="row g-2">
+                <div class="col-md-8">
+                    <input type="text"
+                           id="userSearch"
+                           class="form-control"
+                           th:placeholder="#{users.search}">
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Role filter also includes customer accounts -->
+                    <select id="roleFilter" class="form-select">
+                        <option value="">All roles</option>
+                        <option value="ADMIN">Admin</option>
+                        <option value="STAFF">Staff</option>
+                        <option value="CUSTOMER">Customer</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -61,49 +75,68 @@
                 </thead>
 
                 <tbody>
-                <tr th:each="applicationUser : ${users}">
+                <tr th:each="account : ${accounts}"
+                    th:attr="data-role=${account.role}">
                     <td>
                         <i class="bi bi-person-circle me-2"></i>
-                        <span th:text="${applicationUser.email}"></span>
+                        <span th:text="${account.email}"></span>
                     </td>
 
                     <td>
                         <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2"
                               th:classappend="
-                              ${applicationUser.role.name() == 'ADMIN'} ?
+                              ${account.role == 'ADMIN'} ?
                               'bg-danger-subtle text-danger border border-danger' :
-                              'bg-primary-subtle text-primary border border-primary'">
+                              (${account.role == 'CUSTOMER'} ?
+                              'bg-success-subtle text-success border border-success' :
+                              'bg-primary-subtle text-primary border border-primary')">
                             <i class="bi"
-                               th:classappend="${applicationUser.role.name() == 'ADMIN'} ? 'bi-shield-lock-fill' : 'bi-person-circle'">
+                               th:classappend="
+                               ${account.role == 'ADMIN'} ? 'bi-shield-lock-fill' :
+                               (${account.role == 'CUSTOMER'} ? 'bi-person-badge' : 'bi-person-circle')">
                             </i>
-                            <span th:text="${applicationUser.role}"></span>
+                            <span th:text="${account.role}"></span>
                         </span>
                     </td>
 
                     <td class="d-flex gap-2">
+                        <!-- Only staff and admin accounts can change roles -->
                         <button type="button"
                                 class="btn btn-warning btn-sm"
-                                th:if="${applicationUser.email != protectedAdminEmail}"
+                                th:if="${!account.customer and !account.protectedAdmin}"
                                 data-bs-toggle="modal"
-                                th:attr="data-bs-target='#roleModal__' + ${applicationUser.id}">
+                                th:attr="data-bs-target='#roleModal__' + ${account.id}">
                             <i class="bi bi-arrow-repeat"></i>
                             <span th:text="#{users.changeRole}">Change Role</span>
                         </button>
 
                         <button type="button"
                                 class="btn btn-danger btn-sm"
-                                th:if="${applicationUser.email != protectedAdminEmail}"
+                                th:if="${!account.customer and !account.protectedAdmin}"
                                 data-bs-toggle="modal"
-                                th:attr="data-bs-target='#deleteModal__' + ${applicationUser.id}">
+                                th:attr="data-bs-target='#deleteModal__' + ${account.id}">
                             <i class="bi bi-trash"></i>
                             <span th:text="#{users.delete}">Delete</span>
                         </button>
 
                         <span class="badge d-inline-flex align-items-center gap-1 px-3 py-2 bg-success-subtle text-success border border-success"
-                              th:if="${applicationUser.email == protectedAdminEmail}">
+                              th:if="${account.protectedAdmin}">
                             <i class="bi bi-lock-fill"></i>
                             <span th:text="#{users.protected}">PROTECTED</span>
                         </span>
+
+                        <!-- Customers only have active or inactive actions -->
+                        <form th:if="${account.customer}"
+                              th:action="@{/admin/users/customers/{id}/toggle-active(id=${account.id})}"
+                              method="post">
+                            <button class="btn btn-sm"
+                                    th:classappend="${account.active} ? 'btn-outline-danger' : 'btn-outline-success'">
+                                <i class="bi"
+                                   th:classappend="${account.active} ? 'bi-pause-circle' : 'bi-play-circle'">
+                                </i>
+                                <span th:text="${account.active} ? 'Deactivate' : 'Activate'"></span>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 </tbody>
@@ -112,10 +145,10 @@
     </div>
 </main>
 
-<!-- Change RoleType modals -->
-<div th:each="applicationUser : ${users}">
+<!-- Change RoleType modals for staff and admin only -->
+<div th:each="account : ${accounts}" th:if="${!account.customer}">
     <div class="modal fade"
-         th:id="'roleModal__' + ${applicationUser.id}"
+         th:id="'roleModal__' + ${account.id}"
          tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -136,7 +169,7 @@
                         Change role of
                     </span>
 
-                    <strong th:text="${applicationUser.email}"></strong> ?
+                    <strong th:text="${account.email}"></strong> ?
                 </div>
 
                 <div class="modal-footer">
@@ -146,7 +179,7 @@
                         Cancel
                     </button>
 
-                    <form th:action="@{/admin/users/{id}/toggle-role(id=${applicationUser.id})}"
+                    <form th:action="@{/admin/users/{id}/toggle-role(id=${account.id})}"
                           method="post">
                         <button class="btn btn-warning"
                                 th:text="#{users.confirmRole}">
@@ -159,10 +192,10 @@
     </div>
 </div>
 
-<!-- Delete modal -->
-<div th:each="applicationUser : ${users}">
+<!-- Delete modal for staff and admin only -->
+<div th:each="account : ${accounts}" th:if="${!account.customer}">
     <div class="modal fade"
-         th:id="'deleteModal__' + ${applicationUser.id}"
+         th:id="'deleteModal__' + ${account.id}"
          tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -183,7 +216,7 @@
                         Delete user
                     </span>
 
-                    <strong th:text="${applicationUser.email}"></strong> ?
+                    <strong th:text="${account.email}"></strong> ?
                 </div>
 
                 <div class="modal-footer">
@@ -193,7 +226,7 @@
                         Cancel
                     </button>
 
-                    <form th:action="@{/admin/users/{id}/delete(id=${applicationUser.id})}"
+                    <form th:action="@{/admin/users/{id}/delete(id=${account.id})}"
                           method="post">
                         <button class="btn btn-danger"
                                 th:text="#{users.confirmDelete}">
