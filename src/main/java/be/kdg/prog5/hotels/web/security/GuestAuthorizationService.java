@@ -27,14 +27,14 @@ public class GuestAuthorizationService {
     @Transactional(readOnly = true)
     public boolean canDeleteGuest(Long guestId, Authentication authentication) {
         // Anonymous users are represented by Spring as authenticated=false or
-        // AnonymousAuthenticationToken, so they must never pass ownership checks.
+        // AnonymousAuthenticationToken, so they must never pass ownership checks
         if (authentication == null
                 || !authentication.isAuthenticated()
                 || authentication instanceof AnonymousAuthenticationToken) {
             return false;
         }
 
-        // Admin may manage every Guest, even when not the owner.
+        // Admin may manage every Guest, even when not the owner
         boolean isAdmin = authentication.getAuthorities()
                 .stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
@@ -43,7 +43,7 @@ public class GuestAuthorizationService {
             return true;
         }
 
-        // Normal USER may only delete Guests that they own.
+        // STAFF may only delete Guests that they own
         return guestRepository.findById(guestId)
                 .map(Guest::getOwner)
                 .map(owner -> owner.getEmail().equals(authentication.getName()))

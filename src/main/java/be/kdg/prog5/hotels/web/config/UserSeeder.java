@@ -45,7 +45,7 @@ public class UserSeeder {
                     passwordEncoder,
                     DEFAULT_USER_EMAIL,
                     DEFAULT_USER_PASSWORD,
-                    RoleType.USER
+                    RoleType.STAFF
             );
 
             // Only seed demo guests when the guest table is empty

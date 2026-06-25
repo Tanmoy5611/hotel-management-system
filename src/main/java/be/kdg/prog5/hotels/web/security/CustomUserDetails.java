@@ -19,7 +19,7 @@ public class CustomUserDetails implements UserDetails {
         this.applicationUser = applicationUser;
     }
 
-    // return the role of the applicationUser (USER or ADMIN)
+    // return the role of the applicationUser (STAFF or ADMIN)
     // Spring Security expects roles to start with "ROLE_"
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

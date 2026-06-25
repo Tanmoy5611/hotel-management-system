@@ -37,7 +37,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/guests",
                                 "/guests/**"
-                        ).hasAnyRole("USER", "ADMIN")
+                        ).hasAnyRole("STAFF", "ADMIN")
+
+                        // Customer dashboard and own booking actions
+                        .requestMatchers("/my/**").hasRole("CUSTOMER")
+
+                        // Customer signup must be public
+                        .requestMatchers("/register").permitAll()
 
                         // Public (permitAll) pages are read-only: anonymous users may view them, but mutation methods stay protected
                         .requestMatchers(HttpMethod.GET,
@@ -80,8 +86,9 @@ public class SecurityConfig {
                 // custom login page configuration
                 .formLogin(form -> form
                         .loginPage("/login")
-                        // after login redirect to home
-                        .defaultSuccessUrl("/home", true)
+                        // After login every role starts from the home page
+                        .successHandler((request, response, authentication) ->
+                                response.sendRedirect(request.getContextPath() + "/home"))
                         .permitAll()
                 )
 
