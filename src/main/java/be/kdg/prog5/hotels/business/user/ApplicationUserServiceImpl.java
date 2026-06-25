@@ -1,19 +1,24 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.user;
 
+import be.kdg.prog5.hotels.business.activity.SafeActivityLogger;
 import be.kdg.prog5.hotels.business.exceptions.ApplicationUserNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.ApplicationUserHasGuestsException;
 import be.kdg.prog5.hotels.business.exceptions.ApplicationUserAlreadyExistsException;
 import be.kdg.prog5.hotels.config.AppConstants;
 import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
+import be.kdg.prog5.hotels.data.SpringDataCustomerRepository;
 import be.kdg.prog5.hotels.data.SpringDataGuestRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
+import be.kdg.prog5.hotels.domain.Customer;
 import be.kdg.prog5.hotels.domain.RoleType;
+import be.kdg.prog5.hotels.viewmodel.AdminAccountRow;
 import be.kdg.prog5.hotels.viewmodel.RegisterForm;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +31,7 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
 
     private final SpringDataApplicationUserRepository userRepository;
     private final SpringDataGuestRepository guestRepository;
+    private final SpringDataCustomerRepository customerRepository;
 
     private final SafeActivityLogger safeActivityLogger;
 
@@ -34,10 +40,12 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
 
     public ApplicationUserServiceImpl(SpringDataApplicationUserRepository userRepository,
                                       SpringDataGuestRepository guestRepository,
+                                      SpringDataCustomerRepository customerRepository,
                                       SafeActivityLogger safeActivityLogger,
                                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.guestRepository = guestRepository;
+        this.customerRepository = customerRepository;
         this.safeActivityLogger = safeActivityLogger;
         this.passwordEncoder = passwordEncoder;
     }
@@ -47,6 +55,39 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
     @Transactional(readOnly = true)
     public List<ApplicationUser> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AdminAccountRow> getAccountsForAdminPage() {
+        // The admin table shows two account types in one simple view model
+        List<AdminAccountRow> accounts = new ArrayList<>();
+
+        // Application users are admin or staff and can have role actions
+        for (ApplicationUser user : userRepository.findAll()) {
+            accounts.add(new AdminAccountRow(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getRole().name(),
+                    false,
+                    true,
+                    user.getEmail().equals(PROTECTED_ADMIN_EMAIL)
+            ));
+        }
+
+        // Customers only get active or inactive actions in the admin table
+        for (Customer customer : customerRepository.findAllWithProfiles()) {
+            accounts.add(new AdminAccountRow(
+                    customer.getId(),
+                    customer.getProfile().getEmail(),
+                    "CUSTOMER",
+                    true,
+                    customer.isActive(),
+                    false
+            ));
+        }
+
+        return accounts;
     }
 
     // return user by email
@@ -69,7 +110,7 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
         ApplicationUser applicationUser = new ApplicationUser(
                 form.getEmail(),
                 passwordEncoder.encode(form.getPassword()),
-                RoleType.USER
+                RoleType.STAFF
         );
 
         // save applicationUser to the database
@@ -111,7 +152,7 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
         safeActivityLogger.log(ActivityType.DELETE_USER, "User " + email + " deleted");
     }
 
-    // toggle role between USER and ADMIN
+    // toggle role between STAFF and ADMIN
     @Override
     public void toggleUserRole(Long id) {
 
@@ -128,10 +169,10 @@ public class ApplicationUserServiceImpl implements ApplicationUserService {
         RoleType oldRole = applicationUser.getRole();
 
         // switch role
-        if (applicationUser.getRole() == RoleType.USER) {
+        if (applicationUser.getRole() == RoleType.STAFF) {
             applicationUser.setRole(RoleType.ADMIN);
         } else {
-            applicationUser.setRole(RoleType.USER);
+            applicationUser.setRole(RoleType.STAFF);
         }
 
         // No save() needed -> JPA dirty checking handles the role update
