@@ -1,5 +1,7 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.home;
 
+import be.kdg.prog5.hotels.business.hotel.HotelService;
+import be.kdg.prog5.hotels.business.room.RoomService;
 import be.kdg.prog5.hotels.domain.Hotel;
 import be.kdg.prog5.hotels.domain.Room;
 import org.slf4j.Logger;
@@ -25,6 +27,18 @@ public class HomeServiceImpl implements HomeService {
                            RoomService roomService) {
         this.hotelService = hotelService;
         this.roomService = roomService;
+    }
+
+    @Override
+    public HomePage getHomePage() {
+        return new HomePage(
+                getFeaturedHotels(),
+                getBeachSpaHotels(),
+                getCityHotels(),
+                getBestValueRooms(),
+                getPremiumRooms(),
+                getTopPickedRooms()
+        );
     }
 
     // Returns top‑rated hotels, limited to four

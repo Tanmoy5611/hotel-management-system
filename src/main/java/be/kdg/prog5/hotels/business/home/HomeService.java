@@ -1,4 +1,4 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.home;
 
 import be.kdg.prog5.hotels.domain.Hotel;
 import be.kdg.prog5.hotels.domain.Room;
@@ -7,6 +7,8 @@ import java.util.List;
 
 // orchestrator or facade service
 public interface HomeService {
+
+    HomePage getHomePage();
 
     List<Hotel> getFeaturedHotels();
 
