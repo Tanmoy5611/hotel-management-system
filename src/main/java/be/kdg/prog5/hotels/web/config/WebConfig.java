@@ -13,7 +13,7 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
 import java.util.Locale;
 
-// configures Spring MVC behavior such as converters, interceptors, and internationalization.
+// configures Spring MVC behavior such as converters, interceptors, and internationalization
 @Configuration         // marks this class as a Spring configuration class that defines beans and MVC setup
 public class WebConfig implements WebMvcConfigurer {
 

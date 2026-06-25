@@ -17,7 +17,7 @@ public interface SpringDataGuestRepository extends JpaRepository<Guest, Long> {
     @Query("""
             SELECT g
             FROM VIPGuest g
-            JOIN FETCH g.owner
+            LEFT JOIN FETCH g.owner
             """)
     List<Guest> findVipGuests();
 
@@ -25,7 +25,7 @@ public interface SpringDataGuestRepository extends JpaRepository<Guest, Long> {
     @Query("""
             SELECT g
             FROM Guest g
-            JOIN FETCH g.owner
+            LEFT JOIN FETCH g.owner
             """)
     List<Guest> findAllWithOwner();
 
@@ -33,7 +33,7 @@ public interface SpringDataGuestRepository extends JpaRepository<Guest, Long> {
     @Query("""
             SELECT g
             FROM Guest g
-            JOIN FETCH g.owner
+            LEFT JOIN FETCH g.owner
             WHERE (LOWER(g.fullName) LIKE LOWER(CONCAT('%', :query, '%'))
                    OR LOWER(g.email) LIKE LOWER(CONCAT('%', :query, '%')))
               AND (:minRooms IS NULL OR SIZE(g.stays) >= :minRooms)
@@ -51,7 +51,7 @@ public interface SpringDataGuestRepository extends JpaRepository<Guest, Long> {
     @Query("""
             SELECT DISTINCT g
             FROM Guest g
-            JOIN FETCH g.owner
+            LEFT JOIN FETCH g.owner
             LEFT JOIN FETCH g.stays s
             LEFT JOIN FETCH s.room r
             LEFT JOIN FETCH r.hotel

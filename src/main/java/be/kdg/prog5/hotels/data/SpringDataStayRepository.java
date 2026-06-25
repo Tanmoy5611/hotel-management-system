@@ -1,6 +1,8 @@
 package be.kdg.prog5.hotels.data;
 
 import be.kdg.prog5.hotels.domain.Stay;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,6 +29,45 @@ public interface SpringDataStayRepository extends JpaRepository<Stay, Long> {
             """)
     List<Stay> findCurrentBookingsWithDetails(@Param("today") LocalDate today);
 
+    @Query(
+            value = """
+                    SELECT s
+                    FROM Stay s
+                    JOIN FETCH s.guest g
+                    JOIN FETCH s.room r
+                    JOIN FETCH r.hotel h
+                    WHERE s.checkOutDate >= :today
+                      AND (
+                          :search = ''
+                          OR LOWER(g.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
+                          OR LOWER(g.email) LIKE LOWER(CONCAT('%', :search, '%'))
+                          OR LOWER(h.name) LIKE LOWER(CONCAT('%', :search, '%'))
+                          OR STR(r.number) LIKE CONCAT('%', :search, '%')
+                      )
+                    ORDER BY s.checkInDate ASC, r.number ASC
+                    """,
+            countQuery = """
+                    SELECT COUNT(s)
+                    FROM Stay s
+                    JOIN s.guest g
+                    JOIN s.room r
+                    JOIN r.hotel h
+                    WHERE s.checkOutDate >= :today
+                      AND (
+                          :search = ''
+                          OR LOWER(g.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
+                          OR LOWER(g.email) LIKE LOWER(CONCAT('%', :search, '%'))
+                          OR LOWER(h.name) LIKE LOWER(CONCAT('%', :search, '%'))
+                          OR STR(r.number) LIKE CONCAT('%', :search, '%')
+                      )
+                    """
+    )
+    Page<Stay> findCurrentBookingsWithDetails(
+            @Param("today") LocalDate today,
+            @Param("search") String search,
+            Pageable pageable
+    );
+
     // Loads one booking with guest, room, and hotel before cancellation
     @Query("""
             SELECT s
@@ -37,4 +78,13 @@ public interface SpringDataStayRepository extends JpaRepository<Stay, Long> {
             WHERE s.id = :stayId
             """)
     Optional<Stay> findByIdWithBookingDetails(@Param("stayId") Long stayId);
+
+    @Query("""
+            SELECT s FROM Stay s
+            JOIN FETCH s.room r
+            JOIN FETCH r.hotel
+            WHERE s.guest.id = :guestId
+            ORDER BY s.checkInDate DESC
+            """)
+    List<Stay> findByGuestIdWithDetails(@Param("guestId") Long guestId);
 }

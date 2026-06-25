@@ -24,9 +24,12 @@ public class Guest {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "owner_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
     private ApplicationUser owner;
+
+    @OneToOne(mappedBy = "profile", fetch = FetchType.LAZY)
+    private Customer customer;
 
     private LocalDate dob;
 
@@ -67,6 +70,9 @@ public class Guest {
     }
     public ApplicationUser getOwner() {
         return owner;
+    }
+    public Customer getCustomer() {
+        return customer;
     }
     public LocalDate getDob() {
         return dob;

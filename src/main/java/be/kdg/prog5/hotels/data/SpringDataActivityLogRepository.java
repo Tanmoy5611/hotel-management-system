@@ -1,16 +1,15 @@
 package be.kdg.prog5.hotels.data;
 
 import be.kdg.prog5.hotels.domain.ActivityLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
 public interface SpringDataActivityLogRepository extends JpaRepository<ActivityLog, Long> {
 
-    // get the 10 most recent activity logs
-    // @EntityGraph (it eagerly fetches the associated 'user') - allows to specify which lazy-loaded associations should be fetched eagerly for a specific query,
-    // avoiding LazyInitializationException when the session closes and improving performance
+    // Fetch the associated user together with each paginated log so rendering the table
+    // does not trigger an additional query for every row
     @EntityGraph(attributePaths = "user")
-    List<ActivityLog> findTop10ByOrderByTimestampDesc();
+    Page<ActivityLog> findAllByOrderByTimestampDescIdDesc(Pageable pageable);
 }
