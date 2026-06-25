@@ -1,6 +1,6 @@
 package be.kdg.prog5.hotels.web.controllers;
 
-import be.kdg.prog5.hotels.business.HomeService;
+import be.kdg.prog5.hotels.business.home.HomeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -24,13 +24,13 @@ public class HomeController {
     public String home(Model model) {
         log.debug("Loading home page");
 
-        // send to view
-        model.addAttribute("featuredHotels", homeService.getFeaturedHotels());
-        model.addAttribute("beachSpaHotels", homeService.getBeachSpaHotels());
-        model.addAttribute("cityHotels", homeService.getCityHotels());
-        model.addAttribute("bestValueRooms", homeService.getBestValueRooms());
-        model.addAttribute("premiumRooms", homeService.getPremiumRooms());
-        model.addAttribute("topPickedRooms", homeService.getTopPickedRooms());
+        var homePage = homeService.getHomePage();
+        model.addAttribute("featuredHotels", homePage.featuredHotels());
+        model.addAttribute("beachSpaHotels", homePage.beachSpaHotels());
+        model.addAttribute("cityHotels", homePage.cityHotels());
+        model.addAttribute("bestValueRooms", homePage.bestValueRooms());
+        model.addAttribute("premiumRooms", homePage.premiumRooms());
+        model.addAttribute("topPickedRooms", homePage.topPickedRooms());
 
         return "home";
     }

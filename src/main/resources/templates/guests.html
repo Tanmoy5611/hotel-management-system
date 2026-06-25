@@ -135,7 +135,7 @@
                     border border-primary-subtle fw-semibold">
                         <i class="bi bi-person-badge-fill me-1"></i>
                         Created by
-                        <span th:text="${g.owner.email}"></span>
+                        <span th:text="${g.owner != null ? g.owner.email : 'Customer account'}"></span>
                     </span>
                 </div>
 
@@ -147,7 +147,7 @@
                     </span>
 
                     <button
-                            th:if="${#authentication.name == g.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
+                            th:if="${(g.owner != null and #authentication.name == g.owner.email) or #authorization.expression('hasRole(''ADMIN'')')}"
                             type="button"
                             class="btn btn-sm btn-outline-danger"
                             data-bs-toggle="modal"
@@ -158,7 +158,7 @@
                 </div>
             </div>
 
-            <th:block th:if="${#authentication.name == g.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
+            <th:block th:if="${(g.owner != null and #authentication.name == g.owner.email) or #authorization.expression('hasRole(''ADMIN'')')}"
                       th:replace="~{fragments/delete-modal :: formDeleteModal(
                           ${'deleteGuest-' + g.id},
                           #{modal.delete.guestQuestion},

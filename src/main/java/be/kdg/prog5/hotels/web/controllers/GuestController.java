@@ -1,9 +1,9 @@
 package be.kdg.prog5.hotels.web.controllers;
 
-import be.kdg.prog5.hotels.business.GuestService;
+import be.kdg.prog5.hotels.business.guest.GuestService;
 import be.kdg.prog5.hotels.business.exceptions.BookingException;
 import be.kdg.prog5.hotels.business.exceptions.GuestAlreadyExistsException;
-import be.kdg.prog5.hotels.business.RoomService;
+import be.kdg.prog5.hotels.business.room.RoomService;
 import be.kdg.prog5.hotels.domain.Guest;
 import be.kdg.prog5.hotels.viewmodel.GuestForm;
 import jakarta.validation.Valid;
@@ -33,7 +33,7 @@ public class GuestController {
     }
 
     /// Display all guests (list view)
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @GetMapping("/guests")
     public String showGuests(Model model) {
         log.debug("Loading all guests from GuestService");
@@ -45,7 +45,7 @@ public class GuestController {
     }
 
     /// get guest details + list of rooms they stayed in (many-to-many)
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @GetMapping("/guests/{guestId}")
     public String showGuestDetails(@PathVariable Long guestId, Model model) {
         log.debug("Loading guest {}", guestId);
@@ -71,7 +71,7 @@ public class GuestController {
     }
 
     // Spring Data Queries - Vip search
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @GetMapping("/guests/vip")
     public String showVipGuests(Model model) {
         log.debug("Loading all VIP guests from GuestService");
@@ -82,7 +82,7 @@ public class GuestController {
     }
 
     // Guest name search and minimum rooms filter
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @GetMapping("/guests/search")
     public String searchGuests(
             @RequestParam(name = "q", required = false) String query,
@@ -90,11 +90,6 @@ public class GuestController {
             Model model
     ) {
         log.debug("Searching guests with query {} and minRooms {}", query, minRooms);
-
-        // Only HTTP-level short-circuit: nothing to search -> go back to list
-        if ((query == null || query.isBlank()) && minRooms == null) {
-            return "redirect:/guests";
-        }
 
         List<Guest> guests = guestService.searchGuests(query, minRooms);
 
@@ -106,7 +101,7 @@ public class GuestController {
     }
 
     // show add guest form
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @GetMapping("/guests/add")
     public String showAddGuestForm(Model model) {
         model.addAttribute("guestForm", new GuestForm());
@@ -116,7 +111,7 @@ public class GuestController {
     }
 
     // process add guest form
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PostMapping("/guests/add")
     public String processAddGuest(
             @Valid @ModelAttribute GuestForm guestForm,    //  Validation before business logic

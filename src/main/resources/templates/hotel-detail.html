@@ -189,7 +189,7 @@
                     </p>
 
                     <!-- Guests in the room -->
-                    <div sec:authorize="hasAnyRole('ADMIN','USER')"
+                    <div sec:authorize="hasAnyRole('ADMIN','STAFF')"
                          class="mt-3"
                          th:if="${not #lists.isEmpty(guestsPerRoom[r.id])}">
                         <strong>
@@ -230,7 +230,7 @@
     </div>
 
 
-    <div sec:authorize="hasAnyRole('ADMIN','USER')">
+    <div sec:authorize="hasAnyRole('ADMIN','STAFF')">
         <p class="mt-4 text-muted">
             <i class="bi bi-collection"></i>
             <span th:text="${totalGuests} + ' ' + #{hotel.totalGuests}"></span>

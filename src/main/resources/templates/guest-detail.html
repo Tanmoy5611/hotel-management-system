@@ -12,7 +12,7 @@
 <!-- Navbar -->
 <div th:replace="~{fragments/navbar :: body}"></div>
 
-<div sec:authorize="hasAnyRole('USER','ADMIN')" class="container my-4">
+<div sec:authorize="hasAnyRole('STAFF','ADMIN')" class="container my-4">
 
     <!-- Guest Header -->
     <div class="card mb-4 shadow-sm">
@@ -57,7 +57,7 @@
                         border border-primary-subtle fw-semibold">
                             <i class="bi bi-person-badge-fill me-1"></i>
                             Created by
-                            <span th:text="${guest.owner.email}"></span>
+                            <span th:text="${guest.owner != null ? guest.owner.email : 'Customer account'}"></span>
                         </span>
                     </div>
 
@@ -141,7 +141,7 @@
 
         <!-- Delete button opens modal for Admin -->
         <button
-                th:if="${#authentication.name == guest.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
+                th:if="${(guest.owner != null and #authentication.name == guest.owner.email) or #authorization.expression('hasRole(''ADMIN'')')}"
                 type="button"
                 class="btn btn-danger"
                 data-bs-toggle="modal"
@@ -152,7 +152,7 @@
 
     </div>
 
-    <th:block th:if="${#authentication.name == guest.owner.email or #authorization.expression('hasRole(''ADMIN'')')}"
+    <th:block th:if="${(guest.owner != null and #authentication.name == guest.owner.email) or #authorization.expression('hasRole(''ADMIN'')')}"
               th:replace="~{fragments/delete-modal :: formDeleteModal(
                   ${'deleteGuestModal-' + guest.id},
                   #{modal.delete.guestQuestion},
