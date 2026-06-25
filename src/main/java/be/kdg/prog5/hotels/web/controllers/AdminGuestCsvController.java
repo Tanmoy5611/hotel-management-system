@@ -1,10 +1,7 @@
 package be.kdg.prog5.hotels.web.controllers;
 
-import be.kdg.prog5.hotels.business.GuestCsvImportService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import be.kdg.prog5.hotels.business.guest.GuestCsvImportService;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +14,6 @@ import java.io.IOException;
 @Controller
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminGuestCsvController {
-
-    private static final Logger log = LoggerFactory.getLogger(AdminGuestCsvController.class);
 
     private final GuestCsvImportService guestCsvImportService;
 
@@ -37,20 +32,11 @@ public class AdminGuestCsvController {
     // Starts the CSV import and returns immediately while processing continues in the background
     @PostMapping("/admin/guests-csv")
     public String uploadGuestsCsv(@RequestParam("guests_csv") MultipartFile file,
-                                  Authentication authentication,
                                   Model model) throws IOException {
-        if (file.isEmpty()) {
-            model.addAttribute("inProgress", false);
-            model.addAttribute("errorMessage", "Please choose a CSV file before uploading.");
-            return "admin-guests-csv";
-        }
-
-        log.info("Admin {} started guest CSV upload: {}", authentication.getName(), file.getOriginalFilename());
-
-        guestCsvImportService.importGuests(file.getBytes(), authentication.getName());
-
-        model.addAttribute("inProgress", true);
-        model.addAttribute("fileName", file.getOriginalFilename());
+        var result = guestCsvImportService.startImport(file.getBytes(), file.getOriginalFilename());
+        model.addAttribute("inProgress", result.inProgress());
+        model.addAttribute("fileName", result.fileName());
+        model.addAttribute("errorMessage", result.errorMessage());
 
         return "admin-guests-csv";
     }

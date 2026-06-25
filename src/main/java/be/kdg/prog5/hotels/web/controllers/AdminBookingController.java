@@ -1,6 +1,6 @@
 package be.kdg.prog5.hotels.web.controllers;
 
-import be.kdg.prog5.hotels.business.BookingService;
+import be.kdg.prog5.hotels.business.booking.BookingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -28,10 +29,16 @@ public class AdminBookingController {
 
     // Shows the admin page with current and future bookings
     @GetMapping
-    public String showBookings(Model model) {
+    public String showBookings(@RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "") String q,
+                               Model model) {
         log.debug("Loading admin bookings page");
 
-        model.addAttribute("bookings", bookingService.getCurrentBookings());
+        var bookingPage = bookingService.getCurrentBookings(page, q);
+        model.addAttribute("bookingPage", bookingPage);
+        model.addAttribute("bookings", bookingPage.getContent());
+        model.addAttribute("search", bookingService.normalizeSearch(q));
+        model.addAttribute("pageNumbers", bookingService.getVisiblePageNumbers(bookingPage));
 
         return "admin-bookings";
     }

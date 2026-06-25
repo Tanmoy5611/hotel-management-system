@@ -19,12 +19,12 @@
                 <i class="bi bi-activity"></i>
                 <span th:text="#{activity.management}">Activity Management</span>
             </h2>
-            <p class="text-muted mb-0" th:text="#{activity.subtitle}">Monitor the 10 most recent user and system activities.</p>
+            <p class="text-muted mb-0" th:text="#{activity.subtitle}">Browse user and system activities.</p>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
             <span class="badge rounded-pill text-bg-secondary px-3 py-2"
-                  th:text="${#lists.size(logs)} + ' ' + #{activity.items}">
+                  th:text="${activityPage.totalElements} + ' ' + #{activity.items}">
                 0 items
             </span>
 
@@ -95,6 +95,64 @@
             </table>
         </div>
     </div>
+
+    <nav th:if="${activityPage.totalPages > 1}"
+         class="modern-pagination d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4"
+         th:aria-label="#{activity.pagination.label}">
+        <span class="text-muted small"
+              th:text="#{activity.pagination.page(${activityPage.number + 1}, ${activityPage.totalPages})}">
+            Page 1 of 1
+        </span>
+
+        <ul class="pagination mb-0">
+            <li class="page-item" th:classappend="${!activityPage.hasPrevious()} ? 'disabled'">
+                <a th:if="${activityPage.hasPrevious()}" class="page-link"
+                   th:href="@{/admin/activity(page=${activityPage.number - 1})}"
+                   th:aria-label="#{activity.pagination.previous}">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i><span class="visually-hidden" th:text="#{activity.pagination.previous}">Previous</span>
+                </a>
+                <span th:unless="${activityPage.hasPrevious()}" class="page-link" aria-disabled="true">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i><span class="visually-hidden" th:text="#{activity.pagination.previous}">Previous</span>
+                </span>
+            </li>
+
+            <li th:if="${pageNumbers.get(0) > 0}" class="page-item">
+                <a class="page-link" th:href="@{/admin/activity(page=0)}">1</a>
+            </li>
+            <li th:if="${pageNumbers.get(0) > 1}" class="page-item disabled" aria-hidden="true">
+                <span class="page-link">…</span>
+            </li>
+
+            <li th:each="pageNumber : ${pageNumbers}" class="page-item"
+                th:classappend="${pageNumber == activityPage.number} ? 'active'">
+                <span th:if="${pageNumber == activityPage.number}" class="page-link" aria-current="page"
+                      th:text="${pageNumber + 1}">1</span>
+                <a th:unless="${pageNumber == activityPage.number}" class="page-link"
+                   th:href="@{/admin/activity(page=${pageNumber})}"
+                   th:text="${pageNumber + 1}">1</a>
+            </li>
+
+            <li th:if="${pageNumbers.get(pageNumbers.size() - 1) < activityPage.totalPages - 2}"
+                class="page-item disabled" aria-hidden="true">
+                <span class="page-link">…</span>
+            </li>
+            <li th:if="${pageNumbers.get(pageNumbers.size() - 1) < activityPage.totalPages - 1}" class="page-item">
+                <a class="page-link" th:href="@{/admin/activity(page=${activityPage.totalPages - 1})}"
+                   th:text="${activityPage.totalPages}">99</a>
+            </li>
+
+            <li class="page-item" th:classappend="${!activityPage.hasNext()} ? 'disabled'">
+                <a th:if="${activityPage.hasNext()}" class="page-link"
+                   th:href="@{/admin/activity(page=${activityPage.number + 1})}"
+                   th:aria-label="#{activity.pagination.next}">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden" th:text="#{activity.pagination.next}">Next</span>
+                </a>
+                <span th:unless="${activityPage.hasNext()}" class="page-link" aria-disabled="true">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden" th:text="#{activity.pagination.next}">Next</span>
+                </span>
+            </li>
+        </ul>
+    </nav>
 </main>
 
 <div th:replace="~{fragments/footer :: body}"></div>

@@ -24,7 +24,7 @@
         <div class="d-flex flex-wrap align-items-center gap-2">
             <span class="badge rounded-pill text-bg-primary px-3 py-2">
                 <i class="bi bi-calendar2-check me-1"></i>
-                <span th:text="#{admin.bookings.count(${#lists.size(bookings)})}">0 bookings</span>
+                <span th:text="#{admin.bookings.count(${bookingPage.totalElements})}">0 bookings</span>
             </span>
 
             <a th:href="@{/admin/users}" class="btn btn-outline-secondary">
@@ -38,6 +38,28 @@
         <i class="bi bi-check-circle-fill"></i>
         <span th:text="${successMessage}">Booking cancelled successfully.</span>
     </div>
+
+    <form class="booking-admin-search mb-3" method="get" th:action="@{/admin/bookings}">
+        <label class="visually-hidden" for="booking-search" th:text="#{admin.bookings.search.label}">Search bookings</label>
+        <div class="input-group">
+            <span class="input-group-text">
+                <i class="bi bi-search" aria-hidden="true"></i>
+            </span>
+            <input id="booking-search"
+                   name="q"
+                   type="search"
+                   class="form-control"
+                   th:value="${search}"
+                   th:placeholder="#{admin.bookings.search.placeholder}"
+                   autocomplete="off">
+            <button type="submit" class="btn btn-primary">
+                <span th:text="#{admin.bookings.search.button}">Search</span>
+            </button>
+            <a th:if="${!search.isEmpty()}" th:href="@{/admin/bookings}" class="btn btn-outline-secondary">
+                <span th:text="#{admin.bookings.search.clear}">Clear</span>
+            </a>
+        </div>
+    </form>
 
     <div class="card shadow-sm border-0">
         <div class="card-body p-0 table-responsive">
@@ -136,6 +158,64 @@
             </table>
         </div>
     </div>
+
+    <nav th:if="${bookingPage.totalPages > 0}"
+         class="modern-pagination d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4"
+         th:aria-label="#{admin.bookings.pagination.label}">
+        <span class="text-muted small"
+              th:text="#{admin.bookings.pagination.page(${bookingPage.number + 1}, ${bookingPage.totalPages})}">
+            Page 1 of 1
+        </span>
+
+        <ul class="pagination mb-0">
+            <li class="page-item" th:classappend="${!bookingPage.hasPrevious()} ? 'disabled'">
+                <a th:if="${bookingPage.hasPrevious()}" class="page-link"
+                   th:href="@{/admin/bookings(page=${bookingPage.number - 1}, q=${search})}"
+                   th:aria-label="#{activity.pagination.previous}">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i><span class="visually-hidden" th:text="#{activity.pagination.previous}">Previous</span>
+                </a>
+                <span th:unless="${bookingPage.hasPrevious()}" class="page-link" aria-disabled="true">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i><span class="visually-hidden" th:text="#{activity.pagination.previous}">Previous</span>
+                </span>
+            </li>
+
+            <li th:if="${pageNumbers.get(0) > 0}" class="page-item">
+                <a class="page-link" th:href="@{/admin/bookings(page=0, q=${search})}">1</a>
+            </li>
+            <li th:if="${pageNumbers.get(0) > 1}" class="page-item disabled" aria-hidden="true">
+                <span class="page-link">…</span>
+            </li>
+
+            <li th:each="pageNumber : ${pageNumbers}" class="page-item"
+                th:classappend="${pageNumber == bookingPage.number} ? 'active'">
+                <span th:if="${pageNumber == bookingPage.number}" class="page-link" aria-current="page"
+                      th:text="${pageNumber + 1}">1</span>
+                <a th:unless="${pageNumber == bookingPage.number}" class="page-link"
+                   th:href="@{/admin/bookings(page=${pageNumber}, q=${search})}"
+                   th:text="${pageNumber + 1}">1</a>
+            </li>
+
+            <li th:if="${pageNumbers.get(pageNumbers.size() - 1) < bookingPage.totalPages - 2}"
+                class="page-item disabled" aria-hidden="true">
+                <span class="page-link">…</span>
+            </li>
+            <li th:if="${pageNumbers.get(pageNumbers.size() - 1) < bookingPage.totalPages - 1}" class="page-item">
+                <a class="page-link" th:href="@{/admin/bookings(page=${bookingPage.totalPages - 1}, q=${search})}"
+                   th:text="${bookingPage.totalPages}">99</a>
+            </li>
+
+            <li class="page-item" th:classappend="${!bookingPage.hasNext()} ? 'disabled'">
+                <a th:if="${bookingPage.hasNext()}" class="page-link"
+                   th:href="@{/admin/bookings(page=${bookingPage.number + 1}, q=${search})}"
+                   th:aria-label="#{activity.pagination.next}">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden" th:text="#{activity.pagination.next}">Next</span>
+                </a>
+                <span th:unless="${bookingPage.hasNext()}" class="page-link" aria-disabled="true">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden" th:text="#{activity.pagination.next}">Next</span>
+                </span>
+            </li>
+        </ul>
+    </nav>
 </main>
 
 <div class="modal fade"
