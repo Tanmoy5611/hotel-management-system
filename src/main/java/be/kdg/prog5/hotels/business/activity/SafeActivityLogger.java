@@ -1,8 +1,9 @@
-package be.kdg.prog5.hotels.business;
+package be.kdg.prog5.hotels.business.activity;
 
+import be.kdg.prog5.hotels.data.SpringDataApplicationUserRepository;
 import be.kdg.prog5.hotels.domain.ActivityType;
 import be.kdg.prog5.hotels.domain.ApplicationUser;
-import be.kdg.prog5.hotels.web.security.SecurityService;
+import be.kdg.prog5.hotels.business.security.SecurityService;
 import org.springframework.stereotype.Service;
 
 // Responsible for writing activity logs only when a logged-in user is available
@@ -12,16 +13,19 @@ public class SafeActivityLogger {
 
     private final SecurityService securityService;
     private final ActivityLogService activityLogService;
+    private final SpringDataApplicationUserRepository userRepository;
 
     public SafeActivityLogger(SecurityService securityService,
-                              ActivityLogService activityLogService) {
+                              ActivityLogService activityLogService,
+                              SpringDataApplicationUserRepository userRepository) {
         this.securityService = securityService;
         this.activityLogService = activityLogService;
+        this.userRepository = userRepository;
     }
 
     // avoids repeating null-user checks for activity logging
     public void log(ActivityType type, String description) {
-        ApplicationUser user = securityService.getLoggedInUserSafe();
+        ApplicationUser user = findLoggedInUser();
 
         if (user != null) {
             activityLogService.log(type, description, user);
@@ -29,10 +33,19 @@ public class SafeActivityLogger {
     }
 
     // Used for public actions where there is no logged-in user,
-    // but the service already selected a safe owner/system user for the log.
+    // but the service already selected a safe owner/system user for the log
     public void logAs(ActivityType type, String description, ApplicationUser user) {
         if (user != null) {
             activityLogService.log(type, description, user);
         }
+    }
+
+    private ApplicationUser findLoggedInUser() {
+        String email = securityService.getLoggedInUsername();
+        if (email == null) {
+            return null;
+        }
+
+        return userRepository.findByEmail(email).orElse(null);
     }
 }
