@@ -1,8 +1,7 @@
 package be.kdg.prog5.hotels.web.controllers;
 
-import be.kdg.prog5.hotels.business.RoomService;
-import be.kdg.prog5.hotels.domain.Room;
-import be.kdg.prog5.hotels.domain.RoomType;
+import be.kdg.prog5.hotels.business.room.RoomService;
+import be.kdg.prog5.hotels.business.room.SearchResults;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,8 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.util.List;
-
 // Handles the public room search page: reads request parameters,
 // calls the room service, and sends the results to the Thymeleaf view
 @Controller
@@ -35,21 +32,12 @@ public class SearchController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
             Model model) {
 
-        if ((query == null || query.isBlank())
-                && (roomTypeStr == null || roomTypeStr.isBlank())
-                && checkIn == null
-                && checkOut == null) {
+        var results = roomService.searchRoomsForPage(query, roomTypeStr, checkIn, checkOut);
+        if (results.emptySearch()) {
             return "redirect:/rooms";
         }
 
-        List<Room> rooms = roomService.searchAvailableRooms(query, roomTypeStr, checkIn, checkOut);
-
-        model.addAttribute("rooms", rooms);
-        model.addAttribute("query", query);
-        model.addAttribute("selectedRoomType", roomTypeStr);
-        model.addAttribute("checkIn", checkIn);
-        model.addAttribute("checkOut", checkOut);
-        model.addAttribute("types", RoomType.values());
+        addSearchResults(model, results);
 
         return "search-results";
     }
@@ -65,12 +53,16 @@ public class SearchController {
                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
                                   Model model) {
         model.addAttribute("errorMessage", ex.getMessage());
-        model.addAttribute("rooms", List.of());
-        model.addAttribute("query", query);
-        model.addAttribute("selectedRoomType", roomType);
-        model.addAttribute("checkIn", checkIn);
-        model.addAttribute("checkOut", checkOut);
-        model.addAttribute("types", RoomType.values());
+        addSearchResults(model, roomService.emptySearchResults(query, roomType, checkIn, checkOut));
         return "search-results";
+    }
+
+    private void addSearchResults(Model model, SearchResults results) {
+        model.addAttribute("rooms", results.rooms());
+        model.addAttribute("query", results.query());
+        model.addAttribute("selectedRoomType", results.roomType());
+        model.addAttribute("checkIn", results.checkIn());
+        model.addAttribute("checkOut", results.checkOut());
+        model.addAttribute("types", results.types());
     }
 }

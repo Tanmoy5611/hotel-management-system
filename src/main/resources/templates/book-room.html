@@ -10,7 +10,7 @@
 <body class="bg-light">
 <div th:replace="~{fragments/navbar :: body}"></div>
 
-<div sec:authorize="hasAnyRole('USER','ADMIN')" class="container mt-5">
+<div sec:authorize="hasAnyRole('STAFF','ADMIN','CUSTOMER')" class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow">
@@ -29,17 +29,17 @@
                             <div>
                                 <strong>
                                     <i class="bi bi-door-open me-1"></i>
-                                    <span th:text="#{room.numberLabel(${room.number})}"></span>
+                                    <span th:text="#{room.numberLabel(${booking.room.number})}"></span>
                                 </strong>
                                 <br>
                                 <small class="text-muted"
-                                       th:text="${room.hotel.name}">
+                                       th:text="${booking.room.hotel.name}">
                                 </small>
                             </div>
 
                             <div class="text-end">
                 <span class="fw-bold text-success"
-                      th:text="#{rooms.pricePerNight(${#numbers.formatDecimal(room.pricePerNight,1,2)})}">
+                      th:text="#{rooms.pricePerNight(${#numbers.formatDecimal(booking.room.pricePerNight,1,2)})}">
                 </span>
                             </div>
 
@@ -63,10 +63,10 @@
 
 
                     <!-- Booking Form -->
-                    <form th:action="@{/rooms/{id}/book(id=${room.id})}" method="post">
+                    <form th:action="@{/rooms/{id}/book(id=${booking.room.id})}" method="post">
 
                         <!-- Guest Selection -->
-                        <div class="mb-3">
+                        <div class="mb-3" th:if="${!booking.customer}">
                             <label class="form-label"
                                    th:text="#{booking.selectGuest}">
                             </label>
@@ -81,13 +81,19 @@
                                         th:text="#{booking.searchGuest}">
                                 </option>
 
-                                <option th:each="g : ${allGuests}"
+                                <option th:each="g : ${booking.allGuests}"
                                         th:value="${g.id}"
                                         th:selected="${g.id == selectedGuestId}"
                                         th:text="${g.fullName} + ' (' + ${g.email} + ')'">
                                 </option>
 
                             </select>
+                        </div>
+
+                        <div class="mb-3" th:if="${booking.customer}">
+                            <label class="form-label">Booking for</label>
+                            <input class="form-control" readonly
+                                   th:value="${booking.customerProfile.fullName} + ' (' + ${booking.customerProfile.email} + ')'">
                         </div>
 
                         <!-- Check-in -->
@@ -119,7 +125,7 @@
                         <!-- Buttons -->
                         <div class="d-flex justify-content-between">
 
-                            <a th:href="@{/rooms/{id}(id=${room.id})}"
+                            <a th:href="@{/rooms/{id}(id=${booking.room.id})}"
                                class="btn btn-light"
                                th:text="#{booking.back}">
                             </a>

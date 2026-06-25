@@ -1,8 +1,7 @@
 package be.kdg.prog5.hotels.web.controllers;
-import be.kdg.prog5.hotels.business.BookingService;
-import be.kdg.prog5.hotels.business.GuestService;
-import be.kdg.prog5.hotels.business.HotelService;
-import be.kdg.prog5.hotels.business.RoomService;
+import be.kdg.prog5.hotels.business.booking.BookingService;
+import be.kdg.prog5.hotels.business.hotel.HotelService;
+import be.kdg.prog5.hotels.business.room.RoomService;
 import be.kdg.prog5.hotels.business.exceptions.BookingException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.domain.Room;
@@ -32,17 +31,14 @@ public class RoomController {
 
     private final RoomService roomService;   // Injecting RoomService to connect to business logic
     private final HotelService hotelService;
-    private final GuestService guestService;
     private final BookingService bookingService;
 
     // Constructor injection includes BookingService after moving booking logic out of RoomService
     public RoomController(RoomService roomService,
                           HotelService hotelService,
-                          GuestService guestService,
                           BookingService bookingService) {
         this.roomService = roomService;
         this.hotelService = hotelService;
-        this.guestService = guestService;
         this.bookingService = bookingService;
     }
 
@@ -115,42 +111,36 @@ public class RoomController {
                                   Model model) {
         log.debug("Loading room details for room {}", roomId);
 
-        // Find the room that matches the given room number
-        // Service loads Room aggregate using JOIN FETCH
-        Room room = roomService.getRoomById(roomId);
+        var roomDetails = roomService.getRoomDetailsForCurrentUser(roomId);
 
-        // Add a room and its related guests to the model so the view can display them
-        model.addAttribute("room", room);
-        model.addAttribute("guests", room.getStays()); // already sorted in service/repository
-        model.addAttribute("today", LocalDate.now());
-
-        if (Boolean.TRUE.equals(created)) {
-            model.addAttribute("showCreatedToast", true);
-        }
+        // Add a room and the bookings this user is allowed to see
+        model.addAttribute("room", roomDetails.room());
+        model.addAttribute("guests", roomDetails.stays()); // already sorted in service/repository
+        model.addAttribute("isCustomer", roomDetails.customer());
+        model.addAttribute("showRoomBookings", roomDetails.showRoomBookings());
+        model.addAttribute("today", roomDetails.today());
+        model.addAttribute("showCreatedToast", Boolean.TRUE.equals(created));
 
         return "room-detail";
     }
 
     // Show Booking Page for Admin and ApplicationUser
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN','CUSTOMER')")
     @GetMapping("/{roomId}/book")
     public String showBookingPage(@PathVariable Long roomId,
                                   Model model) {
         log.debug("Loading booking form for room {}", roomId);
 
-        Room room = roomService.getRoomById(roomId);
-
-        model.addAttribute("room", room);
-        model.addAttribute("allGuests", guestService.getAllGuests()); // Only loaded when needed
+        model.addAttribute("booking", bookingService.getBookingFormDetails(roomId));
 
         return "book-room";
     }
 
     // Processes a booking through BookingService so RoomService stays focused on rooms
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN','CUSTOMER')")
     @PostMapping("/{roomId}/book")
     public String processBooking(@PathVariable Long roomId,
-                                 @RequestParam Long guestId,
+                                 @RequestParam(required = false) Long guestId,
                                  // explicit date format
                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
@@ -161,7 +151,7 @@ public class RoomController {
 
         // Attempts booking; redirects on success; returns form on failure
         try {
-            bookingService.bookRoom(roomId, guestId, checkIn, checkOut);
+            bookingService.bookRoomForCurrentUser(roomId, guestId, checkIn, checkOut);
 
             redirectAttributes.addFlashAttribute(
                     "successMessage",
@@ -171,11 +161,7 @@ public class RoomController {
             return "redirect:/rooms/" + roomId;
 
         } catch (BookingException ex) {
-
-            Room room = roomService.getRoomById(roomId);
-
-            model.addAttribute("room", room);
-            model.addAttribute("allGuests", guestService.getAllGuests());
+            model.addAttribute("booking", bookingService.getBookingFormDetails(roomId));
 
             // keep previously entered values
             model.addAttribute("selectedGuestId", guestId);
@@ -233,5 +219,4 @@ public class RoomController {
 
         return "error/404";
     }
-
 }

@@ -142,13 +142,13 @@
                         </a>
 
                         <a th:href="@{/rooms/{id}/book(id=${r.id})}"
-                           sec:authorize="hasAnyRole('USER','ADMIN')"
+                           sec:authorize="hasAnyRole('STAFF','ADMIN','CUSTOMER')"
                            class="btn btn-primary">
                             <i class="bi bi-calendar-check me-1"></i>
                             <span th:text="#{search.bookNow}">Book Now</span>
                         </a>
 
-                        <a th:if="${!#authorization.expression('hasAnyRole(''USER'',''ADMIN'')')}"
+                        <a th:if="${!#authorization.expression('hasAnyRole(''STAFF'',''ADMIN'',''CUSTOMER'')')}"
                            th:href="@{/login}"
                            class="btn btn-secondary">
                             <i class="bi bi-lock me-1"></i>
