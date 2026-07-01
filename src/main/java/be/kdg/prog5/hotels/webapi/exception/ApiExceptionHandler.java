@@ -5,6 +5,7 @@ import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.HotelNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
+import be.kdg.prog5.hotels.business.weather.WeatherServiceException;
 import be.kdg.prog5.hotels.webapi.dto.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.Ordered;
@@ -219,6 +220,25 @@ public class ApiExceptionHandler {
                 .body(error);
     }
 
+    // Returns 503 JSON when the upstream weather provider cannot answer
+    @ExceptionHandler(WeatherServiceException.class)
+    public ResponseEntity<ApiError> handleWeatherServiceException(
+            WeatherServiceException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(error);
+    }
+
     // Returns 400 JSON when business validation rejects the request
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(
@@ -256,4 +276,5 @@ public class ApiExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(error);
     }
+
 }
