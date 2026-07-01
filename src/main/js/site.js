@@ -1,5 +1,6 @@
 import 'bootstrap';
 import '../scss/site.scss';
+import { initWeatherWidget } from './ui/weather-widget.js';
 import { initBootstrapValidation } from './validation/bootstrap-validation.js';
 
 // Site is the shared bundle loaded by every Thymeleaf page
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Shared Bootstrap-style validation stays available for older forms
   initBootstrapValidation();
   initThemeControls();
+  initWeatherWidget();
 });
 
 systemThemeQuery.addEventListener('change', () => {
