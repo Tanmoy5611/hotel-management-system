@@ -9,6 +9,12 @@ src/main/resources/static/fonts/
 *.log
 .gradle
 build/
+__pycache__/
+.pytest_cache/
+.venv/
+hotel-ai-service/.venv/
+hotel-ai-service/**/__pycache__/
+hotel-ai-service/.pytest_cache/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
