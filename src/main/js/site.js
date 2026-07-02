@@ -1,5 +1,6 @@
 import 'bootstrap';
 import '../scss/site.scss';
+import { initAiRoomAssistant } from './ui/ai-room-assistant.js';
 import { initWeatherWidget } from './ui/weather-widget.js';
 import { initBootstrapValidation } from './validation/bootstrap-validation.js';
 
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Shared Bootstrap-style validation stays available for older forms
   initBootstrapValidation();
   initThemeControls();
+  initAiRoomAssistant();
   initWeatherWidget();
 });
 
