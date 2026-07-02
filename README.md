@@ -42,11 +42,14 @@ The system follows:
 - Booking system using `Stay` as the link between `Room` and `Guest`
 - Concurrent booking protection with pessimistic room locking
 - User ownership for guests
+- Customer registration, customer login, and customer dashboard
+- Customer booking privacy: customers only see their own bookings
+- Admin customer account activation/deactivation
 - Admin dashboard for users, activity logs, CSV import, and current bookings
 - Cached guest search with cache eviction after guest, booking, and CSV changes
 - Week 10 guest REST API for the separate Client project
 - Webpack/npm frontend pipeline with Bootstrap, Bootstrap Icons, Sass, Joi validation, Luxon, and Anime.js
-- Spring Security with ADMIN and USER roles
+- Spring Security with ADMIN, STAFF, and CUSTOMER access
 - i18n support for English, Dutch, French, German, and Bangla
 
 ### Quick Run Commands
@@ -93,7 +96,9 @@ http://localhost:9000
 | Role  | Email                          | Password   | Notes                     |
 | :---- | :----------------------------- | :--------- | :------------------------ |
 | ADMIN | `admin@hotelapp.com`           | `admin123` | Protected main admin      |
-| USER  | `applicationUser@hotelapp.com` | `user123`  | Normal staff/user account |
+| STAFF | `applicationUser@hotelapp.com` | `user123`  | Normal staff account      |
+
+Customer accounts are created from the public register page.
 
 ---
 
@@ -141,7 +146,8 @@ The domain model consists of the following entities:
 - dob
 - avatarUrl
 - discountPercentage (BigDecimal, stored on the base guest table)
-- ManyToOne → ApplicationUser (owner)
+- ManyToOne → ApplicationUser (owner, nullable for customer profiles)
+- OneToOne → Customer (optional login account)
 - OneToMany → Stay
 
 ### 4. VIPGuest (Inheritance)
@@ -180,10 +186,25 @@ Represents a user that can log into the system.
 
 ```bash
 ADMIN,
-USER
+STAFF
 ```
 
-### 7. ActivityLog (Audit / System Tracking)
+### 7. Customer (Public Customer Login)
+
+Represents a customer account that can log in and book rooms for their own profile.
+
+- id
+- password (encrypted)
+- active
+- OneToOne → Guest profile
+
+Important rule:
+
+- Customers can only view and manage their own bookings.
+- Admin can activate or deactivate a customer account.
+- Customers cannot change roles because they are not `ApplicationUser` staff/admin accounts.
+
+### 8. ActivityLog (Audit / System Tracking)
 
 Represents system activities performed by users (admin dashboard).
 
@@ -279,6 +300,30 @@ Important methods:
 | `Room.removeStayById(...)`          | keeps cancellation inside the Room aggregate boundary                                       |
 
 This keeps room management and booking workflows separated while preserving the aggregate boundary around `Room` and `Stay`.
+
+### Business Package Organization
+
+The business layer is grouped by feature so the package does not become one big list of service files.
+
+```bash
+business.activity
+business.ai
+business.booking
+business.customer
+business.guest
+business.home
+business.hotel
+business.room
+business.security
+business.user
+```
+
+Important note:
+
+- Controllers call services.
+- Services contain business rules.
+- Repositories stay in the data layer.
+- `SecurityService` only reads the logged-in user and roles from Spring Security.
 
 ### Repository Layer
 
@@ -392,7 +437,8 @@ http://localhost:8080
 - Monetary values use BigDecimal.
 - Aggregate boundaries are respected.
 - Room owns Stay with cascade and orphan removal.
-- Guest has a required owner.
+- Guest owner is optional now because customer profiles are also stored as guests.
+- Customer login uses a separate `Customer` entity connected to a `Guest` profile.
 - Guest avatar URLs are normalized when blank.
 - Duplicate guest emails are rejected.
 
@@ -410,13 +456,260 @@ http://localhost:8080
 - Add Hotel, Room, and Guest via UI
 - Real-world booking home page
 - Admin booking management page
+- Customer registration and customer dashboard
+- Customer-only booking visibility
+- Admin customer active/inactive management
 - Admin CSV guest import using Spring `@Async`
 - Cached guest search using Spring `@Cacheable`
 - Cache eviction after guest, booking, and CSV import changes
 - Standalone admin dashboard cards for users, activity, imports, and bookings
+- Live local weather card on the home page
+- AI room assistant for natural-language room search
+- Personalized AI room recommendations for logged-in customers
+- Chatbot-assisted booking quote, confirmation, and cancellation flow
 - Multi-language support (i18n): EN, NL, FR, DE, BN
 - Thymeleaf UI with Bootstrap
 - Dark/light theme
+
+---
+
+## Home Page Weather Feature
+
+The home page includes a live local weather card inside the hero search section.
+
+Purpose:
+
+- show the visitor's current city or area beside the hotel search form
+- show live temperature, condition, humidity, and wind
+- let the visitor reuse the detected city in the normal hotel search field
+- keep weather provider calls behind the Spring backend instead of calling them directly from the browser
+
+Main flow:
+
+```text
+Browser geolocation -> WeatherApiController -> WeatherService -> Open-Meteo and Nominatim -> WeatherDto -> weather-widget.js
+```
+
+Important files:
+
+| Responsibility              | File                      |
+| :-------------------------- | :------------------------ |
+| Weather API endpoint        | `WeatherApiController`    |
+| Weather business service    | `OpenMeteoWeatherService` |
+| Weather business model      | `WeatherReport`           |
+| Weather API response DTO    | `WeatherDto`              |
+| Weather frontend behavior   | `weather-widget.js`       |
+| Home page weather markup    | `home.html`               |
+| Hero and weather card style | `site.scss`               |
+
+Implementation details:
+
+- the browser asks for the visitor's location when the home page opens
+- high accuracy location is tried first
+- if precise location times out, the frontend retries with a faster approximate location
+- the backend validates latitude and longitude before using external providers
+- Open-Meteo provides the current weather values
+- Nominatim reverse geocoding provides readable city and area names
+- address lookup is optional, so weather can still be shown if reverse geocoding fails
+- the `Use my location` button works as a manual refresh
+- the `Search stays here` button copies the detected city into the normal search input
+
+---
+
+## AI Room Assistant and Recommendation Feature
+
+The project includes an AI feature for room discovery and personalized recommendations.
+
+This AI part is split into two sides:
+
+- Spring Boot keeps the real hotel application rules, security, database access, and booking actions
+- Python FastAPI handles text parsing, room ranking, and recommendation scoring
+
+The AI implementation is intentionally explainable. It does not depend on a black-box LLM. It uses simple natural-language parsing for chat search and cosine similarity for recommendation ranking.
+
+### Main AI Capabilities
+
+- Users can ask the assistant for rooms in natural language
+- The assistant can search by city, budget, room type, spa, sea view, and hotel quality
+- Logged-in customers can receive room recommendations based on previous bookings
+- Customers can ask the assistant to quote a booking before confirming it
+- Customers can confirm or cancel bookings through protected Spring endpoints
+- If the Python service is unavailable, the Spring API returns a friendly error response
+
+### AI Architecture Flow
+
+The browser never calls Python directly. It calls Spring first, and Spring decides what data can safely be sent to the AI service.
+
+```text
+Browser AI widget
+  |
+  v
+Spring /api/ai endpoints
+  |
+  v
+Spring AI business services
+  |
+  v
+AiDataMapper creates flat AI DTOs
+  |
+  v
+PythonAiClient sends HTTP requests
+  |
+  v
+FastAPI hotel-ai-service on port 8001
+  |
+  v
+Python parses text or scores rooms
+  |
+  v
+Spring returns JSON to the browser
+```
+
+### Spring AI Files
+
+| Responsibility | File |
+| :-- | :-- |
+| Chat endpoint | `AiChatApiController` |
+| Recommendation endpoint | `AiRecommendationApiController` |
+| Booking helper endpoints | `AiBookingApiController` |
+| Chat business flow | `AiChatServiceImpl` |
+| Recommendation business flow | `AiRecommendationServiceImpl` |
+| Booking quote, confirm, and cancel flow | `AiBookingServiceImpl` |
+| Entity to AI DTO mapping | `AiDataMapper` |
+| HTTP client to Python | `PythonAiClient` |
+| Auto-start Python service | `PythonAiProcessManager` |
+
+### Frontend AI Files
+
+The AI assistant is loaded from the shared site bundle.
+
+| Responsibility | File |
+| :-- | :-- |
+| Shared site entry point | `src/main/js/site.js` |
+| AI widget entry point | `src/main/js/ui/ai-room-assistant.js` |
+| Chat window behavior | `src/main/js/ui/ai-assistant/chat.js` |
+| API calls from the browser to Spring | `src/main/js/ui/ai-assistant/api.js` |
+| Booking intent and booking actions | `src/main/js/ui/ai-assistant/booking-intent.js`, `src/main/js/ui/ai-assistant/booking.js` |
+| Recommendation loading | `src/main/js/ui/ai-assistant/recommendations.js` |
+| Room card rendering | `src/main/js/ui/ai-assistant/rendering.js` |
+| UI styles | `src/main/scss/site.scss` |
+
+### Python AI Service Files
+
+The Python service is inside:
+
+```text
+hotel-ai-service
+```
+
+Important files:
+
+| Responsibility | File |
+| :-- | :-- |
+| FastAPI application setup | `hotel-ai-service/app/main.py` |
+| Chat API route | `hotel-ai-service/app/api/chatbot.py` |
+| Recommendation API route | `hotel-ai-service/app/api/recommendations.py` |
+| Chat search service | `hotel-ai-service/app/services/chatbot_service.py` |
+| Recommendation service | `hotel-ai-service/app/services/recommendation_service.py` |
+| Recommendation model | `hotel-ai-service/app/models/recommendation_model.py` |
+| Text parser | `hotel-ai-service/app/models/text_parser.py` |
+| Request and response schemas | `hotel-ai-service/app/schemas` |
+| Python tests | `hotel-ai-service/tests` |
+
+### AI API Endpoints
+
+Spring endpoints used by the frontend:
+
+| Endpoint | Purpose |
+| :-- | :-- |
+| `POST /api/ai/chat` | Sends a user message to the AI room assistant |
+| `GET /api/ai/recommendations` | Gets recommendations for the current customer |
+| `GET /api/ai/bookings/session` | Checks if the current user can use protected booking actions |
+| `POST /api/ai/bookings/quote` | Calculates price and availability before confirmation |
+| `POST /api/ai/bookings/confirm` | Creates a customer booking |
+| `GET /api/ai/bookings` | Lists the current customer's bookings for cancellation |
+| `POST /api/ai/bookings/cancel` | Cancels one customer-owned booking |
+
+Python endpoints called by Spring:
+
+| Endpoint | Purpose |
+| :-- | :-- |
+| `GET /health` | Checks if the Python service is running |
+| `POST /ai/chat` | Parses text and ranks matching rooms |
+| `POST /ai/recommendations` | Scores candidate rooms from customer booking history |
+
+### Recommendation Model
+
+The recommendation model uses previous bookings as the customer preference signal.
+
+It builds a profile from:
+
+- most common city
+- most common room type
+- average price per night
+- average hotel stars
+- spa preference
+- sea view preference
+
+Then it compares the customer profile with candidate rooms using `DictVectorizer` and cosine similarity from `scikit-learn`.
+
+If a customer has no previous bookings, the service returns no personalized recommendations instead of showing fake personalized results.
+
+### Chatbot Search Model
+
+The chatbot search is rule-based and deterministic.
+
+The parser can understand examples such as:
+
+- `cheap room in Antwerp`
+- `spa hotel`
+- `suite under 600`
+- `double room with sea view`
+- `luxury room in Brussels`
+
+The ranking gives points for matched filters such as city, room type, budget, spa, sea view, and stars. Some filters are strict. For example, if the user asks for Antwerp, rooms from other cities are removed.
+
+### AI Booking Flow
+
+The Python service does not create bookings.
+
+Booking remains in Spring Boot because it needs:
+
+- authenticated customer identity
+- room availability checks
+- customer discount calculation
+- database transaction handling
+- ownership and security rules
+
+The chatbot can guide the user, but the final quote, confirm, and cancel actions are handled by Spring.
+
+### Running the AI Service
+
+The Spring app can auto-start the Python FastAPI service using these properties:
+
+```properties
+hotel.ai.service.base-url=http://localhost:8001
+hotel.ai.service.auto-start=true
+hotel.ai.service.working-directory=hotel-ai-service
+hotel.ai.service.python-executable=hotel-ai-service/.venv/bin/python3
+hotel.ai.service.startup-timeout-seconds=20
+```
+
+Manual Python run:
+
+```bash
+cd hotel-ai-service
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8001
+```
+
+More detailed AI documentation is available in:
+
+```text
+hotel-ai-service/README.md
+```
 
 ---
 
@@ -929,7 +1222,7 @@ In Week 4, Spring Security was integrated into the Hotels application to add aut
 - **Dynamic UI behavior** based on user status (Anonymous, Staff, or Administrator)
 - **REST API & Ajax support** maintained from previous weeks
 
-> The Hotels application models **hotel management staff**, not customers.
+> The Hotels application now supports both hotel management staff and customer accounts.
 
 ---
 
@@ -938,7 +1231,8 @@ In Week 4, Spring Security was integrated into the Hotels application to add aut
 | Role          | Meaning                                           |
 | :------------ | :------------------------------------------------ |
 | **Anonymous** | Public visitor browsing hotels and rooms          |
-| **USER**      | Hotel staff performing operational tasks          |
+| **STAFF**     | Hotel staff performing operational tasks          |
+| **CUSTOMER**  | Registered customer booking their own rooms       |
 | **ADMIN**     | Hotel manager with full administrative privileges |
 
 ## Authentication
@@ -972,7 +1266,7 @@ Users are implemented as a persisted entity in the database, ensuring that accou
 - `id`
 - `email`
 - `password` (hashed)
-- `role` (ADMIN/USER)
+- `role` (ADMIN/STAFF)
 
 This satisfies the requirement that users must be stored and managed via the database.
 
@@ -991,7 +1285,7 @@ To facilitate testing, a user seeding routine is implemented using `CommandLineR
 | Role      | Email                          | Password   |
 | :-------- | :----------------------------- | :--------- |
 | **ADMIN** | `admin@hotelapp.com`           | `admin123` |
-| **USER**  | `applicationUser@hotelapp.com` | `user123`  |
+| **STAFF** | `applicationUser@hotelapp.com` | `user123`  |
 
 > These credentials are displayed on the login page during the development phase for easier testing.
 
@@ -1010,9 +1304,9 @@ Anonymous visitors can access public pages such as:
 
 ---
 
-### USER (Hotel Staff)
+### STAFF (Hotel Staff)
 
-The **USER** role represents hotel staff.
+The **STAFF** role represents hotel staff.
 
 Staff members can perform operational tasks such as:
 
@@ -1059,7 +1353,7 @@ Admins have all staff permissions plus management functionality.
 - viewing all users
 - creating new users
 - deleting users
-- switching roles (**USER ↔ ADMIN**)
+- switching roles (**STAFF ↔ ADMIN**)
 - viewing recent activity logs
 - importing guests from CSV without blocking the browser
 - viewing and cancelling current bookings
@@ -1199,7 +1493,7 @@ In Week 5, Spring Security was implemented to secure the Hotel Booking applicati
 The main goal was to introduce:
 
 - authentication (login system)
-- role-based authorization (USER / ADMIN)
+- role-based authorization (STAFF / ADMIN / CUSTOMER)
 - ownership-based access control (users linked to their own data)
 - CSRF protection for secure requests
 
@@ -1212,7 +1506,7 @@ The application seeds the following users automatically:
 | Email                        | Password | Role              |
 | ---------------------------- | -------- | ----------------- |
 | admin@hotelapp.com           | admin123 | ADMIN (PROTECTED) |
-| applicationUser@hotelapp.com | user123  | USER              |
+| applicationUser@hotelapp.com | user123  | STAFF             |
 
 Passwords are stored securely using **BCrypt hashing**.
 
@@ -1244,7 +1538,7 @@ Example: http://localhost:8080/home
 
 ---
 
-### 2. USER Role (Staff)
+### 2. STAFF Role
 
 Represents staff users of the system.
 
@@ -1257,8 +1551,8 @@ Represents staff users of the system.
 
 **Ownership rule:**
 
-- When a USER creates a guest -> that guest is linked to that user
-- USER can **only delete their own guests**
+- When a STAFF user creates a guest -> that guest is linked to that staff user
+- STAFF can **only delete their own guests**
 
 Example: http://localhost:8080/guests/add
 
@@ -1274,8 +1568,9 @@ Administrators have full access.
 - Manage rooms
 - Manage guests
 - Manage users
+- Activate or deactivate customer accounts
 - Delete any guest (even if not owner)
-- Switch between USER and ADMIN roles
+- Switch between STAFF and ADMIN roles
 - Use Admin Dashboard cards to open user management, activity, add user, import guests, and bookings
 
 Example: http://localhost:8080/admin/users
@@ -1284,21 +1579,24 @@ Example: http://localhost:8080/admin/users
 
 ## User–Guest Association
 
-Each guest is linked to a user (owner).
+Guests created by staff are linked to a user (owner).
+
+Customer profiles are also stored as guests, but those profiles do not need a staff owner.
 
 Relationship:
 ApplicationUser (1) –– (many) Guest
 
 When a guest is created:
 
-- the logged-in user becomes the owner
+- the logged-in staff user becomes the owner
+- customer profile guests can exist without a staff owner
 - ownership is enforced during guest deletion
 
 **Access rules:**
 
 - Owner -> can delete their own guests
 - ADMIN -> can delete all guests
-- Other users → cannot delete guests they do not own
+- Other staff users → cannot delete guests they do not own
 
 ---
 
@@ -1383,7 +1681,7 @@ This matches real-world application behavior and assignment requirements.
 Week 5 introduces a complete and secure system:
 
 - Authentication with Spring Security
-- Role-based access (USER / ADMIN)
+- Role-based access (STAFF / ADMIN / CUSTOMER)
 - Ownership-based authorization
 - Protected REST API with one Week 10 client exception
 - CSRF protection for state-changing requests, except `POST /api/guests`
@@ -1391,7 +1689,8 @@ Week 5 introduces a complete and secure system:
 
 This results in a realistic hotel management system where:
 
-- users manage their own data
+- staff users manage their own guest data
+- customers manage only their own bookings
 - administrators manage the entire system securely
 
 ---
@@ -1436,7 +1735,7 @@ In every test class, I used:
 
 **Required entities are created manually:**
 
-- `ApplicationUser` (mandatory for Guest owner FK)
+- `ApplicationUser` (needed when the test guest is staff-owned)
 - `Hotel`
 - `Guest` (when needed)
 
@@ -1817,7 +2116,7 @@ PATCH /api/rooms/1/description
 
 - HTTP `204 No Content`
 
-#### 3. Normal user cannot update room description
+#### 3. Staff user cannot update room description
 
 ```http
 PATCH /api/rooms/1/description
@@ -1826,7 +2125,7 @@ PATCH /api/rooms/1/description
 **Security setup:**
 
 ```java
-@WithMockUser(roles = "USER")
+@WithMockUser(roles = "STAFF")
 ```
 
 **Verified:**
@@ -1878,7 +2177,7 @@ This matches the Week 8 instruction: if authorization is implemented in the serv
 - Delete succeeds
 - Guest is removed from the database
 
-#### 2. Other normal user may not delete guest
+#### 2. Other staff user may not delete guest
 
 **Verified:**
 
@@ -2220,7 +2519,7 @@ The guest API is implemented in `GuestApiController`.
 | `GET /api/guests/1` | Retrieve one guest              | Public                            |
 | `POST /api/guests`  | Create a guest from JSON client | Public for the Week 10 client use |
 
-`POST /api/guests` creates a guest without a room booking. Because every guest requires an owner, client-created guests are assigned to the protected admin account.
+`POST /api/guests` creates a guest without a room booking. Client-created guests are assigned to the protected admin account.
 
 Final client behavior:
 
@@ -2228,7 +2527,7 @@ Final client behavior:
 - duplicate email returns `409 Conflict`
 - validation errors return `400 Bad Request`
 - blank or whitespace avatar URLs are saved as `/images/guests/guest.jpg`
-- regular guests are saved with `discountPercentage = 0`
+- public client-created guests are saved with `discountPercentage = 0`
 
 ## Security Note
 
@@ -2358,6 +2657,7 @@ Implementation details:
 - duplicate guest emails are skipped using `existsByEmailIgnoreCase`
 - imported guests are assigned to the admin who uploaded the CSV
 - positive discount values create a `VIPGuest`
+- public customer profiles are regular guests connected to a `Customer` login account
 - import completion is logged in Activity Management
 
 This satisfies the requirement that the browser must not wait until all CSV rows are processed.
