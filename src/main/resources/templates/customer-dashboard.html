@@ -6,6 +6,16 @@
     <!-- Customer profile and booking overview -->
     <div class="d-flex justify-content-between align-items-center gap-3 mb-4"><div><h1 class="h2 text-primary mb-1">My bookings</h1><p class="text-muted mb-0" th:text="${profile.fullName} + ' · ' + ${profile.email}"></p></div><a class="btn btn-primary" th:href="@{/rooms}">Find a room</a></div>
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <section class="ai-panel mb-4" data-ai-recommendations>
+        <div class="ai-panel__header">
+            <div>
+                <span class="ai-panel__eyebrow">AI Hotel Recommendation System</span>
+                <h2 data-ai-recommendation-status>Loading recommendations...</h2>
+            </div>
+            <i class="bi bi-stars"></i>
+        </div>
+        <div class="ai-room-list" data-ai-recommendation-list></div>
+    </section>
     <!-- Only this customer bookings are passed from CustomerService -->
     <div class="card shadow-sm border-0"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0">
         <thead class="table-light"><tr><th>Room</th><th>Hotel</th><th>Check-in</th><th>Check-out</th><th class="text-end">Total</th><th class="text-end">Action</th></tr></thead>

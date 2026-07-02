@@ -14,22 +14,71 @@
 
     <!-- Hero & search -->
     <div class="hero">
-        <h1 th:text="#{home.hero.title}">Find Your Next Stay</h1>
-        <p th:text="#{home.hero.subtitle}">
-            Search deals on hotels, rooms, and more all around the world!
-        </p>
+        <div class="hero-top">
+            <div class="hero-copy">
+                <h1>
+                    Find Your <span>Next Stay</span>
+                </h1>
+                <p th:text="#{home.hero.subtitle}">
+                    Search deals on hotels, rooms, and more all around the world!
+                </p>
+                <div class="hero-insight-pill">
+                    <span class="hero-insight-icon">
+                        <i class="bi bi-stars"></i>
+                    </span>
+                    <span class="hero-insight-text">
+                        <strong>Smart stay finder</strong>
+                        <small>Live weather, city search, and room filters in one place</small>
+                    </span>
+                </div>
+            </div>
+
+            <aside class="weather-card" data-weather-widget>
+                <div class="weather-card__header">
+                    <div>
+                        <span class="weather-card__eyebrow" th:text="#{home.weather.eyebrow}">Live local weather</span>
+                        <strong data-weather-location th:text="#{home.weather.locationFallback}">Your current area</strong>
+                    </div>
+                    <i class="bi bi-cloud-sun"></i>
+                </div>
+                <div class="weather-card__body">
+                    <span class="weather-card__temp" data-weather-temp>--</span>
+                    <span class="weather-card__condition" data-weather-condition th:text="#{home.weather.permission}">
+                        Allow location to see trip weather
+                    </span>
+                </div>
+                <div class="weather-card__meta">
+                    <span data-weather-humidity>Humidity --</span>
+                    <span data-weather-wind>Wind --</span>
+                    <span data-weather-source th:text="#{home.weather.sourceFallback}">Waiting for precise location</span>
+                </div>
+                <div class="weather-card__actions">
+                    <button type="button" class="weather-card__button" data-weather-locate>
+                        <i class="bi bi-crosshair"></i>
+                        <span th:text="#{home.weather.useLocation}">Use my location</span>
+                    </button>
+                    <button type="button" class="weather-card__ghost" data-weather-use-search hidden>
+                        <i class="bi bi-geo-alt"></i>
+                        <span th:text="#{home.weather.searchHere}">Search stays here</span>
+                    </button>
+                </div>
+            </aside>
+        </div>
 
         <form th:action="@{/search}" method="get" class="booking-search mt-3">
 
             <div class="booking-item booking-destination">
                 <div class="input-group">
                     <span class="input-group-text">
-                    <i class="bi bi-geo-alt-fill"></i>
+                        <i class="bi bi-geo-alt-fill"></i>
                     </span>
-                    <input type="text"
-                           name="q"
-                           class="form-control search-input"
-                           th:placeholder="#{home.search.placeholder}">
+                    <label class="booking-destination-label">
+                        <span th:text="#{home.search.placeholder}">Where do you want to stay?</span>
+                        <input type="text"
+                               name="q"
+                               class="form-control search-input"
+                               placeholder="City, hotel, landmark...">
+                    </label>
                 </div>
             </div>
 
@@ -74,18 +123,62 @@
         <div class="badge-box mt-4">
             <div class="badge-item">
                 <i class="bi bi-award"></i>
-                <span th:text="#{home.badge.bestPrice}">Best Price Guarantee</span>
+                <span>
+                    <strong th:text="#{home.badge.bestPrice}">Best Price Guarantee</strong>
+                    <small>Find the best prices for your stay</small>
+                </span>
             </div>
             <div class="badge-item">
                 <i class="bi bi-shield-check"></i>
-                <span th:text="#{home.badge.secure}">Secure Bookings</span>
+                <span>
+                    <strong th:text="#{home.badge.secure}">Secure Bookings</strong>
+                    <small>Your data is safe with us</small>
+                </span>
             </div>
             <div class="badge-item">
                 <i class="bi bi-people"></i>
-                <span th:text="#{home.badge.trusted}">Trusted by Millions</span>
+                <span>
+                    <strong th:text="#{home.badge.trusted}">Trusted by Millions</strong>
+                    <small>Join millions of happy travelers</small>
+                </span>
             </div>
         </div>
+
     </div>
+
+    <section class="ai-chat-widget" data-ai-chat-widget aria-live="polite">
+        <button class="ai-chat-launcher" type="button" data-ai-chat-toggle aria-expanded="false">
+            <span class="ai-chat-launcher__text">Need help?</span>
+            <span class="ai-chat-launcher__icon">
+                <i class="bi bi-robot"></i>
+            </span>
+        </button>
+
+        <div class="ai-chat-window" data-ai-chat-window hidden>
+            <header class="ai-chat-window__header">
+                <span class="ai-chat-window__avatar">
+                    <i class="bi bi-robot"></i>
+                </span>
+                <span>
+                    <strong>Hotel AI Assistant</strong>
+                    <small>Room finder and booking help</small>
+                </span>
+                <button type="button" data-ai-chat-close aria-label="Close chat">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </header>
+            <div class="ai-chat-messages" data-ai-chat-messages></div>
+            <form class="ai-chat-composer" data-ai-chat-form>
+                <input type="text"
+                       data-ai-chat-input
+                       autocomplete="off"
+                       placeholder="Ask to find, book, or cancel a room...">
+                <button type="submit" aria-label="Send message">
+                    <i class="bi bi-send"></i>
+                </button>
+            </form>
+        </div>
+    </section>
 
 
     <!-- Featured Hotels -->
