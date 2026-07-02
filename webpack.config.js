@@ -45,6 +45,14 @@ export default {
           filename: 'fonts/[name][ext]',
         },
       },
+      {
+        // Page images referenced from SCSS are emitted as Spring static images
+        test: /\.(png|jpe?g|webp)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[name][ext]',
+        },
+      },
     ],
   },
   plugins: [
