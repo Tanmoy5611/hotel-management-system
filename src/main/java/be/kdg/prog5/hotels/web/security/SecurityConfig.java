@@ -74,6 +74,10 @@ public class SecurityConfig {
                         // Week 10: permitAll only so the separate Client project can create guests without login
                         .requestMatchers(HttpMethod.POST, "/api/guests").permitAll()
 
+                        // The public homepage chatbot can search rooms without requiring login
+                        // It does not expose customer history, only the public room catalog
+                        .requestMatchers(HttpMethod.POST, "/api/ai/chat").permitAll()
+
                         // only logged users (authenticated) can modify data
                         .requestMatchers(HttpMethod.POST, "/api/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/**").authenticated()
@@ -105,7 +109,9 @@ public class SecurityConfig {
 
                 // Week 10: CSRF is ignored only for this endpoint because it is called by the separate Client project
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        antMatcher(HttpMethod.POST, "/api/guests")
+                        antMatcher(HttpMethod.POST, "/api/guests"),
+                        // Chatbot is a public helper widget and does not mutate server state
+                        antMatcher(HttpMethod.POST, "/api/ai/chat")
                 ))
 
                 // logout configuration

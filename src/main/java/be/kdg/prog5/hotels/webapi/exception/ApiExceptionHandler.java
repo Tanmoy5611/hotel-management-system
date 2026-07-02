@@ -1,11 +1,16 @@
 package be.kdg.prog5.hotels.webapi.exception;
 
+import be.kdg.prog5.hotels.business.ai.AiServiceUnavailableException;
+import be.kdg.prog5.hotels.business.exceptions.BookingException;
+import be.kdg.prog5.hotels.business.exceptions.BookingExceptionMessageResolver;
+import be.kdg.prog5.hotels.business.exceptions.BookingNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.GuestAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.GuestNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.HotelNotFoundException;
 import be.kdg.prog5.hotels.business.exceptions.RoomAlreadyExistsException;
 import be.kdg.prog5.hotels.business.exceptions.RoomNotFoundException;
 import be.kdg.prog5.hotels.business.weather.WeatherServiceException;
+import be.kdg.prog5.hotels.webapi.controller.GuestApiController;
 import be.kdg.prog5.hotels.webapi.dto.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.Ordered;
@@ -23,7 +28,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.time.LocalDateTime;
 
 // Handles exceptions for REST API requests and returns JSON error responses
-@RestControllerAdvice(basePackages = "be.kdg.prog5.hotels.webapi")
+@RestControllerAdvice(basePackageClasses = GuestApiController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiExceptionHandler {
 
@@ -46,6 +51,24 @@ public class ApiExceptionHandler {
                 .body(error);
     }
 
+    // Returns 404 JSON when a booking does not exist
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<ApiError> handleBookingNotFound(
+            BookingNotFoundException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(error);
+    }
+
     // Returns 404 JSON when a room does not exist
     @ExceptionHandler(RoomNotFoundException.class)
     public ResponseEntity<ApiError> handleRoomNotFound(
@@ -61,6 +84,25 @@ public class ApiExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(error);
+    }
+
+    // Returns 400 JSON when booking domain rules reject the request
+    @ExceptionHandler(BookingException.class)
+    public ResponseEntity<ApiError> handleBookingException(
+            BookingException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                BookingExceptionMessageResolver.toMessage(ex.getCode()),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(error);
     }
 
@@ -217,6 +259,25 @@ public class ApiExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
+    // Returns 503 JSON when the Python AI microservice cannot answer
+    @ExceptionHandler(AiServiceUnavailableException.class)
+    public ResponseEntity<ApiError> handleAiServiceUnavailable(
+            AiServiceUnavailableException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(error);
     }
 
