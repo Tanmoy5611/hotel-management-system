@@ -1,17 +1,4 @@
-# Programming 5 - Hotels Management System
-
-## Course Information
-
-- **Course Name:** Programming 5
-- **Academic Year:** 2025-2026
-- **Group:** ACS201
-- **Teacher:** Raoul Van den Berge
-
-## Student Information
-
-- **Name:** Tanmoy Das
-- **KdG Email:** tanmoy.das@student.kdg.be
-- **Student ID:** 0166044-77
+# Hotel Management System
 
 ---
 
@@ -853,7 +840,7 @@ This scenario occurs when a client requests a resource using an identifier that 
 1. **Exception Trigger:** When the service layer cannot find the record, it throws a custom RoomNotFoundException.
 2. **Global Catch:** The request is intercepted by the API exception handler.
 3. **Class:** `ApiExceptionHandler`
-4. **Annotation:** `@RestControllerAdvice(basePackages = "be.kdg.prog5.hotels.webapi")`
+4. **Annotation:** `@RestControllerAdvice`
 5. **Response Wrapper:** The handler maps the exception details into a standardized ApiError object and returns it with a 404 status code.
 
 ### 4. DELETE - Delete Room (204 No Content)
@@ -913,7 +900,7 @@ To maintain a clean separation between the database layer and the API layer, the
 
 Centralized error management is implemented using an API exception handler to ensure consistent JSON responses for REST API requests.
 
-- **Annotation:** `@RestControllerAdvice(basePackages = "be.kdg.prog5.hotels.webapi")`
+- **Annotation:** `@RestControllerAdvice`
 - **Target Class:** `ApiExceptionHandler`
 - **Handled Exceptions:** `RoomNotFoundException`, `GuestNotFoundException`, `RoomAlreadyExistsException`, `GuestAlreadyExistsException`, validation errors, access denied errors, data conflicts, and generic API errors
 - **Result:** Returns a structured JSON object (`ApiError`) containing a timestamp, status code, and descriptive message.
@@ -1706,7 +1693,7 @@ The goal was to:
 - **Verify database constraints and mappings**
 - **Validate business logic** in the service layer
 - **Ensure tests are isolated** and reproducible
-- **Follow best practices** from the course (Arrange–Act–Assert, multiple scenarios)
+- **Follow testing best practices** (Arrange–Act–Assert, multiple scenarios)
 
 ---
 
@@ -1916,7 +1903,7 @@ docker compose up -d postgres_hotels_test_db
 
 ### What Makes These Tests Good
 
-These tests follow course best practices:
+These tests follow testing best practices:
 
 - **Independent:** A clean database is ensured for each test run.
 - **Repeatable:** Results are consistent across different environments.
@@ -1943,7 +1930,7 @@ In this week, I implemented a robust testing suite that ensures the reliability 
 - **Proper test isolation** using dedicated Spring profiles (`@ActiveProfiles("test")`) to keep environments separate.
 - **PostgreSQL test database** setup so tests do not touch development or production data.
 - **Safe activity logging** through `SafeActivityLogger`, allowing business logic to function even when no security context or authenticated user is present.
-- **Result:** A reliable and realistic testing setup that is fully aligned with course requirements and industry best practices. ###
+- **Result:** A reliable and realistic testing setup aligned with industry best practices. ###
 
 ---
 
@@ -2252,7 +2239,7 @@ The following screenshots show IntelliJ IDEA coverage results after executing al
 
 ## What Makes These Tests Good
 
-These tests follow the course best practices:
+These tests follow testing best practices:
 
 - **Independent:** Test data is cleaned and recreated for predictable results.
 - **Repeatable:** Tests can run many times with the same outcome.
@@ -2440,11 +2427,6 @@ The test stage publishes the JUnit report from:
 build/test-results/test/TEST-*.xml
 ```
 
-Recent pipeline test report:
-[GitLab latest pipeline test report](https://gitlab.com/kdg-ti/programming-5/projects-25-26/acs201/tanmoy.das/spring-backend/-/pipelines/latest/test_report?ref=main)
-
----
-
 ## How To Run All Tests
 
 Start the PostgreSQL test database:
@@ -2543,7 +2525,7 @@ This exception exists because the Week 10 client is separate from the Thymeleaf 
 
 # Week 11 - Embedded Frontend With npm and webpack
 
-The frontend is now embedded in this Spring Boot repository using the course 13-step Gradle integration flow.
+The frontend is embedded in this Spring Boot repository using a Gradle integration flow.
 
 ## Frontend Build Setup
 
@@ -2619,7 +2601,7 @@ npm run build
 
 # Week 12 - File Uploads, Async Processing, and Caching
 
-Week 12 focuses on the required course features for file uploads, asynchronous processing, and caching.
+Week 12 focuses on file uploads, asynchronous processing, and caching.
 
 ## Asynchronous CSV Guest Import
 
@@ -2695,15 +2677,8 @@ This satisfies the requirement that the same search term should not hit the data
 
 ---
 
-## Acknowledgement
-
-I would like to thank **Raoul Van den Berge** for the teaching, guidance, and feedback throughout the Programming 5 course. The course helped me improve my understanding of Spring Boot, testing, security, REST APIs, frontend integration, and clean project structure.
-
----
-
 > <h2 align="center"> Author: <span style="color:#9d0dfd;"><em>Tanmoy Das</em></span> </h2>
 
 <p align="center">
-  <i>Bachelor of Applied Computer Science</i><br>
-  <strong>KdG - Antwerp</strong>
+  <i>Bachelor of Applied Computer Science</i>
 </p>
